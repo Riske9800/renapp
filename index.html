@@ -70,6 +70,16 @@ body>*{position:relative;z-index:1;}
 .aname{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .adate{font-size:11px;color:var(--txl);margin-top:1px;}
 .gtag{flex-shrink:0;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--crd);color:var(--br);white-space:nowrap;}
+/* card menu */
+.card-menu-btn{background:none;border:none;cursor:pointer;font-size:18px;padding:4px 6px;color:var(--txl);border-radius:8px;transition:all .15s;flex-shrink:0;}
+.card-menu-btn:hover{background:var(--cr);color:var(--br);}
+.card-menu-pop{position:absolute;right:10px;top:44px;background:var(--wh);border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.16);z-index:50;overflow:hidden;min-width:120px;display:none;}
+.card-menu-pop.open{display:block;animation:ci .15s ease;}
+.cmp-item{display:block;width:100%;padding:12px 16px;background:none;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:background .15s;}
+.cmp-item:hover{background:var(--cr);}
+.cmp-item.danger{color:#c0392b;}
+.cmp-item.danger:hover{background:#fce8e8;}
+.card-wrap{position:relative;}
 /* carousel */
 .car{position:relative;background:var(--crd);overflow:hidden;}
 .ctrack{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);}
@@ -83,6 +93,16 @@ body>*{position:relative;z-index:1;}
 .card-body{padding:12px 14px 16px;}
 .ctitle{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin-bottom:6px;line-height:1.4;}
 .ccomment{font-size:13px;color:var(--txm);line-height:1.75;white-space:pre-wrap;word-break:break-word;}
+/* dog photo upload zone */
+.dog-photo-zone{width:80px;height:80px;border-radius:16px;border:2px dashed var(--am);background:var(--cr);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s;overflow:hidden;position:relative;}
+.dog-photo-zone:hover{background:var(--aml);}
+.dog-photo-zone img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.dog-photo-zone .dpz-icon{font-size:22px;}
+.dog-photo-zone .dpz-txt{font-size:9px;color:var(--txl);margin-top:2px;}
+.dog-photo-zone input{display:none;}
+/* act delete btn */
+.act-del{background:none;border:none;cursor:pointer;font-size:16px;color:var(--txl);padding:4px;border-radius:8px;flex-shrink:0;transition:all .15s;}
+.act-del:hover{color:#c0392b;background:#fce8e8;}
 
 /* FILTER TAB */
 .filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
@@ -295,12 +315,13 @@ textarea{resize:none;height:90px;line-height:1.7;}
      MODALS
      ============================================================ -->
 
-<!-- POST MODAL -->
+<!-- POST MODAL (新規 & 編集 共用) -->
 <div class="ov" id="ov-post">
   <div class="modal">
     <div class="mgrip"></div>
-    <div class="mhead"><span class="mttl">🐶 思い出を投稿</span><button class="xbtn" onclick="closeOv('ov-post')">✕</button></div>
+    <div class="mhead"><span class="mttl" id="post-modal-ttl">🐶 思い出を投稿</span><button class="xbtn" onclick="closeOv('ov-post')">✕</button></div>
     <div class="mbody">
+      <input type="hidden" id="f-id">
       <div class="fg">
         <label>📷 写真（最大9枚）</label>
         <div class="upload-zone" onclick="document.getElementById('f-photos').click()">
@@ -327,6 +348,17 @@ textarea{resize:none;height:90px;line-height:1.7;}
     <div class="mhead"><span class="mttl" id="dog-modal-ttl">🐕 わんこを登録</span><button class="xbtn" onclick="closeOv('ov-dog')">✕</button></div>
     <div class="mbody">
       <input type="hidden" id="d-id">
+      <!-- 写真 -->
+      <div class="fg" style="display:flex;align-items:center;gap:14px;">
+        <div class="dog-photo-zone" id="d-photo-zone" onclick="document.getElementById('d-photo-input').click()">
+          <span class="dpz-icon">📷</span><span class="dpz-txt">写真</span>
+          <input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--txl);line-height:1.7;">写真をタップして設定<br>アイコンとして表示されます</div>
+          <button id="d-photo-del" onclick="clearDogPhoto()" style="display:none;margin-top:6px;background:#fce8e8;color:#c0392b;border:none;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;">写真を削除</button>
+        </div>
+      </div>
       <div class="fg"><label>🐾 名前 *</label><input type="text" id="d-name" placeholder="例：れん"></div>
       <div class="fg"><label>🦴 犬種</label><input type="text" id="d-breed" placeholder="例：トイプードル"></div>
       <div class="fg"><label>🎂 誕生日</label><input type="date" id="d-birthday"></div>
@@ -545,20 +577,32 @@ function buildCard(p, i, prefix) {
   const avatarHtml = petAsset?.url
     ? `<div class="avatar"><img src="${petAsset.thumb||petAsset.url}" alt="pet"></div>`
     : `<div class="avatar">${initial}</div>`;
-  let photoHtml;
+  let photoHtml = '';
   if (!photos.length) {
     photoHtml = `<div class="nophoto">🐾</div>`;
   } else {
     const slides = photos.map(ph => `<img src="${ph.thumb||ph.url||ph}" loading="lazy" alt="思い出" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23F0DEC0%22 width=%22100%25%22 height=%22100%25%22/%3E%3C/svg%3E'">`).join('');
     const multi = photos.length > 1;
     const dots = multi ? photos.map((_,j)=>`<div class="dot ${j===0?'on':''}"></div>`).join('') : '';
-    photoHtml = `<div class="car" id="${cid}"><div class="ctrack">${slides}</div>${multi?`<button class="cbtn prev" hidden onclick="mc('${cid}',-1)">‹</button><button class="cbtn next" onclick="mc('${cid}',1)">›</button><div class="cdots">${dots}</div>`:''}`;
+    photoHtml = `<div class="car" id="${cid}"><div class="ctrack">${slides}</div>${multi?`<button class="cbtn prev" hidden onclick="mc('${cid}',-1)">‹</button><button class="cbtn next" onclick="mc('${cid}',1)">›</button><div class="cdots">${dots}</div>`:''}</div>`;
   }
-  return `<div class="card">
-    <div class="card-head">${avatarHtml}<div class="ainfo"><div class="aname">${esc(p.author||'匿名')}</div><div class="adate">${fmtDate(p.date)}</div></div><div class="gtag">${icon} ${esc(p.genre||'その他')}</div></div>
+  const menuId = 'menu-' + cid;
+  return `<div class="card-wrap">
+  <div class="card">
+    <div class="card-head">
+      ${avatarHtml}
+      <div class="ainfo"><div class="aname">${esc(p.author||'匿名')}</div><div class="adate">${fmtDate(p.date)}</div></div>
+      <div class="gtag">${icon} ${esc(p.genre||'その他')}</div>
+      <button class="card-menu-btn" onclick="toggleCardMenu('${menuId}',event)">•••</button>
+    </div>
     ${photoHtml}
     <div class="card-body">${p.title?`<div class="ctitle">${esc(p.title)}</div>`:''}${p.comment?`<div class="ccomment">${esc(p.comment)}</div>`:''}</div>
-  </div>`;
+  </div>
+  <div class="card-menu-pop" id="${menuId}">
+    <button class="cmp-item" onclick="openEditPost('${p.id}');closeAllMenus()">✏️ 編集</button>
+    <button class="cmp-item danger" onclick="confirmDeletePost('${p.id}');closeAllMenus()">🗑️ 削除</button>
+  </div>
+</div>`;
 }
 
 // carousel
@@ -676,6 +720,7 @@ function buildActRow(a) {
       ${a.detail?`<div class="act-detail">${esc(a.detail)}</div>`:''}
       ${a.notes?`<div class="act-detail" style="color:var(--txl)">${esc(a.notes)}</div>`:''}
     </div>
+    <button class="act-del" onclick="confirmDeleteActivity('${a.id}')" title="削除">🗑</button>
   </div>`;
 }
 
@@ -916,9 +961,45 @@ function populateGenreSelect() {
 }
 
 function openPost() {
+  document.getElementById('post-modal-ttl').textContent = '🐶 思い出を投稿';
+  document.getElementById('f-id').value = '';
   if (cfg.author) document.getElementById('f-author').value = cfg.author;
   document.getElementById('f-date').value = today();
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-comment').value = '';
+  document.getElementById('post-err').textContent = '';
+  selectedFiles = []; document.getElementById('post-prev').innerHTML = '';
+  document.getElementById('post-btn').textContent = '投稿する';
   openOv('ov-post');
+}
+
+function openEditPost(id) {
+  const p = appData.posts.find(p => p.id === id); if (!p) return;
+  document.getElementById('post-modal-ttl').textContent = '✏️ 投稿を編集';
+  document.getElementById('f-id').value = id;
+  document.getElementById('f-title').value = p.title||'';
+  document.getElementById('f-date').value = p.date||today();
+  document.getElementById('f-comment').value = p.comment||'';
+  document.getElementById('f-author').value = p.author||'';
+  document.getElementById('f-genre').value = p.genre||'';
+  document.getElementById('post-err').textContent = '';
+  document.getElementById('post-btn').textContent = '更新する';
+  // show existing photos as previews
+  selectedFiles = [];
+  const grid = document.getElementById('post-prev');
+  const photos = Array.isArray(p.photos) ? p.photos : [];
+  grid.innerHTML = photos.map((ph, i) => {
+    const src = ph.thumb||ph.url||'';
+    return `<div class="pi" id="ep-${i}"><img src="${src}"><button class="pdel" onclick="removeExistingPhoto(${i})">✕</button></div>`;
+  }).join('');
+  openOv('ov-post');
+}
+
+let removedPhotoIndices = [];
+function removeExistingPhoto(i) {
+  removedPhotoIndices.push(i);
+  const el = document.getElementById('ep-'+i);
+  if (el) el.remove();
 }
 
 function onPostPhoto(e) {
@@ -927,35 +1008,70 @@ function onPostPhoto(e) {
   e.target.value = '';
 }
 function renderPostPreviews() {
-  document.getElementById('post-prev').innerHTML = selectedFiles.map((f,i) => {
+  const existing = document.getElementById('post-prev').querySelectorAll('[id^="ep-"]');
+  document.getElementById('post-prev').innerHTML = '';
+  existing.forEach(el => document.getElementById('post-prev').appendChild(el));
+  selectedFiles.forEach((f,i) => {
     const url = URL.createObjectURL(f);
-    return `<div class="pi"><img src="${url}"><button class="pdel" onclick="delPostPhoto(${i})">✕</button></div>`;
-  }).join('');
+    const div = document.createElement('div'); div.className='pi';
+    div.innerHTML = `<img src="${url}"><button class="pdel" onclick="delPostPhoto(${i})">✕</button>`;
+    document.getElementById('post-prev').appendChild(div);
+  });
 }
 function delPostPhoto(i) { selectedFiles.splice(i,1); renderPostPreviews(); }
 
 async function submitPost() {
   if (!cfg.url) { toast('GAS URLが未設定です'); return; }
+  const id = document.getElementById('f-id').value;
   const title = document.getElementById('f-title').value.trim();
   if (!title) { document.getElementById('post-err').textContent = 'タイトルを入力してください'; return; }
   document.getElementById('post-err').textContent = '';
-  const btn = document.getElementById('post-btn'); btn.disabled = true; btn.textContent = '投稿中…';
-  setLoading(true, '写真をアップロード中…');
+  const btn = document.getElementById('post-btn'); btn.disabled=true;
+  setLoading(true, id ? '投稿を更新中…' : '写真をアップロード中…');
   try {
     const photos = [];
     for (const f of selectedFiles) photos.push(await compress(f, 900, 0.78));
-    await gasPost({ action:'createPost', title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||cfg.author||'匿名', photos });
-    closeOv('ov-post'); toast('投稿しました！');
-    ['f-title','f-comment'].forEach(id => document.getElementById(id).value='');
-    selectedFiles=[]; document.getElementById('post-prev').innerHTML='';
+    if (id) {
+      // UPDATE
+      await gasPost({ action:'updatePost', id, title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||cfg.author||'匿名', newPhotos:photos, removePhotoIds:removedPhotoIndices });
+      toast('更新しました！');
+    } else {
+      await gasPost({ action:'createPost', title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||cfg.author||'匿名', photos });
+      toast('投稿しました！');
+    }
+    closeOv('ov-post');
+    selectedFiles=[]; removedPhotoIndices=[];
     setTimeout(loadData, 1200);
   } catch(e) { document.getElementById('post-err').textContent = 'エラー: ' + e.message; }
-  finally { btn.disabled=false; btn.textContent='投稿する'; setLoading(false); }
+  finally { btn.disabled=false; btn.textContent = id?'更新する':'投稿する'; setLoading(false); }
+}
+
+async function confirmDeletePost(id) {
+  if (!confirm('この投稿を削除しますか？\n（写真もDriveから削除されます）')) return;
+  setLoading(true,'削除中…');
+  try {
+    await gasPost({ action:'deletePost', id });
+    toast('削除しました');
+    setTimeout(loadData, 800);
+  } catch(e) { toast('エラー: '+e.message); }
+  finally { setLoading(false); }
+}
+
+function toggleCardMenu(id, e) {
+  e.stopPropagation();
+  closeAllMenus();
+  document.getElementById(id).classList.add('open');
+  document.addEventListener('click', closeAllMenus, { once:true });
+}
+function closeAllMenus() {
+  document.querySelectorAll('.card-menu-pop.open').forEach(m => m.classList.remove('open'));
 }
 
 // ============================================================
 //  DOG MODAL
 // ============================================================
+let dogPhotoFile = null;
+
 function populateDogSelects() {
   const sel = document.getElementById('a-dog');
   sel.innerHTML = appData.dogs.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('');
@@ -972,6 +1088,17 @@ function openDogEdit(id) {
   document.getElementById('d-constitution').value = dog.constitution||'';
   document.getElementById('d-favorites').value = dog.favorites||'';
   document.getElementById('d-notes').value = dog.notes||'';
+  dogPhotoFile = null;
+  // show existing photo
+  const zone = document.getElementById('d-photo-zone');
+  const delBtn = document.getElementById('d-photo-del');
+  if (dog.photoUrl) {
+    zone.innerHTML = `<img src="${esc(dog.photoUrl)}"><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
+    delBtn.style.display = 'block';
+  } else {
+    zone.innerHTML = `<span class="dpz-icon">📷</span><span class="dpz-txt">写真</span><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
+    delBtn.style.display = 'none';
+  }
   openOv('ov-dog');
 }
 
@@ -979,7 +1106,28 @@ function openNewDog() {
   document.getElementById('dog-modal-ttl').textContent = '🐕 わんこを登録';
   document.getElementById('d-id').value = '';
   ['d-name','d-breed','d-birthday','d-weight','d-constitution','d-favorites','d-notes'].forEach(id => document.getElementById(id).value='');
+  dogPhotoFile = null;
+  const zone = document.getElementById('d-photo-zone');
+  zone.innerHTML = `<span class="dpz-icon">📷</span><span class="dpz-txt">写真</span><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
+  document.getElementById('d-photo-del').style.display='none';
   openOv('ov-dog');
+}
+
+function onDogPhoto(e) {
+  dogPhotoFile = e.target.files[0];
+  if (!dogPhotoFile) return;
+  const url = URL.createObjectURL(dogPhotoFile);
+  const zone = document.getElementById('d-photo-zone');
+  const old = zone.querySelector('input');
+  zone.innerHTML = `<img src="${url}"><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
+  document.getElementById('d-photo-del').style.display='block';
+}
+
+function clearDogPhoto() {
+  dogPhotoFile = null;
+  const zone = document.getElementById('d-photo-zone');
+  zone.innerHTML = `<span class="dpz-icon">📷</span><span class="dpz-txt">写真</span><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
+  document.getElementById('d-photo-del').style.display='none';
 }
 
 async function submitDog() {
@@ -987,13 +1135,30 @@ async function submitDog() {
   if (!name) { document.getElementById('dog-err').textContent = '名前を入力してください'; return; }
   document.getElementById('dog-err').textContent = '';
   const btn = document.getElementById('dog-btn'); btn.disabled=true; btn.textContent='保存中…';
+  setLoading(true, '保存中…');
   try {
     const id = document.getElementById('d-id').value;
-    const r = await gasPost({ action:'saveDog', id:id||undefined, name, breed:document.getElementById('d-breed').value.trim(), birthday:document.getElementById('d-birthday').value, weight:document.getElementById('d-weight').value, constitution:document.getElementById('d-constitution').value.trim(), favorites:document.getElementById('d-favorites').value.trim(), notes:document.getElementById('d-notes').value.trim() });
+    const payload = { action:'saveDog', id:id||undefined, name, breed:document.getElementById('d-breed').value.trim(), birthday:document.getElementById('d-birthday').value, weight:document.getElementById('d-weight').value, constitution:document.getElementById('d-constitution').value.trim(), favorites:document.getElementById('d-favorites').value.trim(), notes:document.getElementById('d-notes').value.trim() };
+    if (dogPhotoFile) {
+      const c = await compress(dogPhotoFile, 600, 0.88);
+      payload.photoData = c.data; payload.photoMime = c.mimeType;
+    }
+    await gasPost(payload);
     closeOv('ov-dog'); toast('保存しました！');
     setTimeout(loadData, 800);
   } catch(e) { document.getElementById('dog-err').textContent = 'エラー: ' + e.message; }
-  finally { btn.disabled=false; btn.textContent='保存する'; }
+  finally { btn.disabled=false; btn.textContent='保存する'; setLoading(false); }
+}
+
+async function confirmDeleteActivity(id) {
+  if (!confirm('この記録を削除しますか？')) return;
+  setLoading(true,'削除中…');
+  try {
+    await gasPost({ action:'deleteActivity', id });
+    toast('削除しました');
+    setTimeout(loadData, 600);
+  } catch(e) { toast('エラー: '+e.message); }
+  finally { setLoading(false); }
 }
 
 // ============================================================
