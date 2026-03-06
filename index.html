@@ -780,7 +780,7 @@ body{padding-top:env(safe-area-inset-top,0px);}
 //  STATE - GAS URLはハードコード済み（どのデバイスでも即動作）
 // ============================================================
 const CFG_KEY = 'renapp_url_v4';
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyF7Csa1XPCm-J0b4XXRMgOmg3cT9vXbqQ_kaQs5vR9GZgrS6MmfU2JqomdbdTVtNs9/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzYoJZEWn1cCh_I05eM99ynYkbzsEdRxzJeBUiQ7lXoDoezE6JYDGQCZqNLu9_qYBkM/exec';
 let gasUrl = GAS_URL;
 try { localStorage.setItem(CFG_KEY, GAS_URL); } catch(e) {}
 
@@ -1556,13 +1556,29 @@ function populateDogSelects() {
   sel.innerHTML = appData.dogs.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('');
 }
 
+// 日付文字列をYYYY-MM-DD形式に正規化（GASのDate型対応）
+function toDateInput(val) {
+  if (!val) return '';
+  const s = String(val);
+  // すでにYYYY-MM-DD形式
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // ISO形式 "2023-03-06T..." → 先頭10文字
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.slice(0, 10);
+  // それ以外（Dateオブジェクト文字列など）はDateで変換
+  try {
+    const d = new Date(s);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString('sv-SE'); // sv-SEロケールがYYYY-MM-DD
+  } catch(e) { return ''; }
+}
+
 function openDogEdit(id) {
   const dog = appData.dogs.find(d => d.id === id);
   document.getElementById('dog-modal-ttl').textContent = '✏️ わんこを編集';
   document.getElementById('d-id').value = id;
   document.getElementById('d-name').value = dog.name||'';
   document.getElementById('d-breed').value = dog.breed||'';
-  document.getElementById('d-birthday').value = dog.birthday||'';
+  document.getElementById('d-birthday').value = toDateInput(dog.birthday);
   document.getElementById('d-weight').value = dog.weight||'';
   document.getElementById('d-constitution').value = dog.constitution||'';
   document.getElementById('d-favorites').value = dog.favorites||'';
