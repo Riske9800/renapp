@@ -2,18 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>REN APP</title>
-<!-- PWA -->
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="REN APP">
-<meta name="theme-color" content="#FEF3E2">
-<meta name="description" content="愛犬との思い出を記録するアプリ">
-<link id="pwa-favicon" rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
-<link rel="apple-touch-icon" id="pwa-apple-icon" href="data:image/png;base64,iVBORw0KGgo=">
-<link rel="manifest" id="pwa-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -78,20 +68,8 @@ body>*{position:relative;z-index:1;}
 .avatar img{width:100%;height:100%;object-fit:cover;}
 .ainfo{flex:1;min-width:0;}
 .aname{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.adate{font-size:11px;color:var(--txl);margin-top:2px;line-height:1.5;}
-.adate-hi{color:var(--br);font-weight:700;}
-.adate-sep{color:var(--crd);margin:0 2px;}
+.adate{font-size:11px;color:var(--txl);margin-top:1px;}
 .gtag{flex-shrink:0;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--crd);color:var(--br);white-space:nowrap;}
-/* card menu */
-.card-menu-btn{background:none;border:none;cursor:pointer;font-size:18px;padding:4px 6px;color:var(--txl);border-radius:8px;transition:all .15s;flex-shrink:0;}
-.card-menu-btn:hover{background:var(--cr);color:var(--br);}
-.card-menu-pop{position:absolute;right:10px;top:44px;background:var(--wh);border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.16);z-index:50;overflow:hidden;min-width:120px;display:none;}
-.card-menu-pop.open{display:block;animation:ci .15s ease;}
-.cmp-item{display:block;width:100%;padding:12px 16px;background:none;border:none;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:background .15s;}
-.cmp-item:hover{background:var(--cr);}
-.cmp-item.danger{color:#c0392b;}
-.cmp-item.danger:hover{background:#fce8e8;}
-.card-wrap{position:relative;}
 /* carousel */
 .car{position:relative;background:var(--crd);overflow:hidden;}
 .ctrack{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1);}
@@ -105,37 +83,11 @@ body>*{position:relative;z-index:1;}
 .card-body{padding:12px 14px 16px;}
 .ctitle{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin-bottom:6px;line-height:1.4;}
 .ccomment{font-size:13px;color:var(--txm);line-height:1.75;white-space:pre-wrap;word-break:break-word;}
-/* dog photo upload zone */
-.dog-photo-zone{width:80px;height:80px;border-radius:16px;border:2px dashed var(--am);background:var(--cr);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s;overflow:hidden;position:relative;}
-.dog-photo-zone:hover{background:var(--aml);}
-.dog-photo-zone img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-.dog-photo-zone .dpz-icon{font-size:22px;}
-.dog-photo-zone .dpz-txt{font-size:9px;color:var(--txl);margin-top:2px;}
-.dog-photo-zone input{display:none;}
-/* act delete btn */
-.act-del{background:none;border:none;cursor:pointer;font-size:16px;color:var(--txl);padding:4px;border-radius:8px;flex-shrink:0;transition:all .15s;}
-.act-del:hover{color:#c0392b;background:#fce8e8;}
 
-/* EMBEDDED FEED FILTER */
-.feed-filter-bar{position:sticky;top:54px;z-index:50;background:var(--cr);padding:10px 14px 8px;margin:-16px -14px 14px;border-bottom:1px solid var(--crd);display:flex;flex-direction:column;gap:7px;}
-.filter-scroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
-.filter-scroll::-webkit-scrollbar{display:none;}
-.fchip{flex-shrink:0;padding:5px 13px;border-radius:20px;border:2px solid var(--crd);background:var(--wh);font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;color:var(--txl);cursor:pointer;transition:all .2s;white-space:nowrap;}
+/* FILTER TAB */
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.fchip{padding:6px 14px;border-radius:20px;border:2px solid var(--crd);background:var(--wh);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txl);cursor:pointer;transition:all .2s;}
 .fchip.on{background:var(--br);border-color:var(--br);color:white;}
-.feed-filter-row2{display:flex;gap:7px;align-items:center;}
-.author-sel{flex:1;min-width:0;padding:7px 10px;border:2px solid var(--crd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;color:var(--tx);background:var(--cr);-webkit-appearance:none;}
-.sort-group{display:flex;gap:4px;flex-shrink:0;}
-.sort-btn{padding:6px 10px;border:2px solid var(--crd);border-radius:10px;background:var(--wh);font-size:13px;cursor:pointer;transition:all .2s;color:var(--txl);}
-.sort-btn.on{background:var(--br);border-color:var(--br);color:white;}
-.sort-dir-btn{padding:6px 10px;border:2px solid var(--crd);border-radius:10px;background:var(--wh);font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;cursor:pointer;color:var(--br);white-space:nowrap;transition:all .2s;}
-.sort-dir-btn:hover{background:var(--crd);}
-
-/* SETTINGS SUB-TABS */
-.stab-bar{display:flex;gap:6px;margin-bottom:18px;background:var(--cr);border-radius:12px;padding:4px;}
-.stab{flex:1;padding:9px;background:none;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--txl);cursor:pointer;transition:all .2s;}
-.stab.on{background:var(--wh);color:var(--br);box-shadow:0 2px 8px var(--sh);}
-
-/* FILTER TAB (legacy - kept for renderFilter fallback) */
 .filter-sel{width:100%;padding:10px 12px;border:2px solid var(--crd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--tx);background:var(--cr);-webkit-appearance:none;margin-bottom:14px;}
 
 /* DOG TAB */
@@ -164,41 +116,33 @@ body>*{position:relative;z-index:1;}
 
 /* ANALYSIS TAB */
 .analysis-top{display:flex;gap:10px;margin-bottom:16px;align-items:center;}
-.dog-pick{flex:1;padding:10px 12px;border:2px solid var(--crd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--tx);background:var(--cr);-webkit-appearance:none;min-width:0;}
-.btn-analyze{padding:11px 18px;background:linear-gradient(135deg,var(--am),var(--br));color:white;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.dog-pick{flex:1;padding:10px 12px;border:2px solid var(--crd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--tx);background:var(--cr);-webkit-appearance:none;}
+.btn-analyze{padding:11px 20px;background:linear-gradient(135deg,var(--am),var(--br));color:white;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
 .btn-analyze:hover:not(:disabled){opacity:.9;}
 .btn-analyze:disabled{opacity:.6;cursor:not-allowed;}
 
-.score-banner{background:linear-gradient(135deg,var(--br),var(--am));border-radius:18px;padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;color:white;}
-.score-num{font-family:'Playfair Display',serif;font-size:46px;font-weight:700;line-height:1;flex-shrink:0;}
-.score-label{font-size:11px;opacity:.85;margin-top:3px;}
-.score-info{flex:1;min-width:0;}
-.score-title{font-family:'Playfair Display',serif;font-size:15px;line-height:1.3;word-break:break-word;}
+.score-banner{background:linear-gradient(135deg,var(--br),var(--am));border-radius:18px;padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:16px;color:white;}
+.score-num{font-family:'Playfair Display',serif;font-size:52px;font-weight:700;line-height:1;}
+.score-label{font-size:13px;opacity:.85;margin-top:4px;}
+.score-info{flex:1;}
+.score-title{font-family:'Playfair Display',serif;font-size:17px;}
 .score-date{font-size:11px;opacity:.75;margin-top:3px;}
 
-.analysis-card{background:var(--wh);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:0 3px 14px var(--sh);}
-.analysis-card h3{font-family:'Playfair Display',serif;font-size:14px;color:var(--br);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.analysis-card{background:var(--wh);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:0 3px 14px var(--sh);}
+.analysis-card h3{font-family:'Playfair Display',serif;font-size:15px;color:var(--br);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .insight-item,.rec-item{padding:7px 10px;border-radius:10px;font-size:13px;line-height:1.6;margin-bottom:6px;}
 .insight-item{background:var(--cr);color:var(--txm);}
 .rec-item{background:linear-gradient(135deg,rgba(212,137,74,.1),rgba(124,74,45,.08));color:var(--txm);}
 
-/* グラフ: 横2列（十分な幅がある場合のみ） */
-.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.chart-box{background:var(--wh);border-radius:14px;padding:12px;box-shadow:0 2px 10px var(--sh);min-width:0;}
-.chart-box h4{font-size:10px;font-weight:700;color:var(--txl);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
-/* ドーナツグラフ: 正方形に収める */
-.chart-balance-wrap{max-width:240px;margin:0 auto;}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.chart-box{background:var(--wh);border-radius:14px;padding:12px;box-shadow:0 2px 10px var(--sh);}
+.chart-box h4{font-size:11px;font-weight:700;color:var(--txl);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;}
 
 .hist-row{background:var(--wh);border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:pointer;box-shadow:0 2px 8px var(--sh);transition:all .2s;}
 .hist-row:hover{box-shadow:0 4px 14px var(--sh);}
 .hist-title{font-weight:700;font-size:14px;color:var(--tx);}
 .hist-date{font-size:11px;color:var(--txl);margin-top:2px;}
-.hist-score{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--br);flex-shrink:0;margin-left:10px;}
-
-/* 幅が狭い時はグラフを縦積み */
-@media (max-width:380px) {
-  .chart-row{grid-template-columns:1fr;}
-}
+.hist-score{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--br);}
 
 /* SETUP GUIDE */
 .setup-guide{background:var(--wh);border-radius:var(--r);padding:20px;margin-bottom:18px;box-shadow:0 4px 18px var(--sh);border-left:4px solid var(--am);}
@@ -267,37 +211,6 @@ textarea{resize:none;height:90px;line-height:1.7;}
 .a-up{background:var(--aml);color:var(--br);border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
 .a-del{background:#fce8e8;color:#c0392b;border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;}
 
-/* PWA / iOS safe-area */
-body{padding-top:env(safe-area-inset-top,0px);}
-.hdr{top:env(safe-area-inset-top,0px);padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));}
-.bot-nav{padding-bottom:max(12px,env(safe-area-inset-bottom,0px));height:auto;}
-.fab{bottom:calc(76px + env(safe-area-inset-bottom,0px));}
-
-.fa-type-btn{background:var(--cr);border:2px solid var(--crd);border-radius:12px;padding:10px 6px;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;font-weight:600;color:var(--txm);transition:all .2s;}
-.fa-type-btn.on{background:var(--aml);border-color:var(--am);color:var(--br);}
-.fa-type-btn:hover{border-color:var(--am);}
-
-/* FOOD MASTER & NUTRITION */
-.food-master-row{padding:10px 0;border-bottom:1px solid var(--crd);}
-.food-master-row:last-child{border-bottom:none;}
-.food-master-main{display:flex;align-items:center;gap:8px;}
-.food-master-name{flex:1;font-weight:700;font-size:14px;color:var(--tx);}
-.food-nutri-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
-.food-nutri-badge.has{background:#e8f5e9;color:#2e7d32;}
-.food-nutri-badge.none{background:var(--crd);color:var(--txl);}
-.food-master-btns{display:flex;gap:5px;flex-shrink:0;}
-.food-master-nutri{margin-top:6px;font-size:11px;color:var(--txl);line-height:1.7;padding:6px 8px;background:var(--cr);border-radius:8px;display:none;}
-.food-master-nutri.show{display:block;}
-.nutri-card{background:var(--cr);border:1.5px solid var(--aml);border-radius:14px;padding:12px 14px;margin-top:10px;}
-.nutri-card-title{font-size:11px;font-weight:700;color:var(--brl);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
-.nutri-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
-.nutri-cell{background:var(--wh);border-radius:9px;padding:7px 10px;text-align:center;}
-.nutri-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--br);line-height:1;}
-.nutri-lbl{font-size:10px;color:var(--txl);margin-top:2px;font-weight:600;}
-.nutri-full{grid-column:1/-1;text-align:left;font-size:11px;color:var(--txm);padding:6px 10px;}
-.amount-row{display:flex;gap:8px;align-items:center;margin-top:10px;}
-.amount-row input{flex:1;}
-.amount-pct{font-size:13px;font-weight:700;color:var(--br);white-space:nowrap;min-width:48px;}
 /* TOAST */
 .toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--tx);color:var(--wh);padding:10px 20px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;pointer-events:none;white-space:nowrap;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -306,48 +219,6 @@ body{padding-top:env(safe-area-inset-top,0px);}
 #loading-ov{display:none;position:fixed;inset:0;background:rgba(40,22,10,.55);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:white;font-size:15px;font-weight:600;}
 #loading-ov.show{display:flex;}
 #loading-ov .ls{font-size:40px;animation:sp 1s linear infinite;}
-
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-
-/* タブレット〜PC */
-@media (min-width:600px) {
-  .tab-content{padding:20px 20px 120px;}
-  .card-head{padding:13px 18px;}
-  .card-body{padding:14px 18px 18px;}
-  .score-banner{padding:20px 24px;}
-  .score-num{font-size:54px;}
-  .score-title{font-size:17px;}
-  .analysis-card{padding:18px;}
-  .chart-balance-wrap{max-width:300px;}
-  .modal{border-radius:28px!important;margin:auto;max-height:90vh;width:calc(100% - 40px);max-width:500px;}
-  .bot-nav{max-width:600px;left:50%;transform:translateX(-50%);}
-  .fab{right:calc(50% - 280px);}
-  .hdr{max-width:600px;margin:0 auto;left:0;right:0;}
-}
-
-/* 小さいスマホ (〜360px) */
-@media (max-width:360px) {
-  .score-num{font-size:38px;}
-  .score-title{font-size:13px;}
-  .score-banner{padding:14px;}
-  .chart-row{grid-template-columns:1fr;}
-  .act-quick{gap:6px;}
-  .aq-btn{font-size:12px;padding:10px 4px;}
-  .aq-btn .ai{font-size:22px;}
-  .feed-filter-bar{padding:8px 10px;}
-  .tab-content{padding:14px 10px 110px;}
-}
-
-/* 横向き対応 */
-@media (orientation:landscape) and (max-height:500px) {
-  .hdr{height:46px;}
-  .tab-content{padding:12px 14px 80px;}
-  .bot-nav{padding:4px 0 6px;}
-  .nav-btn{padding:4px 0 4px;}
-  .fab{bottom:60px;}
-}
 </style>
 </head>
 <body>
@@ -364,25 +235,18 @@ body{padding-top:env(safe-area-inset-top,0px);}
   </div>
 </header>
 
-<!-- TAB: 投稿（絞り込み統合） -->
+<!-- TAB: 投稿 -->
 <div id="tab-feed" class="tab-content active">
-  <!-- filter bar embedded -->
-  <div class="feed-filter-bar" id="feed-filter-bar">
-    <div class="filter-scroll" id="genre-chips"></div>
-    <div class="feed-filter-row2">
-      <select class="author-sel" id="author-filter" onchange="renderFeedFiltered()">
-        <option value="">全員</option>
-      </select>
-      <div class="sort-group">
-        <button class="sort-btn on" id="sort-btn-event" onclick="setSort('event',this)" title="イベント日">📅</button>
-        <button class="sort-btn" id="sort-btn-post" onclick="setSort('post',this)" title="投稿日">🕐</button>
-        <button class="sort-dir-btn" id="sort-dir" onclick="toggleSortDir()" title="並び順">↓新</button>
-      </div>
-    </div>
-  </div>
-  <div id="feed-posts">
-    <div class="spinner"><span class="spin">🐾</span>読み込み中…</div>
-  </div>
+  <div class="spinner"><span class="spin">🐾</span>読み込み中…</div>
+</div>
+
+<!-- TAB: 絞り込み -->
+<div id="tab-filter" class="tab-content">
+  <div class="filter-bar" id="genre-chips"></div>
+  <select class="filter-sel" id="author-filter" onchange="renderFilter()">
+    <option value="">投稿者: すべて</option>
+  </select>
+  <div id="filter-feed"></div>
 </div>
 
 <!-- TAB: わんこ -->
@@ -407,6 +271,9 @@ body{padding-top:env(safe-area-inset-top,0px);}
   <button class="nav-btn on" id="nav-feed" onclick="switchTab('feed')">
     <span class="ni">📋</span><span>投稿</span>
   </button>
+  <button class="nav-btn" id="nav-filter" onclick="switchTab('filter')">
+    <span class="ni">🔍</span><span>絞り込み</span>
+  </button>
   <button class="nav-btn" id="nav-dog" onclick="switchTab('dog')">
     <span class="ni">🐕</span><span>わんこ</span>
   </button>
@@ -428,13 +295,12 @@ body{padding-top:env(safe-area-inset-top,0px);}
      MODALS
      ============================================================ -->
 
-<!-- POST MODAL (新規 & 編集 共用) -->
+<!-- POST MODAL -->
 <div class="ov" id="ov-post">
   <div class="modal">
     <div class="mgrip"></div>
-    <div class="mhead"><span class="mttl" id="post-modal-ttl">🐶 思い出を投稿</span><button class="xbtn" onclick="closeOv('ov-post')">✕</button></div>
+    <div class="mhead"><span class="mttl">🐶 思い出を投稿</span><button class="xbtn" onclick="closeOv('ov-post')">✕</button></div>
     <div class="mbody">
-      <input type="hidden" id="f-id">
       <div class="fg">
         <label>📷 写真（最大9枚）</label>
         <div class="upload-zone" onclick="document.getElementById('f-photos').click()">
@@ -447,11 +313,7 @@ body{padding-top:env(safe-area-inset-top,0px);}
       <div class="fg"><label>📅 日付</label><input type="date" id="f-date"></div>
       <div class="fg"><label>🏷️ ジャンル</label><select id="f-genre"></select></div>
       <div class="fg"><label>💬 コメント</label><textarea id="f-comment" placeholder="今日の思い出を…"></textarea></div>
-      <div class="fg">
-        <label>👤 投稿者</label>
-        <select id="f-author-sel" onchange="onAuthorSelChange()" style="margin-bottom:6px;"></select>
-        <input type="text" id="f-author" placeholder="名前を入力" style="display:none;">
-      </div>
+      <div class="fg"><label>👤 投稿者</label><input type="text" id="f-author" placeholder="例：れん ママ"></div>
       <div class="errmsg" id="post-err"></div>
       <button class="btn-main" id="post-btn" onclick="submitPost()">投稿する</button>
     </div>
@@ -465,17 +327,6 @@ body{padding-top:env(safe-area-inset-top,0px);}
     <div class="mhead"><span class="mttl" id="dog-modal-ttl">🐕 わんこを登録</span><button class="xbtn" onclick="closeOv('ov-dog')">✕</button></div>
     <div class="mbody">
       <input type="hidden" id="d-id">
-      <!-- 写真 -->
-      <div class="fg" style="display:flex;align-items:center;gap:14px;">
-        <div class="dog-photo-zone" id="d-photo-zone" onclick="document.getElementById('d-photo-input').click()">
-          <span class="dpz-icon">📷</span><span class="dpz-txt">写真</span>
-          <input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">
-        </div>
-        <div style="flex:1">
-          <div style="font-size:12px;color:var(--txl);line-height:1.7;">写真をタップして設定<br>アイコンとして表示されます</div>
-          <button id="d-photo-del" onclick="clearDogPhoto()" style="display:none;margin-top:6px;background:#fce8e8;color:#c0392b;border:none;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;">写真を削除</button>
-        </div>
-      </div>
       <div class="fg"><label>🐾 名前 *</label><input type="text" id="d-name" placeholder="例：れん"></div>
       <div class="fg"><label>🦴 犬種</label><input type="text" id="d-breed" placeholder="例：トイプードル"></div>
       <div class="fg"><label>🎂 誕生日</label><input type="date" id="d-birthday"></div>
@@ -502,68 +353,6 @@ body{padding-top:env(safe-area-inset-top,0px);}
       <div class="fg"><label>⏱️ 時間（分）</label><input type="number" id="a-dur" placeholder="例：30" min="1"></div>
       <div class="fg" id="a-location-fg"><label>📍 場所</label><input type="text" id="a-loc" placeholder="例：近所の公園"></div>
       <div class="fg" id="a-detail-fg"><label id="a-detail-lbl">📝 詳細</label><input type="text" id="a-detail" placeholder=""></div>
-      <!-- ごはん専用UI -->
-      <div id="meal-extra" style="display:none;">
-        <div class="fg">
-          <label>🍖 フードマスタから選ぶ</label>
-          <select id="a-food-sel" onchange="onFoodSelChange()">
-            <option value="">-- 選択 --</option>
-          </select>
-        </div>
-        <!-- 成分ありフードの分量・成分表示 -->
-        <div id="meal-nutri-section" style="display:none;">
-          <div class="fg" style="margin-bottom:6px;">
-            <label>⚖️ 分量</label>
-            <div class="amount-row">
-              <input type="number" id="a-amount-g" min="0" step="0.1" placeholder="例：80" oninput="onAmountChange('g')">
-              <span style="font-size:13px;color:var(--txl);font-weight:700;">g</span>
-              <input type="number" id="a-amount-pct" min="0" max="999" step="1" placeholder="100" oninput="onAmountChange('pct')" style="max-width:72px;">
-              <span class="amount-pct">%</span>
-            </div>
-            <p style="font-size:10px;color:var(--txl);margin-top:4px;">100g = 100%　※マスタの成分は100g基準で保存されます</p>
-          </div>
-          <div class="nutri-card" id="meal-nutri-card">
-            <div class="nutri-card-title">📊 この量の成分</div>
-            <div class="nutri-grid" id="meal-nutri-grid"></div>
-            <div id="meal-nutri-extra" style="font-size:11px;color:var(--txm);margin-top:8px;line-height:1.7;display:none;"></div>
-          </div>
-        </div>
-        <!-- 成分なしフードの場合の写真分析 -->
-        <div id="meal-no-nutri-section" style="display:none;">
-          <div style="padding:8px;background:var(--cr);border-radius:10px;font-size:12px;color:var(--txl);margin-bottom:8px;">
-            💡 このフードはまだ成分データがありません。設定 → ごはんマスタで分析できます。
-          </div>
-        </div>
-        <!-- 写真AI分析（フード未選択 or 成分なし時に表示） -->
-        <div id="meal-photo-section">
-          <div class="fg">
-            <label>📷 写真からAI分析（任意）</label>
-            <p style="font-size:11px;color:var(--txl);margin-bottom:8px;line-height:1.6;">成分表・パッケージ・実物写真など何でもOK</p>
-            <!-- タイプ選択 -->
-            <div style="display:flex;gap:6px;margin-bottom:8px;" id="meal-type-btns">
-              <button class="fa-type-btn on" data-type="label" onclick="setMealPhotoType('label',this)" style="flex:1;padding:7px 4px;">
-                <div style="font-size:16px;">🏷️</div><div style="font-size:10px;">成分表</div>
-              </button>
-              <button class="fa-type-btn" data-type="package" onclick="setMealPhotoType('package',this)" style="flex:1;padding:7px 4px;">
-                <div style="font-size:16px;">📦</div><div style="font-size:10px;">パッケージ</div>
-              </button>
-              <button class="fa-type-btn" data-type="food" onclick="setMealPhotoType('food',this)" style="flex:1;padding:7px 4px;">
-                <div style="font-size:16px;">🍖</div><div style="font-size:10px;">実物写真</div>
-              </button>
-            </div>
-            <div class="upload-zone" onclick="document.getElementById('food-photo-in').click()">
-              <div class="uz-icon">📸</div><div class="uz-txt">タップして画像を選択</div>
-              <input type="file" id="food-photo-in" accept="image/*" style="display:none" onchange="onFoodPhoto(event)">
-            </div>
-            <div id="food-photo-prev" style="margin-top:8px;display:none;">
-              <img id="food-photo-img" style="width:100%;max-height:180px;object-fit:contain;border-radius:10px;border:2px solid var(--crd);">
-            </div>
-            <button class="btn-sec" id="food-analyze-btn" onclick="analyzeFood()" style="display:none;margin-top:8px;">✨ AIで分析する</button>
-            <div id="food-analyze-result" style="display:none;margin-top:10px;background:var(--cr);border-radius:12px;padding:12px;font-size:12px;line-height:1.8;border:1.5px solid var(--aml);"></div>
-            <button class="btn-sec" id="food-apply-btn" onclick="applyFoodAnalysis()" style="display:none;margin-top:6px;">↓ 詳細に反映する</button>
-          </div>
-        </div>
-      </div>
       <div class="fg"><label>🗒️ メモ</label><textarea id="a-notes" placeholder="その他メモ…" style="height:70px"></textarea></div>
       <div class="errmsg" id="act-err"></div>
       <button class="btn-main" id="act-btn" onclick="submitActivity()">記録する</button>
@@ -577,192 +366,45 @@ body{padding-top:env(safe-area-inset-top,0px);}
     <div class="mgrip"></div>
     <div class="mhead"><span class="mttl">⚙️ REN APP 設定</span><button class="xbtn" onclick="closeOv('ov-settings')">✕</button></div>
     <div class="mbody">
-
-      <!-- SETTINGS SUB-TABS -->
-      <div class="stab-bar">
-        <button class="stab on" id="stab-app" onclick="switchStab('app')">🐾 アプリ</button>
-        <button class="stab" id="stab-core" onclick="switchStab('core')">🔑 コア設定</button>
+      <div class="fg">
+        <label>🔗 GAS ウェブアプリ URL</label>
+        <input type="url" id="cfg-url" placeholder="https://script.google.com/macros/s/…/exec">
+        <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">デプロイ設定 → 種類：ウェブアプリ / アクセス：全員</p>
       </div>
+      <div class="fg">
+        <label>👤 デフォルト投稿者名</label>
+        <input type="text" id="cfg-author" placeholder="例：れん ママ">
+      </div>
+      <div class="fg">
+        <label>🤖 Claude API Key</label>
+        <input type="password" id="cfg-claude" placeholder="sk-ant-…">
+        <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">AI分析機能に必要。GASに安全に保存されます。</p>
+      </div>
+      <button class="btn-main" onclick="saveSettings()">保存する ✓</button>
 
-      <!-- APP SETTINGS -->
-      <div id="stab-app-body">
+      <div class="sdivider"></div>
 
-        <!-- USER MANAGER -->
-        <div class="fg">
-          <div class="sec-title">👤 ユーザー管理</div>
-          <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">投稿者の選択肢として表示されます</p>
-          <div id="user-editor"></div>
-          <div class="g-add-row">
-            <input type="text" id="user-new-name" placeholder="例：れん ママ">
-            <button class="g-add-btn" onclick="addUser()">追加</button>
-          </div>
-        </div>
-
-        <div class="sdivider"></div>
-
-        <!-- FOOD MASTER -->
-        <div class="fg">
-          <div class="sec-title">🍖 ごはんマスタ</div>
-          <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">フード名を登録し、📊ボタンで成分を分析・保存できます</p>
-          <div id="food-editor"></div>
-          <div class="g-add-row" style="margin-top:12px;">
-            <input type="text" id="food-new-label" placeholder="例：ロイヤルカナン">
-            <button class="g-add-btn" onclick="addFoodItem()">追加</button>
-          </div>
-        </div>
-
-        <div class="sdivider"></div>
-
-        <!-- GENRE MANAGER -->
-        <div class="fg">
-          <div class="sec-title">🏷️ ジャンル管理</div>
-          <div id="genre-editor"></div>
-          <div class="g-add-row">
-            <input type="text" id="g-new-icon" placeholder="🌟" style="width:56px;text-align:center;padding:9px 6px;">
-            <input type="text" id="g-new-label" placeholder="新しいジャンル名">
-            <button class="g-add-btn" onclick="addGenre()">追加</button>
-          </div>
-        </div>
-
-        <div class="sdivider"></div>
-
-        <!-- PLAY ITEMS MANAGER -->
-        <div class="fg">
-          <div class="sec-title">🎾 遊び内容マスタ</div>
-          <div id="play-editor"></div>
-          <div class="g-add-row">
-            <input type="text" id="play-new-icon" placeholder="🎾" style="width:56px;text-align:center;padding:9px 6px;">
-            <input type="text" id="play-new-label" placeholder="新しい遊び内容">
-            <button class="g-add-btn" onclick="addPlayItem()">追加</button>
-          </div>
-        </div>
-
-        <div class="sdivider"></div>
-
-        <!-- ASSET MANAGER -->
-        <div class="fg">
-          <div class="sec-title">🖼️ サイト画像管理</div>
-          <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">変更はリロード後に反映</p>
-          <div id="asset-editor"></div>
+      <!-- GENRE MANAGER -->
+      <div class="fg">
+        <div class="sec-title">🏷️ ジャンル管理</div>
+        <div id="genre-editor"></div>
+        <div class="g-add-row">
+          <input type="text" id="g-new-icon" placeholder="🌟" style="width:56px;text-align:center;padding:9px 6px;">
+          <input type="text" id="g-new-label" placeholder="新しいジャンル名">
+          <button class="g-add-btn" onclick="addGenre()">追加</button>
         </div>
       </div>
 
-      <!-- CORE SETTINGS -->
-      <div id="stab-core-body" style="display:none">
-        <div style="background:linear-gradient(135deg,rgba(212,137,74,.1),rgba(124,74,45,.08));border-radius:12px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--txm);line-height:1.8;">
-          🔑 GAS URLを保存すると <strong>configシートの gas_url</strong> に書き込まれ、<br>
-          他のデバイスで共有URLを開くだけで自動設定されます。<br><br>
-          ⚠️ GASの <code style="background:var(--crd);padding:1px 5px;border-radius:4px;">saveConfig</code> アクションが <strong>key / value</strong> 形式に対応している必要があります。
-        </div>
-        <div class="fg">
-          <label>🔗 GAS ウェブアプリ URL</label>
-          <input type="url" id="cfg-url" placeholder="https://script.google.com/macros/s/…/exec">
-          <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">デプロイ設定 → 種類：ウェブアプリ / アクセス：全員</p>
-        </div>
-        <div class="fg">
-          <label>🤖 Claude API Key</label>
-          <input type="password" id="cfg-claude" placeholder="sk-ant-… （変更時のみ入力）">
-          <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">AI分析機能に必要。GASのScript Propertiesに保存。<br>空欄のままにすると現在のキーが維持されます。</p>
-        </div>
-        <button class="btn-main" onclick="saveCoreSettings()">保存する ✓</button>
-        <button class="btn-sec" onclick="testSaveConfig()" style="margin-top:6px;">🔍 GAS接続テスト</button>
-        <div id="cfg-test-result" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.7;"></div>
-        <!-- 共有URL（保存後に表示） -->
-        <div class="fg" id="cfg-share-url-wrap" style="display:none;margin-top:18px;">
-          <label>🔗 デバイス間共有URL</label>
-          <div style="display:flex;gap:6px;">
-            <input type="text" id="cfg-share-url" readonly style="font-size:11px;color:var(--txl);flex:1;">
-            <button onclick="copyShareUrl()" style="padding:10px 12px;background:var(--aml);color:var(--br);border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">コピー</button>
-          </div>
-          <p style="font-size:11px;color:var(--txl);margin-top:5px;line-height:1.6;">このURLを他のデバイスで開くと自動でGAS URLが設定されます</p>
-        </div>
+      <div class="sdivider"></div>
+
+      <!-- ASSET MANAGER -->
+      <div class="fg">
+        <div class="sec-title">🖼️ サイト画像管理</div>
+        <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">変更はリロード後に反映</p>
+        <div id="asset-editor"></div>
       </div>
 
       <input type="file" id="asset-file-in" accept="image/*" style="display:none" onchange="onAssetFile(event)">
-    </div>
-  </div>
-</div>
-
-<!-- FOOD ANALYZE MODAL (マスタ登録用) -->
-<div class="ov" id="ov-food-analyze">
-  <div class="modal">
-    <div class="mgrip"></div>
-    <div class="mhead">
-      <span class="mttl" id="food-analyze-ttl">📊 成分分析</span>
-      <button class="xbtn" onclick="closeOv('ov-food-analyze')">✕</button>
-    </div>
-    <div class="mbody">
-      <input type="hidden" id="fa-food-id">
-      <p style="font-size:12px;color:var(--txl);margin-bottom:14px;line-height:1.7;">
-        成分表・パッケージ・実際の食べ物の写真など、<strong>どんな写真でもOK</strong>。<br>
-        AIが内容を見て栄養成分を読み取り・推測します。
-      </p>
-      <!-- 写真タイプ選択 -->
-      <div class="fg">
-        <label>📂 写真の種類（AIへのヒント）</label>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;" id="fa-type-grid">
-          <button class="fa-type-btn on" data-type="label" onclick="setFaType('label',this)">
-            <div style="font-size:20px;">🏷️</div><div style="font-size:11px;margin-top:2px;">成分表・ラベル</div>
-          </button>
-          <button class="fa-type-btn" data-type="package" onclick="setFaType('package',this)">
-            <div style="font-size:20px;">📦</div><div style="font-size:11px;margin-top:2px;">パッケージ全体</div>
-          </button>
-          <button class="fa-type-btn" data-type="food" onclick="setFaType('food',this)">
-            <div style="font-size:20px;">🍖</div><div style="font-size:11px;margin-top:2px;">実物・料理写真</div>
-          </button>
-        </div>
-        <p id="fa-type-hint" style="font-size:11px;color:var(--txl);margin-top:6px;line-height:1.6;">成分表・栄養成分表示のアップ写真が最も正確です</p>
-      </div>
-      <div class="fg">
-        <label>📷 写真を選択（複数枚まとめて送れます）</label>
-        <div class="upload-zone" onclick="document.getElementById('fa-photo-in').click()">
-          <div class="uz-icon" id="fa-uz-icon">📸</div>
-          <div class="uz-txt" id="fa-uz-txt">タップして選択（複数OK）</div>
-          <input type="file" id="fa-photo-in" accept="image/*" multiple style="display:none" onchange="onFaMasterPhoto(event)">
-        </div>
-        <div id="fa-photo-prev-grid" style="margin-top:8px;display:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"></div>
-      </div>
-      <button class="btn-sec" id="fa-analyze-btn" onclick="runFaMasterAnalyze()" style="display:none;">✨ AIで成分を読み取る</button>
-      <!-- 結果表示 -->
-      <div id="fa-result" style="display:none;margin-top:14px;">
-        <div class="nutri-card">
-          <div class="nutri-card-title">📊 分析結果（100g基準）</div>
-          <div style="margin-bottom:8px;font-size:14px;font-weight:700;color:var(--br);" id="fa-result-name"></div>
-          <div class="nutri-grid" id="fa-result-grid"></div>
-          <div id="fa-result-extra" style="font-size:11px;color:var(--txm);margin-top:8px;line-height:1.7;"></div>
-        </div>
-        <!-- 手動修正フィールド -->
-        <div style="margin-top:14px;">
-          <div class="sec-title" style="font-size:13px;margin-bottom:10px;">✏️ 修正・補完</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div class="fg" style="margin-bottom:0"><label>カロリー (kcal/100g)</label><input type="number" id="fa-cal" step="0.1" placeholder="0"></div>
-            <div class="fg" style="margin-bottom:0"><label>タンパク質 (g)</label><input type="number" id="fa-prot" step="0.1" placeholder="0"></div>
-            <div class="fg" style="margin-bottom:0"><label>脂質 (g)</label><input type="number" id="fa-fat" step="0.1" placeholder="0"></div>
-            <div class="fg" style="margin-bottom:0"><label>炭水化物 (g)</label><input type="number" id="fa-carb" step="0.1" placeholder="0"></div>
-          </div>
-          <div class="fg" style="margin-top:8px;"><label>原材料メモ</label><textarea id="fa-ingr" style="height:60px;" placeholder="原材料など…"></textarea></div>
-          <div class="fg"><label>注意事項</label><input type="text" id="fa-notes" placeholder="アレルゲン等…"></div>
-        </div>
-        <button class="btn-main" onclick="saveFaMasterNutrition()">💾 マスタに保存する</button>
-      </div>
-      <!-- 既存データがある場合の編集 -->
-      <div id="fa-existing" style="display:none;margin-top:14px;">
-        <div class="nutri-card" style="margin-bottom:12px;">
-          <div class="nutri-card-title">💾 保存済みデータ（100g基準）</div>
-          <div class="nutri-grid" id="fa-existing-grid"></div>
-        </div>
-        <button class="btn-sec" onclick="document.getElementById('fa-existing').style.display='none';document.getElementById('fa-reanalyze').style.display='';">再分析する</button>
-      </div>
-      <div id="fa-reanalyze" style="display:none;">
-        <div class="fg" style="margin-top:12px;">
-          <label>📷 新しい写真で再分析</label>
-          <div class="upload-zone" onclick="document.getElementById('fa-re-photo-in').click()">
-            <div class="uz-icon">📸</div><div class="uz-txt">タップして選択</div>
-            <input type="file" id="fa-re-photo-in" accept="image/*" style="display:none" onchange="onFaMasterPhoto(event, 're')">
-          </div>
-        </div>
-      </div>
-      <div class="errmsg" id="fa-err"></div>
     </div>
   </div>
 </div>
@@ -779,49 +421,18 @@ body{padding-top:env(safe-area-inset-top,0px);}
 <script>
 // ============================================================
 //  STATE
-//  GAS URLはlocalStorage + URLパラメータ ?g= で共有可能
-//  その他設定はGASシートのconfigから取得（クロスデバイス同期）
 // ============================================================
-const CFG_KEY = 'renapp_url_v4';
-let gasUrl = '';
-try { gasUrl = localStorage.getItem(CFG_KEY) || ''; } catch(e) {}
+const CFG_KEY = 'renapp_cfg_v3';
+let cfg = {};
+try { cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{}'); } catch(e) {}
+function saveCfg() { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
 
-// URLパラメータ ?g=GAS_URL から自動設定（共有リンク対応）
-try {
-  const paramG = new URLSearchParams(location.search).get('g');
-  if (paramG && paramG.startsWith('https://')) {
-    gasUrl = paramG;
-    localStorage.setItem(CFG_KEY, gasUrl);
-    // URLをクリーン（パラメータ除去）
-    history.replaceState({}, '', location.pathname + location.hash);
-  }
-} catch(e) {}
-
-function saveUrl(url) { try { localStorage.setItem(CFG_KEY, url); } catch(e) {} gasUrl = url; }
-
-// シートから取得した設定（author等）
-let remoteConfig = {};
-
-// レガシー移行
-try {
-  const old = JSON.parse(localStorage.getItem('renapp_cfg_v3') || '{}');
-  if (old.url && !gasUrl) { gasUrl = old.url; saveUrl(gasUrl); }
-} catch(e) {}
-
-// cfg は後方互換のためのプロキシ
-const cfg = new Proxy({}, {
-  get(_, k) { if (k==='url') return gasUrl; return remoteConfig[k]; },
-  set(_, k, v) { if (k==='url') { saveUrl(v); } else { remoteConfig[k] = v; } return true; }
-});
-
-let appData = { posts:[], assets:{}, genres:[], dogs:[], activities:[], analysisHistory:[], config:{} };
+let appData = { posts:[], assets:{}, genres:[], dogs:[], activities:[], analysisHistory:[] };
 let selectedFiles = [];
 let pendingAssetKey = null;
 let currentTab = 'feed';
 let filterGenre = 'all';
 let analysisCharts = {};
-let sortKey = 'event';   // 'event'=イベント日 / 'post'=投稿日
-let sortDir = 'desc';    // 'desc'=新しい順 / 'asc'=古い順
 
 // ============================================================
 //  INIT
@@ -829,68 +440,13 @@ let sortDir = 'desc';    // 'desc'=新しい順 / 'asc'=古い順
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('f-date').value = today();
   document.getElementById('a-date').value = today();
+  // overlay bg click to close
   document.querySelectorAll('.ov').forEach(ov => {
     ov.addEventListener('click', e => { if (e.target === ov) closeOv(ov.id); });
   });
-  initPWA();
-  if (gasUrl) loadData();
+  if (cfg.url) loadData();
   else renderSetupGuide();
 });
-
-function initPWA() {
-  // Web App Manifest を動的生成
-  const manifest = {
-    name: 'REN APP',
-    short_name: 'REN APP',
-    description: '愛犬との思い出を記録するアプリ',
-    start_url: location.pathname + (gasUrl ? '?g=' + encodeURIComponent(gasUrl) : ''),
-    display: 'standalone',
-    orientation: 'portrait',
-    background_color: '#FEF3E2',
-    theme_color: '#FEF3E2',
-    icons: [
-      { src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐾</text></svg>', sizes: 'any', type: 'image/svg+xml' }
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  document.getElementById('pwa-manifest').href = url;
-
-  // Service Worker 登録（GitHub Pagesでも動作）
-  if ('serviceWorker' in navigator) {
-    // インラインSWをBlobで登録
-    const swCode = `
-const CACHE = 'renapp-v1';
-const PRECACHE = [location.pathname || '/'];
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE).catch(()=>{})));
-  self.skipWaiting();
-});
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-  self.clients.claim();
-});
-self.addEventListener('fetch', e => {
-  // GAS・外部リクエストはキャッシュしない
-  if (!e.request.url.startsWith(self.location.origin)) return;
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      const network = fetch(e.request).then(res => {
-        if (res.ok) { const c = res.clone(); caches.open(CACHE).then(cache => cache.put(e.request, c)); }
-        return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
-  );
-});`;
-    try {
-      const swBlob = new Blob([swCode], { type: 'application/javascript' });
-      const swUrl  = URL.createObjectURL(swBlob);
-      navigator.serviceWorker.register(swUrl, { scope: location.pathname.replace(/[^/]*$/, '') || '/' })
-        .catch(() => {});
-    } catch(e) {}
-  }
-}
 
 function today() { return new Date().toISOString().split('T')[0]; }
 
@@ -898,31 +454,25 @@ function today() { return new Date().toISOString().split('T')[0]; }
 //  DATA LOADING
 // ============================================================
 async function loadData() {
-  if (!gasUrl) { renderSetupGuide(); return; }
-  document.getElementById('feed-posts').innerHTML = '<div class="spinner"><span class="spin">🐾</span>読み込み中…</div>';
+  if (!cfg.url) { renderSetupGuide(); return; }
+  document.getElementById('tab-feed').innerHTML = '<div class="spinner"><span class="spin">🐾</span>読み込み中…</div>';
   try {
-    const r = await fetch(gasUrl + '?t=' + Date.now(), { redirect: 'follow' });
+    const r = await fetch(cfg.url + '?t=' + Date.now());
     const d = await r.json();
     if (!d.success) throw new Error(d.error);
-    appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[], config: d.config||{} };
-    remoteConfig = { ...appData.config };
-    // configにgas_urlが保存されていれば他デバイスのURLで上書き同期
-    if (remoteConfig.gas_url && remoteConfig.gas_url !== gasUrl) {
-      saveUrl(remoteConfig.gas_url);
-    }
+    appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[] };
     applyAssets();
+    renderFeed();
     renderGenreChips();
     renderAuthorFilter();
-    renderFeedFiltered();
     renderDogTab();
     renderAnalysisTab();
     renderGenreEditor();
-    renderPlayEditor();
     renderAssetEditor();
     populateGenreSelect();
     populateDogSelects();
   } catch(e) {
-    document.getElementById('feed-posts').innerHTML = `<div class="empty"><span class="empty-icon">😅</span><h2>読み込み失敗</h2><p>GAS URLを確認してください<br><small>${e.message}</small></p></div>`;
+    document.getElementById('tab-feed').innerHTML = `<div class="empty"><span class="empty-icon">😅</span><h2>読み込み失敗</h2><p>GAS URLを確認してください<br><small>${e.message}</small></p></div>`;
   }
 }
 
@@ -936,17 +486,7 @@ function applyAssets() {
     let img = document.getElementById('logo-img');
     if (!img) { img = document.createElement('img'); img.id='logo-img'; img.className='logo-img'; img.alt='logo'; }
     img.src = a.logo.thumb || a.logo.url;
-    const def = document.getElementById('logo-default');
-    if (def) def.replaceWith(img);
-  }
-  // favicon
-  if (a.favicon?.url) {
-    const fav = document.getElementById('pwa-favicon');
-    const apl = document.getElementById('pwa-apple-icon');
-    if (fav) { fav.href = a.favicon.url; fav.type = 'image/jpeg'; }
-    if (apl) apl.href = a.favicon.url;
-    // PWA manifest更新（アイコン差し替え）
-    updatePWAManifestIcon(a.favicon.url);
+    document.getElementById('logo-default').replaceWith(img);
   }
   // site bg
   if (a.site_bg?.url) { document.body.style.backgroundImage=`url("${a.site_bg.url}")`; document.body.classList.add('has-site-bg'); }
@@ -955,23 +495,6 @@ function applyAssets() {
   const hdr = document.getElementById('main-header');
   if (a.header_bg?.url) { hdr.style.backgroundImage=`url("${a.header_bg.url}")`; hdr.classList.add('has-hbg'); }
   else { hdr.style.backgroundImage=''; hdr.classList.remove('has-hbg'); }
-}
-
-function updatePWAManifestIcon(iconUrl) {
-  try {
-    const manifest = {
-      name: 'REN APP', short_name: 'REN APP',
-      description: '愛犬との思い出を記録するアプリ',
-      start_url: location.pathname + (gasUrl ? '?g=' + encodeURIComponent(gasUrl) : ''),
-      display: 'standalone', orientation: 'portrait',
-      background_color: '#FEF3E2', theme_color: '#FEF3E2',
-      icons: [{ src: iconUrl, sizes: '512x512', type: 'image/jpeg' }]
-    };
-    const old = document.getElementById('pwa-manifest').href;
-    if (old && old.startsWith('blob:')) URL.revokeObjectURL(old);
-    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-    document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
-  } catch(e) {}
 }
 
 // ============================================================
@@ -983,7 +506,13 @@ function switchTab(tab) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('nav-' + tab).classList.add('on');
-  document.getElementById('fab').hidden = (tab === 'analysis');
+  // FAB behavior
+  const fab = document.getElementById('fab');
+  fab.hidden = (tab === 'analysis');
+  if (tab === 'filter') { renderFilter(); }
+  if (tab === 'dog') fab.textContent = '＋';
+  if (tab === 'feed') fab.textContent = '＋';
+  if (tab === 'filter') fab.textContent = '＋';
 }
 
 function onFab() {
@@ -992,85 +521,21 @@ function onFab() {
 }
 
 // ============================================================
-//  TAB 1: FEED + FILTER
+//  TAB 1: FEED
 // ============================================================
 const GICON = {};
 function buildGIconMap() { appData.genres.forEach(g => GICON[g.label] = g.icon); }
 
-function renderSetupGuide() {
-  document.getElementById('feed-posts').innerHTML = `
-  <div class="setup-guide">
-    <h2>🐾 REN APP セットアップ</h2>
-    <div class="step"><div class="snum">1</div><div class="sbody"><div class="stitle">スプレッドシートを作成</div><div class="sdesc">Google Drive で新規スプレッドシートを作成</div></div></div>
-    <div class="step"><div class="snum">2</div><div class="sbody"><div class="stitle">Apps Script を開く</div><div class="sdesc"><span class="scode">拡張機能 → Apps Script</span></div></div></div>
-    <div class="step"><div class="snum">3</div><div class="sbody"><div class="stitle">gas_code.gs を貼り付けて保存</div><div class="sdesc">エディタに全文貼り付けて 💾 保存</div></div></div>
-    <div class="step"><div class="snum">4</div><div class="sbody"><div class="stitle">ウェブアプリとしてデプロイ</div><div class="sdesc"><span class="scode">デプロイ → 新しいデプロイ</span><br>種類：ウェブアプリ　アクセス：全員 → URLをコピー</div></div></div>
-    <div class="step"><div class="snum">5</div><div class="sbody"><div class="stitle">設定に URL を貼り付ける</div><div class="sdesc">⚙️ → コア設定 から登録</div></div></div>
-    <button class="btn-setup" onclick="openSettings()">⚙️ 設定を開く</button>
-  </div>`;
-}
-
-function renderGenreChips() {
+function renderFeed() {
   buildGIconMap();
-  const bar = document.getElementById('genre-chips');
-  bar.innerHTML = `<button class="fchip on" onclick="setGenreFilter('all',this)">すべて</button>` +
-    appData.genres.map(g => `<button class="fchip" onclick="setGenreFilter('${esc(g.label)}',this)">${g.icon} ${esc(g.label)}</button>`).join('');
-}
-
-function setGenreFilter(val, btn) {
-  filterGenre = val;
-  document.querySelectorAll('#genre-chips .fchip').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  renderFeedFiltered();
-}
-
-function renderAuthorFilter() {
-  const sel = document.getElementById('author-filter');
-  const authors = [...new Set(appData.posts.map(p => p.author).filter(Boolean))];
-  const cur = sel.value;
-  sel.innerHTML = `<option value="">全員</option>` + authors.map(a => `<option ${a===cur?'selected':''}>${esc(a)}</option>`).join('');
-}
-
-function setSort(key, btn) {
-  sortKey = key;
-  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  renderFeedFiltered();
-}
-
-function toggleSortDir() {
-  sortDir = sortDir === 'desc' ? 'asc' : 'desc';
-  const btn = document.getElementById('sort-dir');
-  btn.textContent = sortDir === 'desc' ? '↓新' : '↑古';
-  renderFeedFiltered();
-}
-
-function sortPosts(posts) {
-  return [...posts].sort((a, b) => {
-    // どちらの日付を使うか
-    const da = new Date(sortKey === 'event' ? (a.date || a.createdAt || '') : (a.createdAt || a.date || ''));
-    const db = new Date(sortKey === 'event' ? (b.date || b.createdAt || '') : (b.createdAt || b.date || ''));
-    const diff = db - da; // desc: 新しい順
-    return sortDir === 'desc' ? diff : -diff;
-  });
-}
-
-function renderFeedFiltered() {
-  buildGIconMap();
-  const author = document.getElementById('author-filter')?.value || '';
-  let posts = appData.posts;
-  if (filterGenre !== 'all') posts = posts.filter(p => p.genre === filterGenre);
-  if (author) posts = posts.filter(p => p.author === author);
-  posts = sortPosts(posts);
-  const el = document.getElementById('feed-posts');
-  if (!posts.length) {
-    el.innerHTML = `<div class="empty"><span class="empty-icon">🐶</span><h2>${appData.posts.length ? '該当なし' : 'まだ投稿がありません'}</h2><p>${appData.posts.length ? '条件を変えてみてください' : '＋ボタンから最初の思い出を！'}</p></div>`;
+  const feed = document.getElementById('tab-feed');
+  if (!appData.posts.length) {
+    feed.innerHTML = `<div class="empty"><span class="empty-icon">🐶</span><h2>まだ投稿がありません</h2><p>＋ボタンから最初の思い出を！</p></div>`;
     return;
   }
-  el.innerHTML = posts.map((p,i) => buildCard(p,i,'f')).join('');
+  feed.innerHTML = appData.posts.map((p,i) => buildCard(p,i,'f')).join('');
 }
 
-function renderFeed() { renderFeedFiltered(); }
 function buildCard(p, i, prefix) {
   const photos = Array.isArray(p.photos) ? p.photos : [];
   const icon = GICON[p.genre] || '🌟';
@@ -1080,42 +545,20 @@ function buildCard(p, i, prefix) {
   const avatarHtml = petAsset?.url
     ? `<div class="avatar"><img src="${petAsset.thumb||petAsset.url}" alt="pet"></div>`
     : `<div class="avatar">${initial}</div>`;
-  let photoHtml = '';
+  let photoHtml;
   if (!photos.length) {
     photoHtml = `<div class="nophoto">🐾</div>`;
   } else {
     const slides = photos.map(ph => `<img src="${ph.thumb||ph.url||ph}" loading="lazy" alt="思い出" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23F0DEC0%22 width=%22100%25%22 height=%22100%25%22/%3E%3C/svg%3E'">`).join('');
     const multi = photos.length > 1;
     const dots = multi ? photos.map((_,j)=>`<div class="dot ${j===0?'on':''}"></div>`).join('') : '';
-    photoHtml = `<div class="car" id="${cid}"><div class="ctrack">${slides}</div>${multi?`<button class="cbtn prev" hidden onclick="mc('${cid}',-1)">‹</button><button class="cbtn next" onclick="mc('${cid}',1)">›</button><div class="cdots">${dots}</div>`:''}</div>`;
+    photoHtml = `<div class="car" id="${cid}"><div class="ctrack">${slides}</div>${multi?`<button class="cbtn prev" hidden onclick="mc('${cid}',-1)">‹</button><button class="cbtn next" onclick="mc('${cid}',1)">›</button><div class="cdots">${dots}</div>`:''}`;
   }
-  const menuId = 'menu-' + cid;
-  // 投稿日（createdAt）と イベント日（date）を両方表示。ソートキーを強調
-  const eventDate = p.date ? fmtDate(p.date) : '';
-  const postedDate = p.createdAt ? fmtDateShort(p.createdAt) : '';
-  const dateHtml = eventDate && postedDate && eventDate !== postedDate
-    ? `<div class="adate">
-        <span class="${sortKey==='event'?'adate-hi':''}">📅 ${eventDate}</span>
-        <span class="adate-sep">・</span>
-        <span class="${sortKey==='post'?'adate-hi':''}">🕐 ${postedDate}</span>
-       </div>`
-    : `<div class="adate">${eventDate || postedDate}</div>`;
-  return `<div class="card-wrap">
-  <div class="card">
-    <div class="card-head">
-      ${avatarHtml}
-      <div class="ainfo"><div class="aname">${esc(p.author||'匿名')}</div>${dateHtml}</div>
-      <div class="gtag">${icon} ${esc(p.genre||'その他')}</div>
-      <button class="card-menu-btn" onclick="toggleCardMenu('${menuId}',event)">•••</button>
-    </div>
+  return `<div class="card">
+    <div class="card-head">${avatarHtml}<div class="ainfo"><div class="aname">${esc(p.author||'匿名')}</div><div class="adate">${fmtDate(p.date)}</div></div><div class="gtag">${icon} ${esc(p.genre||'その他')}</div></div>
     ${photoHtml}
     <div class="card-body">${p.title?`<div class="ctitle">${esc(p.title)}</div>`:''}${p.comment?`<div class="ccomment">${esc(p.comment)}</div>`:''}</div>
-  </div>
-  <div class="card-menu-pop" id="${menuId}">
-    <button class="cmp-item" onclick="openEditPost('${p.id}');closeAllMenus()">✏️ 編集</button>
-    <button class="cmp-item danger" onclick="confirmDeletePost('${p.id}');closeAllMenus()">🗑️ 削除</button>
-  </div>
-</div>`;
+  </div>`;
 }
 
 // carousel
@@ -1133,12 +576,44 @@ function mc(id, dir) {
 }
 
 // ============================================================
-//  TAB 2: DOG
+//  TAB 2: FILTER
+// ============================================================
+function renderGenreChips() {
+  const bar = document.getElementById('genre-chips');
+  bar.innerHTML = `<button class="fchip on" onclick="setGenreFilter('all',this)">すべて</button>` +
+    appData.genres.map(g => `<button class="fchip" onclick="setGenreFilter('${esc(g.label)}',this)">${g.icon} ${esc(g.label)}</button>`).join('');
+}
+
+function setGenreFilter(val, btn) {
+  filterGenre = val;
+  document.querySelectorAll('#genre-chips .fchip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderFilter();
+}
+
+function renderAuthorFilter() {
+  const sel = document.getElementById('author-filter');
+  const authors = [...new Set(appData.posts.map(p => p.author).filter(Boolean))];
+  sel.innerHTML = `<option value="">投稿者: すべて</option>` + authors.map(a => `<option>${esc(a)}</option>`).join('');
+}
+
+function renderFilter() {
+  const author = document.getElementById('author-filter').value;
+  let posts = appData.posts;
+  if (filterGenre !== 'all') posts = posts.filter(p => p.genre === filterGenre);
+  if (author) posts = posts.filter(p => p.author === author);
+  const feed = document.getElementById('filter-feed');
+  if (!posts.length) { feed.innerHTML = `<div class="empty"><span class="empty-icon">🔍</span><h2>該当なし</h2><p>条件を変えてみてください</p></div>`; return; }
+  feed.innerHTML = posts.map((p,i) => buildCard(p,i,'ff')).join('');
+}
+
+// ============================================================
+//  TAB 3: DOG
 // ============================================================
 const ACT_CONF = {
-  walk:  { icon:'🦮', label:'散歩',   detailLabel:'コース・内容', detailHint:'例：川沿いコース', showLoc:true,  useDropdown:false },
-  meal:  { icon:'🍖', label:'ごはん', detailLabel:'食べたもの',   detailHint:'例：ドライフード100g＋チキン', showLoc:false, useDropdown:false },
-  play:  { icon:'🎾', label:'遊び',   detailLabel:'遊んだもの',   detailHint:'', showLoc:true, useDropdown:true },
+  walk:  { icon:'🦮', label:'散歩',   detailLabel:'コース・内容', detailHint:'例：川沿いコース', showLoc:true },
+  meal:  { icon:'🍖', label:'ごはん', detailLabel:'食べたもの',   detailHint:'例：ドライフード100g＋チキン', showLoc:false },
+  play:  { icon:'🎾', label:'遊び',   detailLabel:'遊んだもの',   detailHint:'例：ボール遊び・ロープ', showLoc:true },
 };
 
 function renderDogTab() {
@@ -1191,8 +666,7 @@ function buildDogSection(dog) {
 
 function buildActRow(a) {
   const conf = ACT_CONF[a.type] || { icon:'📝', label:a.type };
-  const timeStr = fmtTime(a.startTime);
-  const meta = [a.date ? fmtDate(a.date) : '', timeStr, a.duration ? a.duration+'分' : ''].filter(Boolean).join(' ・ ');
+  const meta = [a.date ? fmtDate(a.date) : '', a.startTime||'', a.duration ? a.duration+'分' : ''].filter(Boolean).join(' ・ ');
   return `<div class="act-row">
     <div class="act-icon">${conf.icon}</div>
     <div class="act-info">
@@ -1202,7 +676,6 @@ function buildActRow(a) {
       ${a.detail?`<div class="act-detail">${esc(a.detail)}</div>`:''}
       ${a.notes?`<div class="act-detail" style="color:var(--txl)">${esc(a.notes)}</div>`:''}
     </div>
-    <button class="act-del" onclick="confirmDeleteActivity('${a.id}')" title="削除">🗑</button>
   </div>`;
 }
 
@@ -1253,7 +726,7 @@ function renderAnalysisHistory() {
 async function runAnalysis() {
   const dogId = document.getElementById('analysis-dog-pick').value;
   if (!dogId) { toast('わんこを選択してください'); return; }
-  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
+  if (!cfg.url) { toast('GAS URLが未設定です'); return; }
   const dog = appData.dogs.find(d => d.id === dogId);
   if (!dog) return;
   setLoading(true, 'AI分析中…');
@@ -1271,13 +744,10 @@ async function runAnalysis() {
       const clean = r.text.replace(/```json|```/g,'').trim();
       parsed = JSON.parse(clean);
     } catch(e) { throw new Error('分析結果のパースに失敗しました: ' + e.message); }
-    // 固定タイトル: 犬名 + 月 + 分析レポート
-    const now = new Date();
-    const fixedTitle = `${dog.name} ${now.getMonth()+1}月 分析レポート`;
-    parsed.title = fixedTitle;
     // save to sheets
-    await gasPost({ action:'storeAnalysis', dogId, date: today(), title: fixedTitle, resultText: parsed.summary||'', chartsData: parsed });
-    appData.analysisHistory.unshift({ id: Date.now().toString(), dogId, date: today(), title: fixedTitle, resultText: parsed.summary||'', chartsJson: JSON.stringify(parsed) });
+    await gasPost({ action:'storeAnalysis', dogId, date: today(), title: parsed.title||'分析結果', resultText: parsed.summary||'', chartsData: parsed });
+    // add to local history
+    appData.analysisHistory.unshift({ id: Date.now().toString(), dogId, date: today(), title: parsed.title||'分析結果', resultText: parsed.summary||'', chartsJson: JSON.stringify(parsed) });
     displayAnalysisResult(parsed);
     renderAnalysisHistory();
     toast('分析完了！');
@@ -1287,8 +757,8 @@ async function runAnalysis() {
 }
 
 function buildAnalysisPrompt(dog, age, walks, meals, plays) {
-  const walkSummary = walks.slice(0,30).map(w => `- ${w.date} ${fmtTime(w.startTime)} ${w.duration||'?'}分 ${w.location||''} ${w.detail||''}`).join('\n') || 'データなし';
-  const mealSummary = meals.slice(0,30).map(m => `- ${m.date} ${fmtTime(m.startTime)} ${m.detail||''} ${m.notes||''}`).join('\n') || 'データなし';
+  const walkSummary = walks.slice(0,30).map(w => `- ${w.date} ${w.startTime||''} ${w.duration||'?'}分 ${w.location||''} ${w.detail||''}`).join('\n') || 'データなし';
+  const mealSummary = meals.slice(0,30).map(m => `- ${m.date} ${m.startTime||''} ${m.detail||''} ${m.notes||''}`).join('\n') || 'データなし';
   const playSummary = plays.slice(0,20).map(p => `- ${p.date} ${p.duration||'?'}分 ${p.detail||''}`).join('\n') || 'データなし';
 
   // Group walks by week for chart
@@ -1363,7 +833,7 @@ function displayAnalysisResult(parsed) {
     </div>
     <div class="analysis-card" style="margin-bottom:12px;">
       <h4 style="font-size:11px;font-weight:700;color:var(--txl);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;">アクティビティ割合</h4>
-      <div class="chart-balance-wrap"><canvas id="chart-balance"></canvas></div>
+      <canvas id="chart-balance" height="180"></canvas>
     </div>
     <div class="analysis-card">
       <h3>💡 気づき</h3>
@@ -1376,32 +846,20 @@ function displayAnalysisResult(parsed) {
 
   requestAnimationFrame(() => {
     destroyCharts();
-    const cc = {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { font: { size: 9 }, maxRotation: 0 } },
-        y: { ticks: { font: { size: 9 } }, beginAtZero: true }
-      }
-    };
+    const cc = { responsive:true, plugins:{legend:{display:false}}, scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10}}}} };
     if (charts.weeklyWalk) {
-      analysisCharts.walk = new Chart(document.getElementById('chart-walk'), { type:'bar', data:{ labels:charts.weeklyWalk.labels, datasets:[{data:charts.weeklyWalk.data,backgroundColor:'rgba(212,137,74,.7)',borderRadius:4}]}, options:cc });
+      analysisCharts.walk = new Chart(document.getElementById('chart-walk'), { type:'bar', data:{ labels:charts.weeklyWalk.labels, datasets:[{data:charts.weeklyWalk.data,backgroundColor:'rgba(212,137,74,.7)',borderRadius:6}]}, options:cc });
     }
     if (charts.weeklyMeal) {
-      analysisCharts.meal = new Chart(document.getElementById('chart-meal'), { type:'bar', data:{ labels:charts.weeklyMeal.labels, datasets:[{data:charts.weeklyMeal.data,backgroundColor:'rgba(124,74,45,.6)',borderRadius:4}]}, options:cc });
+      analysisCharts.meal = new Chart(document.getElementById('chart-meal'), { type:'bar', data:{ labels:charts.weeklyMeal.labels, datasets:[{data:charts.weeklyMeal.data,backgroundColor:'rgba(124,74,45,.6)',borderRadius:6}]}, options:cc });
     }
     if (charts.activityBalance) {
       const b = charts.activityBalance;
+      const total = b.walk+b.meal+b.play || 1;
       analysisCharts.balance = new Chart(document.getElementById('chart-balance'), {
-        type: 'doughnut',
-        data: { labels:['散歩','食事','遊び'], datasets:[{ data:[b.walk,b.meal,b.play], backgroundColor:['rgba(212,137,74,.85)','rgba(124,74,45,.75)','rgba(160,103,58,.65)'], borderWidth:0, hoverOffset:4 }] },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          cutout: '60%',
-          plugins: { legend: { position:'bottom', labels: { font:{ size:12, family:'Nunito' }, padding:12, boxWidth:12 } } }
-        }
+        type:'doughnut',
+        data:{ labels:['散歩','食事','遊び'], datasets:[{data:[b.walk,b.meal,b.play],backgroundColor:['rgba(212,137,74,.8)','rgba(124,74,45,.7)','rgba(160,103,58,.6)'],borderWidth:0}]},
+        options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{font:{size:12}}}}}
       });
     }
   });
@@ -1458,45 +916,9 @@ function populateGenreSelect() {
 }
 
 function openPost() {
-  document.getElementById('post-modal-ttl').textContent = '🐶 思い出を投稿';
-  document.getElementById('f-id').value = '';
+  if (cfg.author) document.getElementById('f-author').value = cfg.author;
   document.getElementById('f-date').value = today();
-  document.getElementById('f-title').value = '';
-  document.getElementById('f-comment').value = '';
-  document.getElementById('post-err').textContent = '';
-  selectedFiles = []; document.getElementById('post-prev').innerHTML = '';
-  document.getElementById('post-btn').textContent = '投稿する';
-  populateAuthorSelect(remoteConfig.author || '');
   openOv('ov-post');
-}
-
-function openEditPost(id) {
-  const p = appData.posts.find(p => p.id === id); if (!p) return;
-  document.getElementById('post-modal-ttl').textContent = '✏️ 投稿を編集';
-  document.getElementById('f-id').value = id;
-  document.getElementById('f-title').value = p.title||'';
-  document.getElementById('f-date').value = p.date||today();
-  document.getElementById('f-comment').value = p.comment||'';
-  document.getElementById('f-genre').value = p.genre||'';
-  document.getElementById('post-err').textContent = '';
-  document.getElementById('post-btn').textContent = '更新する';
-  populateAuthorSelect(p.author || '');
-  // show existing photos as previews
-  selectedFiles = [];
-  const grid = document.getElementById('post-prev');
-  const photos = Array.isArray(p.photos) ? p.photos : [];
-  grid.innerHTML = photos.map((ph, i) => {
-    const src = ph.thumb||ph.url||'';
-    return `<div class="pi" id="ep-${i}"><img src="${src}"><button class="pdel" onclick="removeExistingPhoto(${i})">✕</button></div>`;
-  }).join('');
-  openOv('ov-post');
-}
-
-let removedPhotoIndices = [];
-function removeExistingPhoto(i) {
-  removedPhotoIndices.push(i);
-  const el = document.getElementById('ep-'+i);
-  if (el) el.remove();
 }
 
 function onPostPhoto(e) {
@@ -1505,70 +927,35 @@ function onPostPhoto(e) {
   e.target.value = '';
 }
 function renderPostPreviews() {
-  const existing = document.getElementById('post-prev').querySelectorAll('[id^="ep-"]');
-  document.getElementById('post-prev').innerHTML = '';
-  existing.forEach(el => document.getElementById('post-prev').appendChild(el));
-  selectedFiles.forEach((f,i) => {
+  document.getElementById('post-prev').innerHTML = selectedFiles.map((f,i) => {
     const url = URL.createObjectURL(f);
-    const div = document.createElement('div'); div.className='pi';
-    div.innerHTML = `<img src="${url}"><button class="pdel" onclick="delPostPhoto(${i})">✕</button>`;
-    document.getElementById('post-prev').appendChild(div);
-  });
+    return `<div class="pi"><img src="${url}"><button class="pdel" onclick="delPostPhoto(${i})">✕</button></div>`;
+  }).join('');
 }
 function delPostPhoto(i) { selectedFiles.splice(i,1); renderPostPreviews(); }
 
 async function submitPost() {
-  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
-  const id = document.getElementById('f-id').value;
+  if (!cfg.url) { toast('GAS URLが未設定です'); return; }
   const title = document.getElementById('f-title').value.trim();
   if (!title) { document.getElementById('post-err').textContent = 'タイトルを入力してください'; return; }
   document.getElementById('post-err').textContent = '';
-  const btn = document.getElementById('post-btn'); btn.disabled=true;
-  setLoading(true, id ? '投稿を更新中…' : '写真をアップロード中…');
+  const btn = document.getElementById('post-btn'); btn.disabled = true; btn.textContent = '投稿中…';
+  setLoading(true, '写真をアップロード中…');
   try {
     const photos = [];
     for (const f of selectedFiles) photos.push(await compress(f, 900, 0.78));
-    if (id) {
-      // UPDATE
-      await gasPost({ action:'updatePost', id, title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||remoteConfig.author||'匿名', newPhotos:photos, removePhotoIds:removedPhotoIndices });
-      toast('更新しました！');
-    } else {
-      await gasPost({ action:'createPost', title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||remoteConfig.author||'匿名', photos });
-      toast('投稿しました！');
-    }
-    closeOv('ov-post');
-    selectedFiles=[]; removedPhotoIndices=[];
+    await gasPost({ action:'createPost', title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||cfg.author||'匿名', photos });
+    closeOv('ov-post'); toast('投稿しました！');
+    ['f-title','f-comment'].forEach(id => document.getElementById(id).value='');
+    selectedFiles=[]; document.getElementById('post-prev').innerHTML='';
     setTimeout(loadData, 1200);
   } catch(e) { document.getElementById('post-err').textContent = 'エラー: ' + e.message; }
-  finally { btn.disabled=false; btn.textContent = id?'更新する':'投稿する'; setLoading(false); }
-}
-
-async function confirmDeletePost(id) {
-  if (!confirm('この投稿を削除しますか？\n（写真もDriveから削除されます）')) return;
-  setLoading(true,'削除中…');
-  try {
-    await gasPost({ action:'deletePost', id });
-    toast('削除しました');
-    setTimeout(loadData, 800);
-  } catch(e) { toast('エラー: '+e.message); }
-  finally { setLoading(false); }
-}
-
-function toggleCardMenu(id, e) {
-  e.stopPropagation();
-  closeAllMenus();
-  document.getElementById(id).classList.add('open');
-  document.addEventListener('click', closeAllMenus, { once:true });
-}
-function closeAllMenus() {
-  document.querySelectorAll('.card-menu-pop.open').forEach(m => m.classList.remove('open'));
+  finally { btn.disabled=false; btn.textContent='投稿する'; setLoading(false); }
 }
 
 // ============================================================
 //  DOG MODAL
 // ============================================================
-let dogPhotoFile = null;
-
 function populateDogSelects() {
   const sel = document.getElementById('a-dog');
   sel.innerHTML = appData.dogs.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('');
@@ -1585,17 +972,6 @@ function openDogEdit(id) {
   document.getElementById('d-constitution').value = dog.constitution||'';
   document.getElementById('d-favorites').value = dog.favorites||'';
   document.getElementById('d-notes').value = dog.notes||'';
-  dogPhotoFile = null;
-  // show existing photo
-  const zone = document.getElementById('d-photo-zone');
-  const delBtn = document.getElementById('d-photo-del');
-  if (dog.photoUrl) {
-    zone.innerHTML = `<img src="${esc(dog.photoUrl)}"><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
-    delBtn.style.display = 'block';
-  } else {
-    zone.innerHTML = `<span class="dpz-icon">📷</span><span class="dpz-txt">写真</span><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
-    delBtn.style.display = 'none';
-  }
   openOv('ov-dog');
 }
 
@@ -1603,28 +979,7 @@ function openNewDog() {
   document.getElementById('dog-modal-ttl').textContent = '🐕 わんこを登録';
   document.getElementById('d-id').value = '';
   ['d-name','d-breed','d-birthday','d-weight','d-constitution','d-favorites','d-notes'].forEach(id => document.getElementById(id).value='');
-  dogPhotoFile = null;
-  const zone = document.getElementById('d-photo-zone');
-  zone.innerHTML = `<span class="dpz-icon">📷</span><span class="dpz-txt">写真</span><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
-  document.getElementById('d-photo-del').style.display='none';
   openOv('ov-dog');
-}
-
-function onDogPhoto(e) {
-  dogPhotoFile = e.target.files[0];
-  if (!dogPhotoFile) return;
-  const url = URL.createObjectURL(dogPhotoFile);
-  const zone = document.getElementById('d-photo-zone');
-  const old = zone.querySelector('input');
-  zone.innerHTML = `<img src="${url}"><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
-  document.getElementById('d-photo-del').style.display='block';
-}
-
-function clearDogPhoto() {
-  dogPhotoFile = null;
-  const zone = document.getElementById('d-photo-zone');
-  zone.innerHTML = `<span class="dpz-icon">📷</span><span class="dpz-txt">写真</span><input type="file" id="d-photo-input" accept="image/*" onchange="onDogPhoto(event)">`;
-  document.getElementById('d-photo-del').style.display='none';
 }
 
 async function submitDog() {
@@ -1632,30 +987,13 @@ async function submitDog() {
   if (!name) { document.getElementById('dog-err').textContent = '名前を入力してください'; return; }
   document.getElementById('dog-err').textContent = '';
   const btn = document.getElementById('dog-btn'); btn.disabled=true; btn.textContent='保存中…';
-  setLoading(true, '保存中…');
   try {
     const id = document.getElementById('d-id').value;
-    const payload = { action:'saveDog', id:id||undefined, name, breed:document.getElementById('d-breed').value.trim(), birthday:document.getElementById('d-birthday').value, weight:document.getElementById('d-weight').value, constitution:document.getElementById('d-constitution').value.trim(), favorites:document.getElementById('d-favorites').value.trim(), notes:document.getElementById('d-notes').value.trim() };
-    if (dogPhotoFile) {
-      const c = await compress(dogPhotoFile, 600, 0.88);
-      payload.photoData = c.data; payload.photoMime = c.mimeType;
-    }
-    await gasPost(payload);
+    const r = await gasPost({ action:'saveDog', id:id||undefined, name, breed:document.getElementById('d-breed').value.trim(), birthday:document.getElementById('d-birthday').value, weight:document.getElementById('d-weight').value, constitution:document.getElementById('d-constitution').value.trim(), favorites:document.getElementById('d-favorites').value.trim(), notes:document.getElementById('d-notes').value.trim() });
     closeOv('ov-dog'); toast('保存しました！');
     setTimeout(loadData, 800);
   } catch(e) { document.getElementById('dog-err').textContent = 'エラー: ' + e.message; }
-  finally { btn.disabled=false; btn.textContent='保存する'; setLoading(false); }
-}
-
-async function confirmDeleteActivity(id) {
-  if (!confirm('この記録を削除しますか？')) return;
-  setLoading(true,'削除中…');
-  try {
-    await gasPost({ action:'deleteActivity', id });
-    toast('削除しました');
-    setTimeout(loadData, 600);
-  } catch(e) { toast('エラー: '+e.message); }
-  finally { setLoading(false); }
+  finally { btn.disabled=false; btn.textContent='保存する'; }
 }
 
 // ============================================================
@@ -1677,109 +1015,24 @@ function openActivity(dogId, type) {
   document.getElementById('a-time').value = new Date().toTimeString().slice(0,5);
   document.getElementById('a-dur').value = '';
   document.getElementById('a-loc').value = '';
+  document.getElementById('a-detail').value = '';
   document.getElementById('a-notes').value = '';
-  document.getElementById('a-location-fg').style.display = conf.showLoc ? '' : 'none';
-
-  const detailFg = document.getElementById('a-detail-fg');
   document.getElementById('a-detail-lbl').textContent = '📝 ' + conf.detailLabel;
-
-  if (conf.useDropdown) {
-    // 遊び内容: ドロップダウン + フリー入力切替
-    const items = getPlayItems();
-    detailFg.innerHTML = `
-      <label id="a-detail-lbl">📝 ${conf.detailLabel}</label>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <select id="a-detail-sel" style="flex:1;padding:10px 12px;border:2px solid var(--crd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--tx);background:var(--cr);-webkit-appearance:none;" onchange="onPlaySelChange()">
-          <option value="">選択してください</option>
-          ${items.map(it => `<option value="${esc(it.label)}">${it.icon} ${esc(it.label)}</option>`).join('')}
-          <option value="__custom__">✏️ 直接入力…</option>
-        </select>
-      </div>
-      <input type="text" id="a-detail" placeholder="遊び内容を入力" style="display:none;margin-top:8px;">`;
-  } else {
-    detailFg.innerHTML = `
-      <label id="a-detail-lbl">📝 ${conf.detailLabel}</label>
-      <input type="text" id="a-detail" placeholder="${conf.detailHint}">`;
-  }
-
+  document.getElementById('a-detail').placeholder = conf.detailHint;
+  document.getElementById('a-location-fg').style.display = conf.showLoc ? '' : 'none';
+  // set dog
   const sel = document.getElementById('a-dog');
   if (dogId) sel.value = dogId;
-
-  // ごはん専用UI
-  const mealExtra = document.getElementById('meal-extra');
-  if (mealExtra) {
-    mealExtra.style.display = type === 'meal' ? '' : 'none';
-    if (type === 'meal') {
-      populateFoodSelect();
-      // リセット
-      document.getElementById('a-food-sel').value = '';
-      document.getElementById('meal-nutri-section').style.display  = 'none';
-      document.getElementById('meal-no-nutri-section').style.display = 'none';
-      document.getElementById('meal-photo-section').style.display  = '';
-      document.getElementById('food-photo-prev').style.display     = 'none';
-      document.getElementById('food-analyze-btn').style.display    = 'none';
-      document.getElementById('food-analyze-result').style.display = 'none';
-      document.getElementById('food-apply-btn').style.display      = 'none';
-      window._foodPhotoData = null;
-      window._foodAnalysisResult = null;
-    }
-  }
-
   openOv('ov-act');
-}
-
-function onPlaySelChange() {
-  const sel = document.getElementById('a-detail-sel');
-  const inp = document.getElementById('a-detail');
-  if (sel.value === '__custom__') {
-    inp.style.display = '';
-    inp.value = '';
-    inp.focus();
-  } else {
-    inp.style.display = 'none';
-    inp.value = sel.value;
-  }
 }
 
 async function submitActivity() {
   const dogId = document.getElementById('a-dog').value;
   if (!dogId) { document.getElementById('act-err').textContent = 'わんこを選択してください'; return; }
-  const type = document.getElementById('a-type').value;
-  // get detail: dropdown or text
-  let detail = '';
-  const selEl = document.getElementById('a-detail-sel');
-  const inpEl = document.getElementById('a-detail');
-  if (selEl && selEl.style.display !== 'none') {
-    detail = selEl.value === '__custom__' ? (inpEl?.value||'') : (selEl.value||'');
-  } else {
-    detail = inpEl?.value?.trim() || '';
-  }
-  // ごはん: 分量・成分をnotesに追記
-  let notes = document.getElementById('a-notes').value.trim();
-  if (type === 'meal') {
-    const foodSelVal = document.getElementById('a-food-sel')?.value;
-    const gEl = document.getElementById('a-amount-g');
-    if (foodSelVal && foodSelVal !== '__custom__' && gEl && gEl.value) {
-      const grams = parseFloat(gEl.value);
-      const pct   = Math.round(grams);
-      const items = getFoodItems();
-      const item  = items.find(i => i.id === foodSelVal);
-      if (item && item.nutrition && item.nutrition.calories != null) {
-        const n = item.nutrition;
-        const r = grams / 100;
-        const round1 = v => v != null ? Math.round(v * r * 10) / 10 : '-';
-        const nutriNote = `【分量】${grams}g (${pct}%) ｜ ${round1(n.calories)}kcal ｜ タンパク質${round1(n.protein)}g ｜ 脂質${round1(n.fat)}g ｜ 炭水化物${round1(n.carbohydrate)}g`;
-        notes = notes ? notes + '\n' + nutriNote : nutriNote;
-      } else if (gEl.value) {
-        const nutriNote = `【分量】${grams}g (${pct}%)`;
-        notes = notes ? notes + '\n' + nutriNote : nutriNote;
-      }
-    }
-  }
   document.getElementById('act-err').textContent = '';
   const btn = document.getElementById('act-btn'); btn.disabled=true; btn.textContent='記録中…';
   try {
-    await gasPost({ action:'saveActivity', dogId, type, date:document.getElementById('a-date').value, startTime:document.getElementById('a-time').value, duration:document.getElementById('a-dur').value, location:document.getElementById('a-loc').value.trim(), detail, notes });
+    await gasPost({ action:'saveActivity', dogId, type:document.getElementById('a-type').value, date:document.getElementById('a-date').value, startTime:document.getElementById('a-time').value, duration:document.getElementById('a-dur').value, location:document.getElementById('a-loc').value.trim(), detail:document.getElementById('a-detail').value.trim(), notes:document.getElementById('a-notes').value.trim() });
     closeOv('ov-act'); toast('記録しました！');
     setTimeout(loadData, 800);
   } catch(e) { document.getElementById('act-err').textContent = 'エラー: ' + e.message; }
@@ -1787,652 +1040,30 @@ async function submitActivity() {
 }
 
 // ============================================================
-//  USER MANAGER (localStorage)
-// ============================================================
-const USER_KEY = 'renapp_users';
-function getUsers() {
-  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null') || []; } catch(e) { return []; }
-}
-function saveUsers(u) { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
-
-function renderUserEditor() {
-  const el = document.getElementById('user-editor'); if (!el) return;
-  const users = getUsers();
-  if (!users.length) { el.innerHTML = '<p style="font-size:12px;color:var(--txl);padding:8px 0">まだ登録がありません</p>'; return; }
-  el.innerHTML = users.map(u => `
-    <div class="genre-row">
-      <input class="g-label-in" type="text" value="${esc(u.name)}" id="usr-${u.id}">
-      <button class="g-add-btn" onclick="updateUser('${u.id}')" style="white-space:nowrap">保存</button>
-      <button class="g-del" onclick="removeUser('${u.id}')">削除</button>
-    </div>`).join('');
-}
-function updateUser(id) {
-  const users = getUsers(); const u = users.find(x => x.id === id); if (!u) return;
-  u.name = document.getElementById('usr-'+id).value.trim() || u.name;
-  saveUsers(users); renderUserEditor(); toast('更新しました');
-}
-function removeUser(id) {
-  if (!confirm('このユーザーを削除しますか？')) return;
-  saveUsers(getUsers().filter(u => u.id !== id));
-  renderUserEditor(); toast('削除しました');
-}
-function addUser() {
-  const name = document.getElementById('user-new-name').value.trim(); if (!name) return;
-  const users = getUsers();
-  if (users.find(u => u.name === name)) { toast('すでに登録済みです'); return; }
-  users.push({ id: 'u' + Date.now(), name });
-  saveUsers(users);
-  document.getElementById('user-new-name').value = '';
-  renderUserEditor(); toast('追加しました');
-}
-function populateAuthorSelect(currentVal) {
-  const sel = document.getElementById('f-author-sel'); if (!sel) return;
-  const inp = document.getElementById('f-author');
-  const users = getUsers();
-  sel.innerHTML = '<option value="">-- 選択 --</option>' +
-    users.map(u => `<option value="${esc(u.name)}">${esc(u.name)}</option>`).join('') +
-    '<option value="__custom__">✏️ 直接入力…</option>';
-  if (!users.length) {
-    // ユーザー未登録: セレクト非表示、テキスト入力
-    sel.style.display = 'none';
-    inp.style.display = '';
-    inp.value = currentVal || '';
-  } else if (currentVal && users.find(u => u.name === currentVal)) {
-    sel.value = currentVal;
-    inp.style.display = 'none';
-    inp.value = currentVal;
-  } else if (currentVal) {
-    sel.value = '__custom__';
-    inp.style.display = '';
-    inp.value = currentVal;
-  } else {
-    sel.style.display = '';
-    inp.style.display = 'none';
-    inp.value = '';
-  }
-}
-function onAuthorSelChange() {
-  const sel = document.getElementById('f-author-sel');
-  const inp = document.getElementById('f-author');
-  if (sel.value === '__custom__') {
-    inp.style.display = '';
-    inp.value = '';
-    inp.focus();
-  } else {
-    inp.style.display = 'none';
-    inp.value = sel.value;
-  }
-}
-
-// ============================================================
-//  FOOD MASTER (localStorage) - 成分データ付き
-// ============================================================
-const FOOD_KEY = 'renapp_food_items';
-function getFoodItems() {
-  try { return JSON.parse(localStorage.getItem(FOOD_KEY) || 'null') || []; } catch(e) { return []; }
-}
-function saveFoodItems(items) { localStorage.setItem(FOOD_KEY, JSON.stringify(items)); }
-
-function renderFoodEditor() {
-  const el = document.getElementById('food-editor'); if (!el) return;
-  const items = getFoodItems();
-  if (!items.length) {
-    el.innerHTML = '<p style="font-size:12px;color:var(--txl);padding:8px 0">まだ登録がありません</p>';
-    return;
-  }
-  el.innerHTML = items.map(it => {
-    const hasN = !!(it.nutrition && it.nutrition.calories != null);
-    const nutriSummary = hasN
-      ? `${it.nutrition.calories}kcal / タンパク質${it.nutrition.protein??'-'}g / 脂質${it.nutrition.fat??'-'}g / 炭水化物${it.nutrition.carbohydrate??'-'}g（100g基準）`
-      : '';
-    return `
-    <div class="food-master-row" id="frow-${it.id}">
-      <div class="food-master-main">
-        <span class="food-master-name">${esc(it.label)}</span>
-        <span class="food-nutri-badge ${hasN?'has':'none'}">${hasN?'✅ 成分あり':'未分析'}</span>
-        <div class="food-master-btns">
-          <button class="g-add-btn" onclick="openFoodAnalyzeModal('${it.id}')" style="font-size:12px;padding:5px 10px;" title="成分分析">📊</button>
-          <button class="g-del" onclick="removeFoodItem('${it.id}')">削除</button>
-        </div>
-      </div>
-      ${hasN ? `<div class="food-master-nutri show" id="fnutri-${it.id}">${nutriSummary}</div>` : ''}
-    </div>`;
-  }).join('');
-}
-
-function updateFoodItem(id) {
-  const items = getFoodItems(); const item = items.find(i => i.id === id); if (!item) return;
-  const inp = document.getElementById('fi-'+id);
-  if (inp) item.label = inp.value.trim() || item.label;
-  saveFoodItems(items); renderFoodEditor(); toast('更新しました');
-}
-function removeFoodItem(id) {
-  if (!confirm('このフードを削除しますか？\n（成分データも削除されます）')) return;
-  saveFoodItems(getFoodItems().filter(i => i.id !== id));
-  renderFoodEditor(); toast('削除しました');
-}
-function addFoodItem() {
-  const label = document.getElementById('food-new-label').value.trim(); if (!label) return;
-  const items = getFoodItems();
-  const newId = 'f' + Date.now();
-  items.push({ id: newId, label, nutrition: null });
-  saveFoodItems(items);
-  document.getElementById('food-new-label').value = '';
-  renderFoodEditor();
-  toast('追加しました。📊ボタンで成分を分析できます');
-}
-
-// ============================================================
-//  FOOD ANALYZE MODAL JS
-// ============================================================
-let _faPhotoData = null;       // マスタ分析用（複数枚配列）
-let _faPhotoType = 'label';    // label / package / food
-let _mealPhotoType = 'label';  // ごはん記録用
-
-const FA_TYPE_HINTS = {
-  label:   '成分表・栄養成分表示のアップ写真が最も正確です',
-  package: 'パッケージ全体の写真。フード名・成分を総合的に判断します',
-  food:    '実物の写真から食材・量をAIが目視推測します（精度は参考値）',
-};
-const FA_TYPE_ICONS = {
-  label:   { icon:'🏷️', txt:'成分表をスキャン中…' },
-  package: { icon:'📦', txt:'パッケージを解析中…' },
-  food:    { icon:'🍖', txt:'食品を目視推測中…' },
-};
-
-function setFaType(type, btn) {
-  _faPhotoType = type;
-  document.querySelectorAll('#fa-type-grid .fa-type-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  const hint = document.getElementById('fa-type-hint');
-  if (hint) hint.textContent = FA_TYPE_HINTS[type];
-}
-
-function setMealPhotoType(type, btn) {
-  _mealPhotoType = type;
-  document.querySelectorAll('#meal-type-btns .fa-type-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-}
-
-function onFaMasterPhoto(e) {
-  const files = Array.from(e.target.files); if (!files.length) return;
-  // 複数枚を圧縮してbase64配列に
-  _faPhotoData = [];
-  const grid = document.getElementById('fa-photo-prev-grid');
-  grid.innerHTML = '';
-  grid.style.display = 'grid';
-  let loaded = 0;
-  files.forEach((file, idx) => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      _faPhotoData.push({ data: ev.target.result.split(',')[1], mimeType: file.type });
-      // プレビュー
-      const div = document.createElement('div');
-      div.style.cssText = 'aspect-ratio:1;border-radius:9px;overflow:hidden;border:2px solid var(--crd);';
-      div.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
-      grid.appendChild(div);
-      loaded++;
-      if (loaded === files.length) {
-        document.getElementById('fa-analyze-btn').style.display = '';
-        document.getElementById('fa-result').style.display = 'none';
-      }
-    };
-    reader.readAsDataURL(file);
-  });
-  e.target.value = '';
-}
-
-async function runFaMasterAnalyze() {
-  if (!_faPhotoData || !_faPhotoData.length) { toast('写真を選択してください'); return; }
-  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
-  const btn = document.getElementById('fa-analyze-btn');
-  const typeInfo = FA_TYPE_ICONS[_faPhotoType] || FA_TYPE_ICONS.label;
-  btn.disabled = true; btn.textContent = typeInfo.txt;
-  document.getElementById('fa-err').textContent = '';
-  try {
-    // 複数枚の場合は最初の1枚を送る（GASが複数枚未対応の場合のフォールバック）
-    // photoTypeをヒントとして送る
-    const primary = _faPhotoData[0];
-    const r = await gasPost({
-      action: 'analyzeFood',
-      imageData: primary.data,
-      mimeType:  primary.mimeType,
-      photoType: _faPhotoType,           // label/package/food
-      extraImages: _faPhotoData.slice(1).map(p => ({ data: p.data, mimeType: p.mimeType })),
-      per100g: true,                     // 100g基準で返してほしい
-    });
-    const res = r.result;
-    // 結果展開
-    document.getElementById('fa-result-name').textContent = res.foodName || '（不明）';
-    document.getElementById('fa-cal').value   = res.calories     ?? '';
-    document.getElementById('fa-prot').value  = res.protein      ?? '';
-    document.getElementById('fa-fat').value   = res.fat          ?? '';
-    document.getElementById('fa-carb').value  = res.carbohydrate ?? '';
-    document.getElementById('fa-ingr').value  = res.ingredients  || '';
-    document.getElementById('fa-notes').value = res.notes        || '';
-    document.getElementById('fa-result-grid').innerHTML = buildNutriGridHTML(res, 100);
-    // confidence バッジ
-    const conf = res.confidence || '';
-    const confColor = conf === 'high' ? '#2e7d32' : conf === 'medium' ? '#e65100' : '#c0392b';
-    const confLabel = { high:'高精度', medium:'中精度', low:'参考値（推測）' }[conf] || conf;
-    const extra = [
-      conf ? `<span style="color:${confColor};font-weight:700;">📊 精度: ${confLabel}</span>` : '',
-      res.ingredients ? `原材料: ${esc(res.ingredients)}` : '',
-      res.notes ? `<span style="color:#c0392b">注意: ${esc(res.notes)}</span>` : '',
-    ].filter(Boolean).join('<br>');
-    document.getElementById('fa-result-extra').innerHTML = extra;
-    document.getElementById('fa-result').style.display = '';
-    toast('分析完了！内容を確認して保存してください');
-  } catch(e) {
-    document.getElementById('fa-err').textContent = '分析エラー: ' + e.message;
-  }
-  finally { btn.disabled = false; btn.textContent = '✨ AIで成分を読み取る'; }
-}
-  const items = getFoodItems();
-  const item = items.find(i => i.id === foodId); if (!item) return;
-  document.getElementById('fa-food-id').value = foodId;
-  document.getElementById('food-analyze-ttl').textContent = `📊 ${item.label} - 成分分析`;
-  document.getElementById('fa-err').textContent = '';
-  const grid = document.getElementById('fa-photo-prev-grid');
-  if (grid) { grid.innerHTML = ''; grid.style.display = 'none'; }
-  document.getElementById('fa-analyze-btn').style.display = 'none';
-  document.getElementById('fa-result').style.display = 'none';
-  document.getElementById('fa-reanalyze').style.display = 'none';
-  _faPhotoData = null;
-  _faPhotoType = 'label';
-  // タイプボタン・ヒントをリセット
-  document.querySelectorAll('#fa-type-grid .fa-type-btn').forEach(b => b.classList.toggle('on', b.dataset.type === 'label'));
-  const hint = document.getElementById('fa-type-hint');
-  if (hint) hint.textContent = FA_TYPE_HINTS.label;
-
-  // 既存データ表示
-  const existing = document.getElementById('fa-existing');
-  if (item.nutrition && item.nutrition.calories != null) {
-    const n = item.nutrition;
-    document.getElementById('fa-existing-grid').innerHTML = buildNutriGridHTML(n, 100);
-    existing.style.display = '';
-  } else {
-    existing.style.display = 'none';
-  }
-  openOv('ov-food-analyze');
-}
-
-// 旧onFaMasterPhotoは上のFA_TYPE_HINTS定義後の onFaMasterPhoto に移動済み
-
-async function runFaMasterAnalyze() {
-  if (!_faPhotoData) { toast('写真を選択してください'); return; }
-  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
-  const btn = document.getElementById('fa-analyze-btn');
-  btn.disabled = true; btn.textContent = '分析中…';
-  document.getElementById('fa-err').textContent = '';
-  try {
-    const r = await gasPost({ action:'analyzeFood', imageData: _faPhotoData.data, mimeType: _faPhotoData.mimeType });
-    const res = r.result;
-    // 結果をフォームに展開
-    document.getElementById('fa-result-name').textContent = res.foodName || '';
-    document.getElementById('fa-cal').value  = res.calories    ?? '';
-    document.getElementById('fa-prot').value = res.protein     ?? '';
-    document.getElementById('fa-fat').value  = res.fat         ?? '';
-    document.getElementById('fa-carb').value = res.carbohydrate?? '';
-    document.getElementById('fa-ingr').value = res.ingredients || '';
-    document.getElementById('fa-notes').value= res.notes       || '';
-    document.getElementById('fa-result-grid').innerHTML = buildNutriGridHTML(res, 100);
-    const extra = [res.ingredients ? `原材料: ${res.ingredients}` : '', res.notes ? `注意: ${res.notes}` : ''].filter(Boolean).join('<br>');
-    document.getElementById('fa-result-extra').innerHTML = extra;
-    document.getElementById('fa-result').style.display = '';
-    toast('分析完了！内容を確認して保存してください');
-  } catch(e) {
-    document.getElementById('fa-err').textContent = '分析エラー: ' + e.message;
-  }
-  finally { btn.disabled = false; btn.textContent = '✨ AIで成分を読み取る'; }
-}
-
-function saveFaMasterNutrition() {
-  const foodId = document.getElementById('fa-food-id').value;
-  const items = getFoodItems();
-  const item = items.find(i => i.id === foodId); if (!item) return;
-  const nutrition = {
-    calories:      parseFloat(document.getElementById('fa-cal').value)  || 0,
-    protein:       parseFloat(document.getElementById('fa-prot').value) || 0,
-    fat:           parseFloat(document.getElementById('fa-fat').value)  || 0,
-    carbohydrate:  parseFloat(document.getElementById('fa-carb').value) || 0,
-    ingredients:   document.getElementById('fa-ingr').value.trim(),
-    notes:         document.getElementById('fa-notes').value.trim(),
-    savedAt:       today(),
-  };
-  item.nutrition = nutrition;
-  saveFoodItems(items);
-  renderFoodEditor();
-  closeOv('ov-food-analyze');
-  toast(`${item.label} の成分を保存しました ✓`);
-}
-
-// ============================================================
-//  FOOD SELECT → ごはん記録モーダル 成分表示
-// ============================================================
-function populateFoodSelect() {
-  const sel = document.getElementById('a-food-sel'); if (!sel) return;
-  const items = getFoodItems();
-  sel.innerHTML = '<option value="">-- 選択（任意）--</option>' +
-    items.map(i => {
-      const badge = (i.nutrition && i.nutrition.calories != null) ? ' ✅' : '';
-      return `<option value="${esc(i.id)}">${esc(i.label)}${badge}</option>`;
-    }).join('') +
-    '<option value="__custom__">✏️ 直接入力（マスタ外）</option>';
-}
-
-function onFoodSelChange() {
-  const selVal = document.getElementById('a-food-sel').value;
-  const nutriSec   = document.getElementById('meal-nutri-section');
-  const noNutriSec = document.getElementById('meal-no-nutri-section');
-  const photoSec   = document.getElementById('meal-photo-section');
-  const detailInp  = document.getElementById('a-detail');
-
-  if (!selVal || selVal === '__custom__') {
-    // 未選択 or 直接入力
-    nutriSec.style.display   = 'none';
-    noNutriSec.style.display = 'none';
-    photoSec.style.display   = '';
-    if (selVal === '__custom__' && detailInp) detailInp.value = '';
-    return;
-  }
-
-  const items = getFoodItems();
-  const item  = items.find(i => i.id === selVal);
-  if (!item) return;
-
-  // 詳細欄にフード名セット
-  if (detailInp) detailInp.value = item.label;
-
-  if (item.nutrition && item.nutrition.calories != null) {
-    // 成分あり
-    nutriSec.style.display   = '';
-    noNutriSec.style.display = 'none';
-    photoSec.style.display   = 'none';
-    // デフォルト分量100g
-    document.getElementById('a-amount-g').value   = 100;
-    document.getElementById('a-amount-pct').value = 100;
-    renderMealNutriCard(item.nutrition, 100);
-  } else {
-    // 成分なし
-    nutriSec.style.display   = 'none';
-    noNutriSec.style.display = '';
-    photoSec.style.display   = '';
-  }
-}
-
-function onAmountChange(source) {
-  const gEl   = document.getElementById('a-amount-g');
-  const pctEl = document.getElementById('a-amount-pct');
-  let grams;
-  if (source === 'g') {
-    grams = parseFloat(gEl.value) || 0;
-    pctEl.value = Math.round(grams);  // 100g=100%なのでgrams==pct
-  } else {
-    const pct = parseFloat(pctEl.value) || 0;
-    grams = pct;  // 100%=100g
-    gEl.value = grams;
-  }
-  // 選択中フードの成分で計算
-  const selVal = document.getElementById('a-food-sel').value;
-  const items  = getFoodItems();
-  const item   = items.find(i => i.id === selVal);
-  if (item && item.nutrition) renderMealNutriCard(item.nutrition, grams);
-}
-
-function renderMealNutriCard(n, grams) {
-  const ratio = grams / 100;
-  document.getElementById('meal-nutri-grid').innerHTML = buildNutriGridHTML(n, grams);
-  const extraEl = document.getElementById('meal-nutri-extra');
-  if (n.ingredients || n.notes) {
-    extraEl.style.display = '';
-    extraEl.innerHTML = [
-      n.ingredients ? `原材料: ${esc(n.ingredients)}` : '',
-      n.notes       ? `<span style="color:#c0392b">注意: ${esc(n.notes)}</span>` : '',
-    ].filter(Boolean).join('<br>');
-  } else {
-    extraEl.style.display = 'none';
-  }
-}
-
-function buildNutriGridHTML(n, grams) {
-  const r = (grams || 100) / 100;
-  const v = (base) => base != null ? Math.round(base * r * 10) / 10 : '-';
-  const label = grams !== 100 ? `${grams}g` : '100g';
-  return `
-    <div class="nutri-cell"><div class="nutri-val">${v(n.calories)}</div><div class="nutri-lbl">kcal (${label})</div></div>
-    <div class="nutri-cell"><div class="nutri-val">${v(n.protein)}</div><div class="nutri-lbl">タンパク質g</div></div>
-    <div class="nutri-cell"><div class="nutri-val">${v(n.fat)}</div><div class="nutri-lbl">脂質g</div></div>
-    <div class="nutri-cell"><div class="nutri-val">${v(n.carbohydrate)}</div><div class="nutri-lbl">炭水化物g</div></div>`;
-}
-
-// ============================================================
-//  FOOD PHOTO AI ANALYSIS (ごはん記録モーダル内 - 即時分析用)
-// ============================================================
-function onFoodPhoto(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    window._foodPhotoData = { data: ev.target.result.split(',')[1], mimeType: file.type };
-    document.getElementById('food-photo-img').src = ev.target.result;
-    document.getElementById('food-photo-prev').style.display = '';
-    document.getElementById('food-analyze-btn').style.display = '';
-    document.getElementById('food-analyze-result').style.display = 'none';
-    document.getElementById('food-apply-btn').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-}
-async function analyzeFood() {
-  if (!window._foodPhotoData) { toast('画像を選択してください'); return; }
-  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
-  const btn = document.getElementById('food-analyze-btn');
-  const typeInfo = FA_TYPE_ICONS[_mealPhotoType] || FA_TYPE_ICONS.label;
-  btn.disabled = true; btn.textContent = typeInfo.txt;
-  try {
-    const r = await gasPost({
-      action:    'analyzeFood',
-      imageData: window._foodPhotoData.data,
-      mimeType:  window._foodPhotoData.mimeType,
-      photoType: _mealPhotoType,
-      per100g:   true,
-    });
-    const res = r.result;
-    window._foodAnalysisResult = res;
-    const conf = res.confidence || '';
-    const confLabel = { high:'高精度', medium:'中精度', low:'参考値（推測）' }[conf] || conf;
-    const confColor = conf === 'high' ? '#2e7d32' : conf === 'medium' ? '#e65100' : '#c0392b';
-    const rows = [
-      conf ? `<span style="color:${confColor};font-weight:700;">📊 精度: ${confLabel}</span>` : '',
-      res.foodName     ? `<b>フード名:</b> ${esc(res.foodName)}` : '',
-      res.amount       ? `<b>量:</b> ${esc(res.amount)}` : '',
-      res.calories    != null ? `<b>カロリー:</b> ${res.calories} kcal/100g` : '',
-      res.protein     != null ? `<b>タンパク質:</b> ${res.protein} g` : '',
-      res.fat         != null ? `<b>脂質:</b> ${res.fat} g` : '',
-      res.carbohydrate!= null ? `<b>炭水化物:</b> ${res.carbohydrate} g` : '',
-      res.ingredients  ? `<b>原材料:</b> ${esc(res.ingredients)}` : '',
-      res.notes        ? `<span style="color:#c0392b"><b>注意:</b> ${esc(res.notes)}</span>` : '',
-    ].filter(Boolean).join('<br>');
-    document.getElementById('food-analyze-result').innerHTML = rows;
-    document.getElementById('food-analyze-result').style.display = '';
-    document.getElementById('food-apply-btn').style.display = '';
-    toast('分析完了！');
-  } catch(e) { toast('分析エラー: ' + e.message); }
-  finally { btn.disabled = false; btn.textContent = '✨ AIで分析する'; }
-}
-function applyFoodAnalysis() {
-  const res = window._foodAnalysisResult; if (!res) return;
-  let detail = '';
-  if (res.foodName) detail += res.foodName;
-  if (res.amount)   detail += (detail ? ' ' : '') + res.amount;
-  if (res.calories != null) detail += (detail ? '／' : '') + res.calories + 'kcal';
-  const inp = document.getElementById('a-detail');
-  if (detail && inp) inp.value = detail;
-  const notes = document.getElementById('a-notes');
-  if (res.notes && notes && !notes.value) notes.value = res.notes;
-  toast('反映しました ✓');
-  document.getElementById('food-apply-btn').style.display = 'none';
-}
-
-
-// ============================================================
 //  SETTINGS
 // ============================================================
-const PLAY_KEY = 'renapp_play_items';
-function getPlayItems() {
-  try { return JSON.parse(localStorage.getItem(PLAY_KEY) || 'null') || defaultPlayItems(); } catch(e) { return defaultPlayItems(); }
-}
-function savePlayItems(items) { localStorage.setItem(PLAY_KEY, JSON.stringify(items)); }
-function defaultPlayItems() {
-  return [
-    { id:'p1', icon:'🎾', label:'ボール遊び' },
-    { id:'p2', icon:'🪢', label:'ロープ引っ張り' },
-    { id:'p3', icon:'🦴', label:'おもちゃ' },
-    { id:'p4', icon:'🏃', label:'追いかけっこ' },
-    { id:'p5', icon:'🌊', label:'水遊び' },
-    { id:'p6', icon:'🤸', label:'アジリティ' },
-  ];
-}
-
-function switchStab(tab) {
-  document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
-  document.getElementById('stab-' + tab).classList.add('on');
-  document.getElementById('stab-app-body').style.display = tab === 'app' ? '' : 'none';
-  document.getElementById('stab-core-body').style.display = tab === 'core' ? '' : 'none';
-}
-
 function openSettings() {
-  document.getElementById('cfg-url').value = gasUrl;
+  document.getElementById('cfg-url').value = cfg.url||'';
+  document.getElementById('cfg-author').value = cfg.author||'';
   document.getElementById('cfg-claude').value = '';
-  // 共有URL表示
-  if (gasUrl) {
-    const wrap = document.getElementById('cfg-share-url-wrap');
-    if (wrap) { wrap.style.display = ''; renderShareUrl(gasUrl); }
-  }
-  switchStab('app');
-  renderUserEditor();
-  renderFoodEditor();
   renderGenreEditor();
-  renderPlayEditor();
   renderAssetEditor();
   openOv('ov-settings');
 }
 
-async function saveCoreSettings() {
+async function saveSettings() {
   const url    = document.getElementById('cfg-url').value.trim();
+  const author = document.getElementById('cfg-author').value.trim();
   const claude = document.getElementById('cfg-claude').value.trim();
-  if (!url) { toast('GAS URLを入力してください'); return; }
-  const urlChanged = url !== gasUrl;
-  saveUrl(url);
-  setLoading(true, '保存中…');
-  try {
-    // GAS URLをconfigシートに保存（クロスデバイス同期）
-    // GASのsaveConfigは { action, key, value } または { action, configs:{key:value,...} } どちらか
-    // 両形式試す：まず単純なkey/value形式
-    try {
-      await gasPost({ action:'saveConfig', key:'gas_url', value:url });
-    } catch(e1) {
-      // 失敗したらconfigs形式で試す
-      try { await gasPost({ action:'saveConfig', configs:{ gas_url: url } }); } catch(e2) {}
-    }
-    if (claude) {
-      await gasPost({ action:'setClaudeKey', key:claude });
-    }
-    toast('保存しました ✓');
-    document.getElementById('cfg-claude').value = '';
-    const wrap = document.getElementById('cfg-share-url-wrap');
-    if (wrap) { wrap.style.display = ''; renderShareUrl(url); }
-    if (urlChanged) { closeOv('ov-settings'); setTimeout(loadData, 500); }
-  } catch(e) { toast('エラー: ' + e.message); }
-  finally { setLoading(false); }
-}
-
-function renderShareUrl(url) {
-  const el = document.getElementById('cfg-share-url');
-  if (!el) return;
-  const shareUrl = location.origin + location.pathname + '?g=' + encodeURIComponent(url);
-  el.value = shareUrl;
-  el.closest('.fg').style.display = '';
-}
-
-async function testSaveConfig() {
-  if (!gasUrl) { toast('先にGAS URLを入力して保存してください'); return; }
-  const el = document.getElementById('cfg-test-result');
-  el.style.display = '';
-  el.style.background = 'var(--cr)';
-  el.innerHTML = '🔄 テスト中…';
-  try {
-    // 1. 通常のGETが通るか
-    const r = await fetch(gasUrl + '?t=' + Date.now(), { redirect:'follow' });
-    const d = await r.json();
-    if (!d.success) throw new Error('GET失敗: ' + d.error);
-
-    // 2. saveConfig key/value形式
-    let saveOk = false;
-    let saveErr = '';
-    try {
-      const r2 = await gasPost({ action:'saveConfig', key:'gas_url', value:gasUrl });
-      saveOk = true;
-    } catch(e) {
-      saveErr = e.message;
-    }
-
-    el.style.background = saveOk ? '#e8f5e9' : '#fff3e0';
-    el.innerHTML = saveOk
-      ? `✅ GAS接続OK<br>✅ saveConfig(key/value形式)OK<br><span style="color:var(--txl)">configシートを確認してください</span>`
-      : `✅ GAS接続OK<br>⚠️ saveConfig失敗: ${esc(saveErr)}<br><span style="color:#c0392b">GASのsaveConfigアクションがkey/value形式に対応しているか確認してください</span>`;
-  } catch(e) {
-    el.style.background = '#fce8e8';
-    el.innerHTML = `❌ GAS接続失敗: ${esc(e.message)}`;
+  cfg.url = url; cfg.author = author; saveCfg();
+  // Save Claude key to GAS if provided
+  if (claude && url) {
+    try { await gasPost({ action:'setClaudeKey', key:claude }); toast('Claude APIキーを登録しました'); }
+    catch(e) { toast('Keyの保存失敗: ' + e.message); }
   }
-}
-
-function copyShareUrl() {
-  const el = document.getElementById('cfg-share-url');
-  if (!el) return;
-  navigator.clipboard.writeText(el.value).then(() => toast('URLをコピーしました！\n他のデバイスでこのURLを開くと設定が自動でセットされます')).catch(() => { el.select(); document.execCommand('copy'); toast('コピーしました'); });
-}
-
-// ============================================================
-//  PLAY ITEMS EDITOR
-// ============================================================
-function renderPlayEditor() {
-  const el = document.getElementById('play-editor');
-  if (!el) return;
-  const items = getPlayItems();
-  el.innerHTML = items.map(it => `
-    <div class="genre-row" id="play-row-${it.id}">
-      <input class="g-icon-pick" type="text" value="${esc(it.icon)}" id="pi-icon-${it.id}" maxlength="2" style="width:52px;text-align:center;font-size:18px;padding:7px 4px;">
-      <input class="g-label-in" type="text" value="${esc(it.label)}" id="pi-lbl-${it.id}">
-      <button class="g-add-btn" onclick="updatePlayItem('${it.id}')" style="white-space:nowrap">保存</button>
-      <button class="g-del" onclick="removePlayItem('${it.id}')">削除</button>
-    </div>`).join('');
-}
-
-function updatePlayItem(id) {
-  const items = getPlayItems();
-  const item = items.find(i => i.id === id); if (!item) return;
-  item.label = document.getElementById('pi-lbl-'+id).value.trim() || item.label;
-  item.icon  = document.getElementById('pi-icon-'+id).value.trim() || item.icon;
-  savePlayItems(items); renderPlayEditor(); toast('更新しました');
-}
-
-function removePlayItem(id) {
-  if (!confirm('この遊び内容を削除しますか？')) return;
-  savePlayItems(getPlayItems().filter(i => i.id !== id));
-  renderPlayEditor(); toast('削除しました');
-}
-
-function addPlayItem() {
-  const label = document.getElementById('play-new-label').value.trim();
-  const icon  = document.getElementById('play-new-icon').value.trim() || '🎾';
-  if (!label) return;
-  const items = getPlayItems();
-  items.push({ id: 'p' + Date.now(), icon, label });
-  savePlayItems(items);
-  document.getElementById('play-new-label').value = '';
-  document.getElementById('play-new-icon').value = '';
-  renderPlayEditor(); toast('追加しました');
+  closeOv('ov-settings');
+  toast('設定を保存しました ✓');
+  if (url) loadData();
 }
 
 // ============================================================
@@ -2481,21 +1112,19 @@ async function removeGenre(id) {
 //  ASSET EDITOR
 // ============================================================
 const ASSET_META = {
-  logo:        { label:'サイトロゴ',          icon:'🐾' },
-  favicon:     { label:'ファビコン / アプリアイコン', icon:'🖼️' },
-  site_bg:     { label:'サイト背景',          icon:'🌿' },
-  header_bg:   { label:'ヘッダー背景',        icon:'🎨' },
-  default_pet: { label:'ペットアイコン',       icon:'🐶' },
+  logo:        { label:'サイトロゴ',     icon:'🐾' },
+  site_bg:     { label:'サイト背景',     icon:'🌿' },
+  header_bg:   { label:'ヘッダー背景',   icon:'🎨' },
+  default_pet: { label:'ペットアイコン', icon:'🐶' },
 };
 function renderAssetEditor() {
   const el = document.getElementById('asset-editor');
-  el.innerHTML = ['logo','favicon','site_bg','header_bg','default_pet'].map(key => {
+  el.innerHTML = ['logo','site_bg','header_bg','default_pet'].map(key => {
     const meta = ASSET_META[key], asset = appData.assets[key]||{};
     const hasImg = !!asset.url;
-    const sub = key === 'favicon' ? '<div class="ai-sub">スマホのホーム画面アイコンにも使用</div>' : '';
     return `<div class="asset-row">
       <div class="asset-prev">${hasImg?`<img src="${asset.thumb||asset.url}">`:'<span>'+meta.icon+'</span>'}</div>
-      <div class="ai-info"><div class="ai-label">${meta.label}</div>${sub}</div>
+      <div class="ai-info"><div class="ai-label">${meta.label}</div></div>
       <div class="aact">
         <button class="a-up" onclick="startAssetUp('${key}')">変更</button>
         ${hasImg?`<button class="a-del" onclick="removeAsset('${key}')">削除</button>`:''}
@@ -2535,8 +1164,7 @@ function closeOv(id) { document.getElementById(id).classList.remove('open'); }
 //  GAS FETCH
 // ============================================================
 async function gasPost(body) {
-  if (!gasUrl) throw new Error('GAS URLが未設定です');
-  const r = await fetch(gasUrl, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(body), redirect:'follow' });
+  const r = await fetch(cfg.url, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(body), redirect:'follow' });
   const d = await r.json();
   if (!d.success) throw new Error(d.error||'GASエラー');
   return d;
@@ -2560,17 +1188,7 @@ function compress(file, maxPx=900, q=0.78) {
   });
 }
 function fmtDate(s){if(!s)return'';const d=new Date(s);return isNaN(d)?s:`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;}
-function fmtDateShort(s){if(!s)return'';const d=new Date(s);return isNaN(d)?s:`${d.getMonth()+1}/${d.getDate()}`;}
-// GASがtime型を1899-12-30Txx:xx:xxとして返す問題を修正
-function fmtTime(s) {
-  if (!s) return '';
-  // HH:MM形式ならそのまま
-  if (/^\d{1,2}:\d{2}/.test(s)) return s.slice(0,5);
-  // ISO文字列の場合（1899-12-30T08:09:00.000Z等）時刻部分だけ抽出
-  const m = s.match(/T(\d{2}:\d{2})/);
-  if (m) return m[1];
-  return s;
-}function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200);}
 function setLoading(v,msg='処理中…'){const el=document.getElementById('loading-ov');el.classList.toggle('show',v);if(msg)document.getElementById('loading-msg').textContent=msg;}
 </script>
