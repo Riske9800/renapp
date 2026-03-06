@@ -699,8 +699,9 @@ async function loadData() {
   if (!gasUrl) { renderSetupGuide(); return; }
   document.getElementById('feed-posts').innerHTML = '<div class="spinner"><span class="spin">🐾</span>読み込み中…</div>';
   try {
-    const r = await fetch(gasUrl + '?t=' + Date.now());
-    const d = await r.json();
+    const r = await fetch(gasUrl + '?t=' + Date.now(), { redirect: 'follow' });
+    const text = await r.text();
+    const d = JSON.parse(text);
     if (!d.success) throw new Error(d.error);
     appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[], config: d.config||{} };
     // シートの設定をメモリに反映（author等）
