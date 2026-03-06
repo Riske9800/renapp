@@ -491,13 +491,29 @@ textarea{resize:none;height:90px;line-height:1.7;}
 <script>
 // ============================================================
 //  STATE
+//  localStorageにはGAS URLのみ保持。それ以外の設定はシートから取得。
 // ============================================================
-const CFG_KEY = 'renapp_cfg_v3';
-let cfg = {};
-try { cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{}'); } catch(e) {}
-function saveCfg() { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+const CFG_KEY = 'renapp_url_v4';  // GAS URLのみ
+let gasUrl = '';
+try { gasUrl = localStorage.getItem(CFG_KEY) || ''; } catch(e) {}
+function saveUrl(url) { try { localStorage.setItem(CFG_KEY, url); } catch(e) {} gasUrl = url; }
 
-let appData = { posts:[], assets:{}, genres:[], dogs:[], activities:[], analysisHistory:[] };
+// シートから取得した設定（author等）
+let remoteConfig = {};
+
+// レガシー移行: 旧形式のlocalStorageから移行
+try {
+  const old = JSON.parse(localStorage.getItem('renapp_cfg_v3') || '{}');
+  if (old.url && !gasUrl) { gasUrl = old.url; saveUrl(gasUrl); }
+} catch(e) {}
+
+// cfg は後方互換のためのプロキシ
+const cfg = new Proxy({}, {
+  get(_, k) { if (k==='url') return gasUrl; return remoteConfig[k]; },
+  set(_, k, v) { if (k==='url') { saveUrl(v); } else { remoteConfig[k] = v; } return true; }
+});
+
+let appData = { posts:[], assets:{}, genres:[], dogs:[], activities:[], analysisHistory:[], config:{} };
 let selectedFiles = [];
 let pendingAssetKey = null;
 let currentTab = 'feed';
@@ -510,11 +526,10 @@ let analysisCharts = {};
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('f-date').value = today();
   document.getElementById('a-date').value = today();
-  // overlay bg click to close
   document.querySelectorAll('.ov').forEach(ov => {
     ov.addEventListener('click', e => { if (e.target === ov) closeOv(ov.id); });
   });
-  if (cfg.url) loadData();
+  if (gasUrl) loadData();
   else renderSetupGuide();
 });
 
@@ -524,13 +539,15 @@ function today() { return new Date().toISOString().split('T')[0]; }
 //  DATA LOADING
 // ============================================================
 async function loadData() {
-  if (!cfg.url) { renderSetupGuide(); return; }
+  if (!gasUrl) { renderSetupGuide(); return; }
   document.getElementById('feed-posts').innerHTML = '<div class="spinner"><span class="spin">🐾</span>読み込み中…</div>';
   try {
-    const r = await fetch(cfg.url + '?t=' + Date.now());
+    const r = await fetch(gasUrl + '?t=' + Date.now());
     const d = await r.json();
     if (!d.success) throw new Error(d.error);
-    appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[] };
+    appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[], config: d.config||{} };
+    // シートの設定をメモリに反映（author等）
+    remoteConfig = { ...appData.config };
     applyAssets();
     renderGenreChips();
     renderAuthorFilter();
@@ -812,7 +829,7 @@ function renderAnalysisHistory() {
 async function runAnalysis() {
   const dogId = document.getElementById('analysis-dog-pick').value;
   if (!dogId) { toast('わんこを選択してください'); return; }
-  if (!cfg.url) { toast('GAS URLが未設定です'); return; }
+  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
   const dog = appData.dogs.find(d => d.id === dogId);
   if (!dog) return;
   setLoading(true, 'AI分析中…');
@@ -1007,7 +1024,7 @@ function populateGenreSelect() {
 function openPost() {
   document.getElementById('post-modal-ttl').textContent = '🐶 思い出を投稿';
   document.getElementById('f-id').value = '';
-  if (cfg.author) document.getElementById('f-author').value = cfg.author;
+  if (remoteConfig.author) document.getElementById('f-author').value = remoteConfig.author;
   document.getElementById('f-date').value = today();
   document.getElementById('f-title').value = '';
   document.getElementById('f-comment').value = '';
@@ -1065,7 +1082,7 @@ function renderPostPreviews() {
 function delPostPhoto(i) { selectedFiles.splice(i,1); renderPostPreviews(); }
 
 async function submitPost() {
-  if (!cfg.url) { toast('GAS URLが未設定です'); return; }
+  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
   const id = document.getElementById('f-id').value;
   const title = document.getElementById('f-title').value.trim();
   if (!title) { document.getElementById('post-err').textContent = 'タイトルを入力してください'; return; }
@@ -1077,10 +1094,10 @@ async function submitPost() {
     for (const f of selectedFiles) photos.push(await compress(f, 900, 0.78));
     if (id) {
       // UPDATE
-      await gasPost({ action:'updatePost', id, title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||cfg.author||'匿名', newPhotos:photos, removePhotoIds:removedPhotoIndices });
+      await gasPost({ action:'updatePost', id, title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||remoteConfig.author||'匿名', newPhotos:photos, removePhotoIds:removedPhotoIndices });
       toast('更新しました！');
     } else {
-      await gasPost({ action:'createPost', title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||cfg.author||'匿名', photos });
+      await gasPost({ action:'createPost', title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||remoteConfig.author||'匿名', photos });
       toast('投稿しました！');
     }
     closeOv('ov-post');
@@ -1317,8 +1334,8 @@ function switchStab(tab) {
 }
 
 function openSettings() {
-  document.getElementById('cfg-url').value = cfg.url||'';
-  document.getElementById('cfg-author').value = cfg.author||'';
+  document.getElementById('cfg-url').value = gasUrl;
+  document.getElementById('cfg-author').value = remoteConfig.author || '';
   document.getElementById('cfg-claude').value = '';
   switchStab('app');
   renderGenreEditor();
@@ -1328,23 +1345,35 @@ function openSettings() {
 }
 
 async function saveAppSettings() {
-  cfg.author = document.getElementById('cfg-author').value.trim();
-  saveCfg();
-  toast('アプリ設定を保存しました ✓');
+  if (!gasUrl) { toast('先にコア設定でGAS URLを入力してください'); return; }
+  const author = document.getElementById('cfg-author').value.trim();
+  setLoading(true, '設定を保存中…');
+  try {
+    await gasPost({ action:'saveConfig', config:{ author } });
+    remoteConfig.author = author;
+    toast('アプリ設定を保存しました ✓');
+  } catch(e) { toast('エラー: ' + e.message); }
+  finally { setLoading(false); }
 }
 
 async function saveCoreSettings() {
   const url    = document.getElementById('cfg-url').value.trim();
   const claude = document.getElementById('cfg-claude').value.trim();
-  const urlChanged = url !== cfg.url;
-  cfg.url = url; saveCfg();
-  if (claude && url) {
-    try { await gasPost({ action:'setClaudeKey', key:claude }); toast('APIキーを保存しました ✓'); }
-    catch(e) { toast('Keyの保存失敗: ' + e.message); return; }
-  } else {
-    toast('コア設定を保存しました ✓');
-  }
-  if (urlChanged && url) { closeOv('ov-settings'); loadData(); }
+  if (!url) { toast('GAS URLを入力してください'); return; }
+  const urlChanged = url !== gasUrl;
+  saveUrl(url);   // localStorageにURLのみ保存
+  setLoading(true, '保存中…');
+  try {
+    if (claude) {
+      await gasPost({ action:'setClaudeKey', key:claude });
+      toast('コア設定を保存しました ✓');
+    } else {
+      toast('GAS URLを保存しました ✓');
+    }
+    document.getElementById('cfg-claude').value = '';
+    if (urlChanged) { closeOv('ov-settings'); loadData(); }
+  } catch(e) { toast('エラー: ' + e.message); }
+  finally { setLoading(false); }
 }
 
 // ============================================================
@@ -1487,7 +1516,8 @@ function closeOv(id) { document.getElementById(id).classList.remove('open'); }
 //  GAS FETCH
 // ============================================================
 async function gasPost(body) {
-  const r = await fetch(cfg.url, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(body), redirect:'follow' });
+  if (!gasUrl) throw new Error('GAS URLが未設定です');
+  const r = await fetch(gasUrl, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(body), redirect:'follow' });
   const d = await r.json();
   if (!d.success) throw new Error(d.error||'GASエラー');
   return d;
