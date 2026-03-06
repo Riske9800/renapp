@@ -647,9 +647,10 @@ textarea{resize:none;height:90px;line-height:1.7;}
 //  STATE
 //  localStorageにはGAS URLのみ保持。それ以外の設定はシートから取得。
 // ============================================================
-const CFG_KEY = 'renapp_url_v4';  // GAS URLのみ
-let gasUrl = '';
-try { gasUrl = localStorage.getItem(CFG_KEY) || ''; } catch(e) {}
+const CFG_KEY = 'renapp_url_v4';
+const GAS_DEFAULT = 'https://script.google.com/macros/s/AKfycbzYoJZEWn1cCh_I05eM99ynYkbzsEdRxzJeBUiQ7lXoDoezE6JYDGQCZqNLu9_qYBkM/exec';
+let gasUrl = GAS_DEFAULT;
+try { gasUrl = localStorage.getItem(CFG_KEY) || GAS_DEFAULT; } catch(e) {}
 function saveUrl(url) { try { localStorage.setItem(CFG_KEY, url); } catch(e) {} gasUrl = url; }
 
 // シートから取得した設定（author等）
