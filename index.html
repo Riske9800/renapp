@@ -104,10 +104,20 @@ body>*{position:relative;z-index:1;}
 .act-del{background:none;border:none;cursor:pointer;font-size:16px;color:var(--txl);padding:4px;border-radius:8px;flex-shrink:0;transition:all .15s;}
 .act-del:hover{color:#c0392b;background:#fce8e8;}
 
-/* FILTER TAB */
-.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
-.fchip{padding:6px 14px;border-radius:20px;border:2px solid var(--crd);background:var(--wh);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--txl);cursor:pointer;transition:all .2s;}
+/* EMBEDDED FEED FILTER */
+.feed-filter-bar{position:sticky;top:54px;z-index:50;background:var(--cr);padding:10px 0 8px;margin:-16px -14px 14px;padding:10px 14px 8px;border-bottom:1px solid var(--crd);display:flex;flex-direction:column;gap:7px;}
+.filter-scroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.filter-scroll::-webkit-scrollbar{display:none;}
+.fchip{flex-shrink:0;padding:5px 13px;border-radius:20px;border:2px solid var(--crd);background:var(--wh);font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;color:var(--txl);cursor:pointer;transition:all .2s;white-space:nowrap;}
 .fchip.on{background:var(--br);border-color:var(--br);color:white;}
+.author-sel{width:100%;padding:8px 12px;border:2px solid var(--crd);border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;color:var(--tx);background:var(--cr);-webkit-appearance:none;}
+
+/* SETTINGS SUB-TABS */
+.stab-bar{display:flex;gap:6px;margin-bottom:18px;background:var(--cr);border-radius:12px;padding:4px;}
+.stab{flex:1;padding:9px;background:none;border:none;border-radius:9px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:var(--txl);cursor:pointer;transition:all .2s;}
+.stab.on{background:var(--wh);color:var(--br);box-shadow:0 2px 8px var(--sh);}
+
+/* FILTER TAB (legacy - kept for renderFilter fallback) */
 .filter-sel{width:100%;padding:10px 12px;border:2px solid var(--crd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--tx);background:var(--cr);-webkit-appearance:none;margin-bottom:14px;}
 
 /* DOG TAB */
@@ -255,18 +265,18 @@ textarea{resize:none;height:90px;line-height:1.7;}
   </div>
 </header>
 
-<!-- TAB: 投稿 -->
+<!-- TAB: 投稿（絞り込み統合） -->
 <div id="tab-feed" class="tab-content active">
-  <div class="spinner"><span class="spin">🐾</span>読み込み中…</div>
-</div>
-
-<!-- TAB: 絞り込み -->
-<div id="tab-filter" class="tab-content">
-  <div class="filter-bar" id="genre-chips"></div>
-  <select class="filter-sel" id="author-filter" onchange="renderFilter()">
-    <option value="">投稿者: すべて</option>
-  </select>
-  <div id="filter-feed"></div>
+  <!-- filter bar embedded -->
+  <div class="feed-filter-bar" id="feed-filter-bar">
+    <div class="filter-scroll" id="genre-chips"></div>
+    <select class="author-sel" id="author-filter" onchange="renderFeedFiltered()">
+      <option value="">全員</option>
+    </select>
+  </div>
+  <div id="feed-posts">
+    <div class="spinner"><span class="spin">🐾</span>読み込み中…</div>
+  </div>
 </div>
 
 <!-- TAB: わんこ -->
@@ -290,9 +300,6 @@ textarea{resize:none;height:90px;line-height:1.7;}
 <nav class="bot-nav">
   <button class="nav-btn on" id="nav-feed" onclick="switchTab('feed')">
     <span class="ni">📋</span><span>投稿</span>
-  </button>
-  <button class="nav-btn" id="nav-filter" onclick="switchTab('filter')">
-    <span class="ni">🔍</span><span>絞り込み</span>
   </button>
   <button class="nav-btn" id="nav-dog" onclick="switchTab('dog')">
     <span class="ni">🐕</span><span>わんこ</span>
@@ -398,42 +405,73 @@ textarea{resize:none;height:90px;line-height:1.7;}
     <div class="mgrip"></div>
     <div class="mhead"><span class="mttl">⚙️ REN APP 設定</span><button class="xbtn" onclick="closeOv('ov-settings')">✕</button></div>
     <div class="mbody">
-      <div class="fg">
-        <label>🔗 GAS ウェブアプリ URL</label>
-        <input type="url" id="cfg-url" placeholder="https://script.google.com/macros/s/…/exec">
-        <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">デプロイ設定 → 種類：ウェブアプリ / アクセス：全員</p>
-      </div>
-      <div class="fg">
-        <label>👤 デフォルト投稿者名</label>
-        <input type="text" id="cfg-author" placeholder="例：れん ママ">
-      </div>
-      <div class="fg">
-        <label>🤖 Claude API Key</label>
-        <input type="password" id="cfg-claude" placeholder="sk-ant-…">
-        <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">AI分析機能に必要。GASに安全に保存されます。</p>
-      </div>
-      <button class="btn-main" onclick="saveSettings()">保存する ✓</button>
 
-      <div class="sdivider"></div>
+      <!-- SETTINGS SUB-TABS -->
+      <div class="stab-bar">
+        <button class="stab on" id="stab-app" onclick="switchStab('app')">🐾 アプリ</button>
+        <button class="stab" id="stab-core" onclick="switchStab('core')">🔑 コア設定</button>
+      </div>
 
-      <!-- GENRE MANAGER -->
-      <div class="fg">
-        <div class="sec-title">🏷️ ジャンル管理</div>
-        <div id="genre-editor"></div>
-        <div class="g-add-row">
-          <input type="text" id="g-new-icon" placeholder="🌟" style="width:56px;text-align:center;padding:9px 6px;">
-          <input type="text" id="g-new-label" placeholder="新しいジャンル名">
-          <button class="g-add-btn" onclick="addGenre()">追加</button>
+      <!-- APP SETTINGS -->
+      <div id="stab-app-body">
+        <div class="fg">
+          <label>👤 デフォルト投稿者名</label>
+          <input type="text" id="cfg-author" placeholder="例：れん ママ">
+        </div>
+        <button class="btn-main" onclick="saveAppSettings()">保存する ✓</button>
+
+        <div class="sdivider"></div>
+
+        <!-- GENRE MANAGER -->
+        <div class="fg">
+          <div class="sec-title">🏷️ ジャンル管理</div>
+          <div id="genre-editor"></div>
+          <div class="g-add-row">
+            <input type="text" id="g-new-icon" placeholder="🌟" style="width:56px;text-align:center;padding:9px 6px;">
+            <input type="text" id="g-new-label" placeholder="新しいジャンル名">
+            <button class="g-add-btn" onclick="addGenre()">追加</button>
+          </div>
+        </div>
+
+        <div class="sdivider"></div>
+
+        <!-- PLAY ITEMS MANAGER -->
+        <div class="fg">
+          <div class="sec-title">🎾 遊び内容マスタ</div>
+          <div id="play-editor"></div>
+          <div class="g-add-row">
+            <input type="text" id="play-new-icon" placeholder="🎾" style="width:56px;text-align:center;padding:9px 6px;">
+            <input type="text" id="play-new-label" placeholder="新しい遊び内容">
+            <button class="g-add-btn" onclick="addPlayItem()">追加</button>
+          </div>
+        </div>
+
+        <div class="sdivider"></div>
+
+        <!-- ASSET MANAGER -->
+        <div class="fg">
+          <div class="sec-title">🖼️ サイト画像管理</div>
+          <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">変更はリロード後に反映</p>
+          <div id="asset-editor"></div>
         </div>
       </div>
 
-      <div class="sdivider"></div>
-
-      <!-- ASSET MANAGER -->
-      <div class="fg">
-        <div class="sec-title">🖼️ サイト画像管理</div>
-        <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">変更はリロード後に反映</p>
-        <div id="asset-editor"></div>
+      <!-- CORE SETTINGS -->
+      <div id="stab-core-body" style="display:none">
+        <div style="background:linear-gradient(135deg,rgba(212,137,74,.1),rgba(124,74,45,.08));border-radius:12px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--txm);line-height:1.7;">
+          🔑 コア設定はアプリの動作に必要なAPIキー等を管理します。<br>変更すると即座に反映されます。
+        </div>
+        <div class="fg">
+          <label>🔗 GAS ウェブアプリ URL</label>
+          <input type="url" id="cfg-url" placeholder="https://script.google.com/macros/s/…/exec">
+          <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">デプロイ設定 → 種類：ウェブアプリ / アクセス：全員</p>
+        </div>
+        <div class="fg">
+          <label>🤖 Claude API Key</label>
+          <input type="password" id="cfg-claude" placeholder="sk-ant-… （変更時のみ入力）">
+          <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">AI分析機能に必要。GASに保存されます。<br>空欄のままにすると現在のキーが維持されます。</p>
+        </div>
+        <button class="btn-main" onclick="saveCoreSettings()">コア設定を保存 ✓</button>
       </div>
 
       <input type="file" id="asset-file-in" accept="image/*" style="display:none" onchange="onAssetFile(event)">
@@ -487,24 +525,25 @@ function today() { return new Date().toISOString().split('T')[0]; }
 // ============================================================
 async function loadData() {
   if (!cfg.url) { renderSetupGuide(); return; }
-  document.getElementById('tab-feed').innerHTML = '<div class="spinner"><span class="spin">🐾</span>読み込み中…</div>';
+  document.getElementById('feed-posts').innerHTML = '<div class="spinner"><span class="spin">🐾</span>読み込み中…</div>';
   try {
     const r = await fetch(cfg.url + '?t=' + Date.now());
     const d = await r.json();
     if (!d.success) throw new Error(d.error);
     appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[] };
     applyAssets();
-    renderFeed();
     renderGenreChips();
     renderAuthorFilter();
+    renderFeedFiltered();
     renderDogTab();
     renderAnalysisTab();
     renderGenreEditor();
+    renderPlayEditor();
     renderAssetEditor();
     populateGenreSelect();
     populateDogSelects();
   } catch(e) {
-    document.getElementById('tab-feed').innerHTML = `<div class="empty"><span class="empty-icon">😅</span><h2>読み込み失敗</h2><p>GAS URLを確認してください<br><small>${e.message}</small></p></div>`;
+    document.getElementById('feed-posts').innerHTML = `<div class="empty"><span class="empty-icon">😅</span><h2>読み込み失敗</h2><p>GAS URLを確認してください<br><small>${e.message}</small></p></div>`;
   }
 }
 
@@ -538,13 +577,7 @@ function switchTab(tab) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('nav-' + tab).classList.add('on');
-  // FAB behavior
-  const fab = document.getElementById('fab');
-  fab.hidden = (tab === 'analysis');
-  if (tab === 'filter') { renderFilter(); }
-  if (tab === 'dog') fab.textContent = '＋';
-  if (tab === 'feed') fab.textContent = '＋';
-  if (tab === 'filter') fab.textContent = '＋';
+  document.getElementById('fab').hidden = (tab === 'analysis');
 }
 
 function onFab() {
@@ -553,21 +586,61 @@ function onFab() {
 }
 
 // ============================================================
-//  TAB 1: FEED
+//  TAB 1: FEED + FILTER
 // ============================================================
 const GICON = {};
 function buildGIconMap() { appData.genres.forEach(g => GICON[g.label] = g.icon); }
 
-function renderFeed() {
-  buildGIconMap();
-  const feed = document.getElementById('tab-feed');
-  if (!appData.posts.length) {
-    feed.innerHTML = `<div class="empty"><span class="empty-icon">🐶</span><h2>まだ投稿がありません</h2><p>＋ボタンから最初の思い出を！</p></div>`;
-    return;
-  }
-  feed.innerHTML = appData.posts.map((p,i) => buildCard(p,i,'f')).join('');
+function renderSetupGuide() {
+  document.getElementById('feed-posts').innerHTML = `
+  <div class="setup-guide">
+    <h2>🐾 REN APP セットアップ</h2>
+    <div class="step"><div class="snum">1</div><div class="sbody"><div class="stitle">スプレッドシートを作成</div><div class="sdesc">Google Drive で新規スプレッドシートを作成</div></div></div>
+    <div class="step"><div class="snum">2</div><div class="sbody"><div class="stitle">Apps Script を開く</div><div class="sdesc"><span class="scode">拡張機能 → Apps Script</span></div></div></div>
+    <div class="step"><div class="snum">3</div><div class="sbody"><div class="stitle">gas_code.gs を貼り付けて保存</div><div class="sdesc">エディタに全文貼り付けて 💾 保存</div></div></div>
+    <div class="step"><div class="snum">4</div><div class="sbody"><div class="stitle">ウェブアプリとしてデプロイ</div><div class="sdesc"><span class="scode">デプロイ → 新しいデプロイ</span><br>種類：ウェブアプリ　アクセス：全員 → URLをコピー</div></div></div>
+    <div class="step"><div class="snum">5</div><div class="sbody"><div class="stitle">設定に URL を貼り付ける</div><div class="sdesc">⚙️ → コア設定 から登録</div></div></div>
+    <button class="btn-setup" onclick="openSettings()">⚙️ 設定を開く</button>
+  </div>`;
 }
 
+function renderGenreChips() {
+  buildGIconMap();
+  const bar = document.getElementById('genre-chips');
+  bar.innerHTML = `<button class="fchip on" onclick="setGenreFilter('all',this)">すべて</button>` +
+    appData.genres.map(g => `<button class="fchip" onclick="setGenreFilter('${esc(g.label)}',this)">${g.icon} ${esc(g.label)}</button>`).join('');
+}
+
+function setGenreFilter(val, btn) {
+  filterGenre = val;
+  document.querySelectorAll('#genre-chips .fchip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderFeedFiltered();
+}
+
+function renderAuthorFilter() {
+  const sel = document.getElementById('author-filter');
+  const authors = [...new Set(appData.posts.map(p => p.author).filter(Boolean))];
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">全員</option>` + authors.map(a => `<option ${a===cur?'selected':''}>${esc(a)}</option>`).join('');
+}
+
+function renderFeedFiltered() {
+  buildGIconMap();
+  const author = document.getElementById('author-filter')?.value || '';
+  let posts = appData.posts;
+  if (filterGenre !== 'all') posts = posts.filter(p => p.genre === filterGenre);
+  if (author) posts = posts.filter(p => p.author === author);
+  const el = document.getElementById('feed-posts');
+  if (!posts.length) {
+    el.innerHTML = `<div class="empty"><span class="empty-icon">🐶</span><h2>${appData.posts.length ? '該当なし' : 'まだ投稿がありません'}</h2><p>${appData.posts.length ? '条件を変えてみてください' : '＋ボタンから最初の思い出を！'}</p></div>`;
+    return;
+  }
+  el.innerHTML = posts.map((p,i) => buildCard(p,i,'f')).join('');
+}
+
+// keep renderFeed as alias
+function renderFeed() { renderFeedFiltered(); }
 function buildCard(p, i, prefix) {
   const photos = Array.isArray(p.photos) ? p.photos : [];
   const icon = GICON[p.genre] || '🌟';
@@ -620,44 +693,12 @@ function mc(id, dir) {
 }
 
 // ============================================================
-//  TAB 2: FILTER
-// ============================================================
-function renderGenreChips() {
-  const bar = document.getElementById('genre-chips');
-  bar.innerHTML = `<button class="fchip on" onclick="setGenreFilter('all',this)">すべて</button>` +
-    appData.genres.map(g => `<button class="fchip" onclick="setGenreFilter('${esc(g.label)}',this)">${g.icon} ${esc(g.label)}</button>`).join('');
-}
-
-function setGenreFilter(val, btn) {
-  filterGenre = val;
-  document.querySelectorAll('#genre-chips .fchip').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  renderFilter();
-}
-
-function renderAuthorFilter() {
-  const sel = document.getElementById('author-filter');
-  const authors = [...new Set(appData.posts.map(p => p.author).filter(Boolean))];
-  sel.innerHTML = `<option value="">投稿者: すべて</option>` + authors.map(a => `<option>${esc(a)}</option>`).join('');
-}
-
-function renderFilter() {
-  const author = document.getElementById('author-filter').value;
-  let posts = appData.posts;
-  if (filterGenre !== 'all') posts = posts.filter(p => p.genre === filterGenre);
-  if (author) posts = posts.filter(p => p.author === author);
-  const feed = document.getElementById('filter-feed');
-  if (!posts.length) { feed.innerHTML = `<div class="empty"><span class="empty-icon">🔍</span><h2>該当なし</h2><p>条件を変えてみてください</p></div>`; return; }
-  feed.innerHTML = posts.map((p,i) => buildCard(p,i,'ff')).join('');
-}
-
-// ============================================================
-//  TAB 3: DOG
+//  TAB 2: DOG
 // ============================================================
 const ACT_CONF = {
-  walk:  { icon:'🦮', label:'散歩',   detailLabel:'コース・内容', detailHint:'例：川沿いコース', showLoc:true },
-  meal:  { icon:'🍖', label:'ごはん', detailLabel:'食べたもの',   detailHint:'例：ドライフード100g＋チキン', showLoc:false },
-  play:  { icon:'🎾', label:'遊び',   detailLabel:'遊んだもの',   detailHint:'例：ボール遊び・ロープ', showLoc:true },
+  walk:  { icon:'🦮', label:'散歩',   detailLabel:'コース・内容', detailHint:'例：川沿いコース', showLoc:true,  useDropdown:false },
+  meal:  { icon:'🍖', label:'ごはん', detailLabel:'食べたもの',   detailHint:'例：ドライフード100g＋チキン', showLoc:false, useDropdown:false },
+  play:  { icon:'🎾', label:'遊び',   detailLabel:'遊んだもの',   detailHint:'', showLoc:true, useDropdown:true },
 };
 
 function renderDogTab() {
@@ -789,10 +830,13 @@ async function runAnalysis() {
       const clean = r.text.replace(/```json|```/g,'').trim();
       parsed = JSON.parse(clean);
     } catch(e) { throw new Error('分析結果のパースに失敗しました: ' + e.message); }
+    // 固定タイトル: 犬名 + 月 + 分析レポート
+    const now = new Date();
+    const fixedTitle = `${dog.name} ${now.getMonth()+1}月 分析レポート`;
+    parsed.title = fixedTitle;
     // save to sheets
-    await gasPost({ action:'storeAnalysis', dogId, date: today(), title: parsed.title||'分析結果', resultText: parsed.summary||'', chartsData: parsed });
-    // add to local history
-    appData.analysisHistory.unshift({ id: Date.now().toString(), dogId, date: today(), title: parsed.title||'分析結果', resultText: parsed.summary||'', chartsJson: JSON.stringify(parsed) });
+    await gasPost({ action:'storeAnalysis', dogId, date: today(), title: fixedTitle, resultText: parsed.summary||'', chartsData: parsed });
+    appData.analysisHistory.unshift({ id: Date.now().toString(), dogId, date: today(), title: fixedTitle, resultText: parsed.summary||'', chartsJson: JSON.stringify(parsed) });
     displayAnalysisResult(parsed);
     renderAnalysisHistory();
     toast('分析完了！');
@@ -1180,24 +1224,66 @@ function openActivity(dogId, type) {
   document.getElementById('a-time').value = new Date().toTimeString().slice(0,5);
   document.getElementById('a-dur').value = '';
   document.getElementById('a-loc').value = '';
-  document.getElementById('a-detail').value = '';
   document.getElementById('a-notes').value = '';
-  document.getElementById('a-detail-lbl').textContent = '📝 ' + conf.detailLabel;
-  document.getElementById('a-detail').placeholder = conf.detailHint;
   document.getElementById('a-location-fg').style.display = conf.showLoc ? '' : 'none';
-  // set dog
+
+  const detailFg = document.getElementById('a-detail-fg');
+  document.getElementById('a-detail-lbl').textContent = '📝 ' + conf.detailLabel;
+
+  if (conf.useDropdown) {
+    // 遊び内容: ドロップダウン + フリー入力切替
+    const items = getPlayItems();
+    detailFg.innerHTML = `
+      <label id="a-detail-lbl">📝 ${conf.detailLabel}</label>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <select id="a-detail-sel" style="flex:1;padding:10px 12px;border:2px solid var(--crd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--tx);background:var(--cr);-webkit-appearance:none;" onchange="onPlaySelChange()">
+          <option value="">選択してください</option>
+          ${items.map(it => `<option value="${esc(it.label)}">${it.icon} ${esc(it.label)}</option>`).join('')}
+          <option value="__custom__">✏️ 直接入力…</option>
+        </select>
+      </div>
+      <input type="text" id="a-detail" placeholder="遊び内容を入力" style="display:none;margin-top:8px;">`;
+  } else {
+    detailFg.innerHTML = `
+      <label id="a-detail-lbl">📝 ${conf.detailLabel}</label>
+      <input type="text" id="a-detail" placeholder="${conf.detailHint}">`;
+  }
+
   const sel = document.getElementById('a-dog');
   if (dogId) sel.value = dogId;
   openOv('ov-act');
 }
 
+function onPlaySelChange() {
+  const sel = document.getElementById('a-detail-sel');
+  const inp = document.getElementById('a-detail');
+  if (sel.value === '__custom__') {
+    inp.style.display = '';
+    inp.value = '';
+    inp.focus();
+  } else {
+    inp.style.display = 'none';
+    inp.value = sel.value;
+  }
+}
+
 async function submitActivity() {
   const dogId = document.getElementById('a-dog').value;
   if (!dogId) { document.getElementById('act-err').textContent = 'わんこを選択してください'; return; }
+  const type = document.getElementById('a-type').value;
+  // get detail: dropdown or text
+  let detail = '';
+  const selEl = document.getElementById('a-detail-sel');
+  const inpEl = document.getElementById('a-detail');
+  if (selEl && selEl.style.display !== 'none') {
+    detail = selEl.value === '__custom__' ? (inpEl?.value||'') : (selEl.value||'');
+  } else {
+    detail = inpEl?.value?.trim() || '';
+  }
   document.getElementById('act-err').textContent = '';
   const btn = document.getElementById('act-btn'); btn.disabled=true; btn.textContent='記録中…';
   try {
-    await gasPost({ action:'saveActivity', dogId, type:document.getElementById('a-type').value, date:document.getElementById('a-date').value, startTime:document.getElementById('a-time').value, duration:document.getElementById('a-dur').value, location:document.getElementById('a-loc').value.trim(), detail:document.getElementById('a-detail').value.trim(), notes:document.getElementById('a-notes').value.trim() });
+    await gasPost({ action:'saveActivity', dogId, type, date:document.getElementById('a-date').value, startTime:document.getElementById('a-time').value, duration:document.getElementById('a-dur').value, location:document.getElementById('a-loc').value.trim(), detail, notes:document.getElementById('a-notes').value.trim() });
     closeOv('ov-act'); toast('記録しました！');
     setTimeout(loadData, 800);
   } catch(e) { document.getElementById('act-err').textContent = 'エラー: ' + e.message; }
@@ -1207,28 +1293,100 @@ async function submitActivity() {
 // ============================================================
 //  SETTINGS
 // ============================================================
+const PLAY_KEY = 'renapp_play_items';
+function getPlayItems() {
+  try { return JSON.parse(localStorage.getItem(PLAY_KEY) || 'null') || defaultPlayItems(); } catch(e) { return defaultPlayItems(); }
+}
+function savePlayItems(items) { localStorage.setItem(PLAY_KEY, JSON.stringify(items)); }
+function defaultPlayItems() {
+  return [
+    { id:'p1', icon:'🎾', label:'ボール遊び' },
+    { id:'p2', icon:'🪢', label:'ロープ引っ張り' },
+    { id:'p3', icon:'🦴', label:'おもちゃ' },
+    { id:'p4', icon:'🏃', label:'追いかけっこ' },
+    { id:'p5', icon:'🌊', label:'水遊び' },
+    { id:'p6', icon:'🤸', label:'アジリティ' },
+  ];
+}
+
+function switchStab(tab) {
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
+  document.getElementById('stab-' + tab).classList.add('on');
+  document.getElementById('stab-app-body').style.display = tab === 'app' ? '' : 'none';
+  document.getElementById('stab-core-body').style.display = tab === 'core' ? '' : 'none';
+}
+
 function openSettings() {
   document.getElementById('cfg-url').value = cfg.url||'';
   document.getElementById('cfg-author').value = cfg.author||'';
   document.getElementById('cfg-claude').value = '';
+  switchStab('app');
   renderGenreEditor();
+  renderPlayEditor();
   renderAssetEditor();
   openOv('ov-settings');
 }
 
-async function saveSettings() {
+async function saveAppSettings() {
+  cfg.author = document.getElementById('cfg-author').value.trim();
+  saveCfg();
+  toast('アプリ設定を保存しました ✓');
+}
+
+async function saveCoreSettings() {
   const url    = document.getElementById('cfg-url').value.trim();
-  const author = document.getElementById('cfg-author').value.trim();
   const claude = document.getElementById('cfg-claude').value.trim();
-  cfg.url = url; cfg.author = author; saveCfg();
-  // Save Claude key to GAS if provided
+  const urlChanged = url !== cfg.url;
+  cfg.url = url; saveCfg();
   if (claude && url) {
-    try { await gasPost({ action:'setClaudeKey', key:claude }); toast('Claude APIキーを登録しました'); }
-    catch(e) { toast('Keyの保存失敗: ' + e.message); }
+    try { await gasPost({ action:'setClaudeKey', key:claude }); toast('APIキーを保存しました ✓'); }
+    catch(e) { toast('Keyの保存失敗: ' + e.message); return; }
+  } else {
+    toast('コア設定を保存しました ✓');
   }
-  closeOv('ov-settings');
-  toast('設定を保存しました ✓');
-  if (url) loadData();
+  if (urlChanged && url) { closeOv('ov-settings'); loadData(); }
+}
+
+// ============================================================
+//  PLAY ITEMS EDITOR
+// ============================================================
+function renderPlayEditor() {
+  const el = document.getElementById('play-editor');
+  if (!el) return;
+  const items = getPlayItems();
+  el.innerHTML = items.map(it => `
+    <div class="genre-row" id="play-row-${it.id}">
+      <input class="g-icon-pick" type="text" value="${esc(it.icon)}" id="pi-icon-${it.id}" maxlength="2" style="width:52px;text-align:center;font-size:18px;padding:7px 4px;">
+      <input class="g-label-in" type="text" value="${esc(it.label)}" id="pi-lbl-${it.id}">
+      <button class="g-add-btn" onclick="updatePlayItem('${it.id}')" style="white-space:nowrap">保存</button>
+      <button class="g-del" onclick="removePlayItem('${it.id}')">削除</button>
+    </div>`).join('');
+}
+
+function updatePlayItem(id) {
+  const items = getPlayItems();
+  const item = items.find(i => i.id === id); if (!item) return;
+  item.label = document.getElementById('pi-lbl-'+id).value.trim() || item.label;
+  item.icon  = document.getElementById('pi-icon-'+id).value.trim() || item.icon;
+  savePlayItems(items); renderPlayEditor(); toast('更新しました');
+}
+
+function removePlayItem(id) {
+  if (!confirm('この遊び内容を削除しますか？')) return;
+  savePlayItems(getPlayItems().filter(i => i.id !== id));
+  renderPlayEditor(); toast('削除しました');
+}
+
+function addPlayItem() {
+  const label = document.getElementById('play-new-label').value.trim();
+  const icon  = document.getElementById('play-new-icon').value.trim() || '🎾';
+  if (!label) return;
+  const items = getPlayItems();
+  items.push({ id: 'p' + Date.now(), icon, label });
+  savePlayItems(items);
+  document.getElementById('play-new-label').value = '';
+  document.getElementById('play-new-icon').value = '';
+  renderPlayEditor(); toast('追加しました');
 }
 
 // ============================================================
