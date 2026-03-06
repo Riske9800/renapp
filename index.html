@@ -747,34 +747,18 @@ body{padding-top:env(safe-area-inset-top,0px);}
 <script>
 // ============================================================
 //  STATE
-//  GAS URLはlocalStorage + URLパラメータ ?g= で共有可能
-//  その他設定はGASシートのconfigから取得（クロスデバイス同期）
+// ============================================================
+//  STATE - GAS URLはハードコード済み（どのデバイスでも即動作）
 // ============================================================
 const CFG_KEY = 'renapp_url_v4';
-let gasUrl = '';
-try { gasUrl = localStorage.getItem(CFG_KEY) || ''; } catch(e) {}
-
-// URLパラメータ ?g=GAS_URL から自動設定（共有リンク対応）
-try {
-  const paramG = new URLSearchParams(location.search).get('g');
-  if (paramG && paramG.startsWith('https://')) {
-    gasUrl = paramG;
-    localStorage.setItem(CFG_KEY, gasUrl);
-    // URLをクリーン（パラメータ除去）
-    history.replaceState({}, '', location.pathname + location.hash);
-  }
-} catch(e) {}
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzYoJZEWn1cCh_I05eM99ynYkbzsEdRxzJeBUiQ7lXoDoezE6JYDGQCZqNLu9_qYBkM/exec';
+let gasUrl = GAS_URL;
+try { localStorage.setItem(CFG_KEY, GAS_URL); } catch(e) {}
 
 function saveUrl(url) { try { localStorage.setItem(CFG_KEY, url); } catch(e) {} gasUrl = url; }
 
 // シートから取得した設定（author等）
 let remoteConfig = {};
-
-// レガシー移行
-try {
-  const old = JSON.parse(localStorage.getItem('renapp_cfg_v3') || '{}');
-  if (old.url && !gasUrl) { gasUrl = old.url; saveUrl(gasUrl); }
-} catch(e) {}
 
 // cfg は後方互換のためのプロキシ
 const cfg = new Proxy({}, {
