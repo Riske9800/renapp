@@ -795,7 +795,7 @@ function initPWA() {
     name: 'REN APP',
     short_name: 'REN APP',
     description: '愛犬との思い出を記録するアプリ',
-    start_url: location.pathname + (gasUrl ? '?g=' + encodeURIComponent(gasUrl) : ''),
+    start_url: 'https://riske9800.github.io/renapp/',
     display: 'standalone',
     orientation: 'portrait',
     background_color: '#FEF3E2',
@@ -914,7 +914,7 @@ function updatePWAManifestIcon(iconUrl) {
     const manifest = {
       name: 'REN APP', short_name: 'REN APP',
       description: '愛犬との思い出を記録するアプリ',
-      start_url: location.pathname + (gasUrl ? '?g=' + encodeURIComponent(gasUrl) : ''),
+      start_url: 'https://riske9800.github.io/renapp/',
       display: 'standalone', orientation: 'portrait',
       background_color: '#FEF3E2', theme_color: '#FEF3E2',
       icons: [{ src: iconUrl, sizes: '512x512', type: 'image/jpeg' }]
@@ -2199,7 +2199,7 @@ async function saveCoreSettings() {
 function renderShareUrl(url) {
   const el = document.getElementById('cfg-share-url');
   if (!el) return;
-  const shareUrl = location.origin + location.pathname + '?g=' + encodeURIComponent(url);
+  const shareUrl = 'https://riske9800.github.io/renapp/?g=' + encodeURIComponent(url);
   el.value = shareUrl;
   el.closest('.fg').style.display = '';
 }
