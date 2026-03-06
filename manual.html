@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REN APP 操作マニュアル</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+  :root {
+    --br: #7c4a2d;
+    --am: #d4894a;
+    --aml: #f0d5b8;
+    --cr: #fdf6ee;
+    --crd: #e8ddd2;
+    --wh: #fffdf9;
+    --tx: #2c1a0e;
+    --txm: #5c3d2e;
+    --txl: #9e7b65;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--cr);
+    color: var(--tx);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* COVER */
+  .cover {
+    background: linear-gradient(160deg, var(--br) 0%, var(--am) 100%);
+    color: white;
+    padding: 60px 32px 50px;
+    text-align: center;
+  }
+  .cover-icon { font-size: 64px; display: block; margin-bottom: 16px; }
+  .cover h1 { font-size: 30px; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .cover .sub { font-size: 15px; opacity: 0.85; }
+  .cover .note { margin-top: 20px; font-size: 13px; background: rgba(255,255,255,0.15); border-radius: 12px; padding: 12px 20px; display: inline-block; }
+
+  /* TOC */
+  .toc {
+    background: var(--wh);
+    border-bottom: 2px solid var(--crd);
+    padding: 28px 24px;
+  }
+  .toc h2 { font-size: 16px; color: var(--br); margin-bottom: 16px; font-weight: 700; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .toc-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: var(--cr);
+    border-radius: 10px;
+    border: 1.5px solid var(--crd);
+    text-decoration: none;
+    color: var(--txm);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .toc-item:hover { background: var(--aml); border-color: var(--am); }
+  .toc-item .ti { font-size: 18px; }
+
+  /* SECTION */
+  .section {
+    padding: 36px 24px 28px;
+    border-bottom: 2px solid var(--crd);
+    background: var(--wh);
+    margin-top: 12px;
+  }
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--aml);
+  }
+  .section-icon { font-size: 32px; }
+  .section-title { font-size: 20px; font-weight: 700; color: var(--br); }
+  .section-num {
+    background: var(--br); color: white;
+    font-size: 11px; font-weight: 700;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* SUB-SECTION */
+  .sub { margin-bottom: 24px; }
+  .sub-title {
+    font-size: 14px; font-weight: 700; color: var(--br);
+    background: var(--aml);
+    padding: 6px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    display: inline-block;
+  }
+
+  /* STEPS */
+  .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .step {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--cr); border-radius: 12px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--crd);
+  }
+  .step-num {
+    background: linear-gradient(135deg, var(--am), var(--br));
+    color: white; font-size: 12px; font-weight: 700;
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .step-body { flex: 1; }
+  .step-body strong { font-weight: 700; color: var(--tx); }
+  .step-body span { font-size: 13px; color: var(--txm); }
+
+  /* TIP / NOTE / WARN */
+  .tip, .note, .warn {
+    border-radius: 12px; padding: 12px 16px;
+    font-size: 13px; line-height: 1.8; margin-top: 12px;
+  }
+  .tip { background: #e8f5e9; border-left: 4px solid #4caf50; color: #1b5e20; }
+  .note { background: #e3f2fd; border-left: 4px solid #1976d2; color: #0d3c6a; }
+  .warn { background: #fff3e0; border-left: 4px solid var(--am); color: #7c4a2d; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  th {
+    background: var(--br); color: white;
+    padding: 9px 12px; text-align: left; font-weight: 700;
+  }
+  td {
+    padding: 9px 12px; border-bottom: 1px solid var(--crd);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: var(--cr); }
+
+  /* BADGE */
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px;
+    background: var(--aml); color: var(--br);
+    margin-left: 4px;
+  }
+  .badge.new { background: #e8f5e9; color: #2e7d32; }
+
+  /* ICON ROW */
+  .icon-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .icon-card {
+    text-align: center; padding: 12px 16px;
+    background: var(--cr); border: 1.5px solid var(--crd);
+    border-radius: 12px; min-width: 80px;
+  }
+  .icon-card .ic { font-size: 24px; display: block; margin-bottom: 4px; }
+  .icon-card .il { font-size: 11px; color: var(--txm); font-weight: 500; }
+
+  /* SCREEN MOCK */
+  .mock {
+    background: var(--wh);
+    border: 2px solid var(--crd);
+    border-radius: 16px;
+    padding: 14px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .mock-header {
+    background: var(--cr);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: var(--txm);
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* SEPARATOR */
+  .sep { height: 12px; background: var(--cr); }
+
+  /* FOOTER */
+  footer {
+    text-align: center; padding: 40px 24px;
+    color: var(--txl); font-size: 12px;
+  }
+  footer .paw { font-size: 32px; display: block; margin-bottom: 8px; }
+
+  html { scroll-behavior: smooth; }
+
+  @media print {
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <span class="cover-icon">🐾</span>
+  <h1>REN APP 操作マニュアル</h1>
+  <p class="sub">家族みんなで使う、愛犬の思い出・健康記録アプリ</p>
+  <div class="note">📱 スマートフォン・タブレット・パソコンどれからでも同じデータを見られます</div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>📋 目次</h2>
+  <div class="toc-grid">
+    <a class="toc-item" href="#start"><span class="ti">🚀</span>はじめに・画面の見かた</a>
+    <a class="toc-item" href="#post"><span class="ti">📸</span>思い出を投稿する</a>
+    <a class="toc-item" href="#feed"><span class="ti">🏠</span>投稿を見る・絞り込む</a>
+    <a class="toc-item" href="#dog"><span class="ti">🐕</span>わんこ情報を管理する</a>
+    <a class="toc-item" href="#activity"><span class="ti">📋</span>日々の記録をつける</a>
+    <a class="toc-item" href="#analysis"><span class="ti">📊</span>健康データを分析する</a>
+    <a class="toc-item" href="#food"><span class="ti">🍖</span>ごはんマスタ・成分分析</a>
+    <a class="toc-item" href="#settings"><span class="ti">⚙️</span>設定・カスタマイズ</a>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- 1. はじめに -->
+<div class="section" id="start">
+  <div class="section-header">
+    <span class="section-num">1</span>
+    <span class="section-icon">🚀</span>
+    <span class="section-title">はじめに・画面の見かた</span>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">アプリを開くには</div>
+    <p>スマートフォンのブラウザ（Safari・Chrome）で以下のURLにアクセスします。</p>
+    <div class="mock">
+      <div class="mock-header">🌐 URL</div>
+      <strong style="font-size:14px; word-break:break-all;">https://riske9800.github.io/renapp/</strong>
+    </div>
+    <div class="tip">💡 <strong>ホーム画面に追加しておくと便利！</strong><br>
+      iPhoneの場合：Safariで開く → 下の「共有」ボタン →「ホーム画面に追加」<br>
+      Androidの場合：Chromeで開く → 右上「︙」→「ホーム画面に追加」<br>
+      追加するとアプリのアイコンができ、次回からすぐ開けます。
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">画面の基本構成</div>
+    <div class="mock">
+      <div class="mock-header">📱 画面上部</div>
+      <table>
+        <tr><td>🔄 ボタン</td><td>最新データに手動更新します</td></tr>
+        <tr><td>⚙️ ボタン</td><td>設定画面を開きます</td></tr>
+      </table>
+    </div>
+    <div class="mock" style="margin-top:8px;">
+      <div class="mock-header">📱 画面下部（3つのタブ）</div>
+      <table>
+        <tr><td>🗒️ <strong>投稿</strong></td><td>みんなの思い出写真・コメントを見る</td></tr>
+        <tr><td>🐕 <strong>わんこ</strong></td><td>犬のプロフィールと日々の記録</td></tr>
+        <tr><td>📊 <strong>分析</strong></td><td>散歩・食事・遊びのグラフと健康分析</td></tr>
+      </table>
+    </div>
+    <div class="mock" style="margin-top:8px;">
+      <div class="mock-header">🟤 右下の大きな「＋」ボタン</div>
+      <p>何かを投稿・記録したいときはここを押します。<br>
+      「投稿」タブでは思い出投稿、「わんこ」タブでは散歩・ごはん記録、に切り替わります。</p>
+    </div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- 2. 投稿 -->
+<div class="section" id="post">
+  <div class="section-header">
+    <span class="section-num">2</span>
+    <span class="section-icon">📸</span>
+    <span class="section-title">思い出を投稿する</span>
+  </div>
+
+  <p style="margin-bottom:16px; color:var(--txm);">お散歩・おでかけ・誕生日など、愛犬との思い出写真とコメントを投稿できます。</p>
+
+  <div class="sub">
+    <div class="sub-title">投稿の手順</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>「投稿」タブを開き、右下の「＋」を押す</strong><br>
+        <span>「思い出を投稿」の画面が開きます</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>写真を選ぶ（最大9枚）</strong><br>
+        <span>写真エリアをタップするとスマートフォンのカメラロールが開きます。写真は選ばなくてもOKです。</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>タイトルを入力する（必須）</strong><br>
+        <span>例：「公園でお散歩♪」「れんの3歳誕生日🎂」</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>日付を選ぶ</strong><br>
+        <span>今日の日付が自動で入っています。過去の日付に変更もできます。</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body"><strong>ジャンルを選ぶ</strong><br>
+        <span>おさんぽ／ごはん／おやすみ／おでかけ／病院／お誕生日／その他 などから選びます</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body"><strong>コメントを入力する（任意）</strong><br>
+        <span>自由にコメントを書けます</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-body"><strong>投稿者を選ぶ</strong><br>
+        <span>誰の投稿か選びます（ユーザー登録している場合）</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">8</div>
+        <div class="step-body"><strong>「投稿する」を押す</strong><br>
+        <span>しばらく待つと完了。自動で画面に表示されます。</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">投稿を編集・削除する</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>投稿の右上にある「…」を押す</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>「編集」または「削除」を選ぶ</strong><br>
+        <span>編集：タイトル・コメント・写真の追加・削除ができます。削除すると元には戻せません。</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">写真を複数枚見る</div>
+    <p>写真が複数ある場合、写真を<strong>左右にスワイプ</strong>（指でなぞる）すると次の写真を見られます。下の「●」が何枚目かを表しています。</p>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- 3. 投稿を見る -->
+<div class="section" id="feed">
+  <div class="section-header">
+    <span class="section-num">3</span>
+    <span class="section-icon">🏠</span>
+    <span class="section-title">投稿を見る・絞り込む</span>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">ジャンルで絞り込む</div>
+    <p>「投稿」タブ上部のボタンを押すと、ジャンルで絞り込めます。</p>
+    <div class="icon-row">
+      <div class="icon-card"><span class="ic">🗒️</span><span class="il">すべて</span></div>
+      <div class="icon-card"><span class="ic">🦮</span><span class="il">おさんぽ</span></div>
+      <div class="icon-card"><span class="ic">🍖</span><span class="il">ごはん</span></div>
+      <div class="icon-card"><span class="ic">😴</span><span class="il">おやすみ</span></div>
+      <div class="icon-card"><span class="ic">🚗</span><span class="il">おでかけ</span></div>
+      <div class="icon-card"><span class="ic">💊</span><span class="il">病院</span></div>
+    </div>
+    <p style="margin-top:8px; font-size:13px; color:var(--txm);">横にスクロールするとさらに多くのジャンルが見られます。</p>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">投稿者で絞り込む</div>
+    <p>ジャンルボタンの下にある「全員」と書かれたバーを押すと、特定の投稿者の投稿だけ表示できます。</p>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">並び順を変える</div>
+    <table>
+      <tr><th>ボタン</th><th>説明</th></tr>
+      <tr><td>📅（カレンダー）</td><td>イベントの日付順に並べる</td></tr>
+      <tr><td>🕐（時計）</td><td>投稿した日付順に並べる</td></tr>
+      <tr><td>↓新 / ↑古</td><td>新しい順・古い順を切り替える</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- 4. わんこ -->
+<div class="section" id="dog">
+  <div class="section-header">
+    <span class="section-num">4</span>
+    <span class="section-icon">🐕</span>
+    <span class="section-title">わんこ情報を管理する</span>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">わんこを登録する</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>「わんこ」タブを開いて「＋」を押す</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>情報を入力する</strong><br>
+        <span>名前（必須）・犬種・誕生日・体重・アレルギーや体質・好物・メモ</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>写真を設定する（任意）</strong><br>
+        <span>上の丸いエリアをタップすると写真を選べます</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>「保存する」を押す</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">わんこ情報を編集する</div>
+    <p>「わんこ」タブでわんこのカードの<strong>「編集」</strong>ボタンを押すと、登録した情報を変えられます。体重が変わったときなども更新しておきましょう。</p>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">わんこカードの見かた</div>
+    <div class="mock">
+      <p>登録したわんこの情報・最近の記録がカードで表示されます。</p>
+      <table style="margin-top:8px;">
+        <tr><td>🦮 散歩ボタン</td><td>その子の散歩を記録する（→ 5章）</td></tr>
+        <tr><td>🍖 ごはんボタン</td><td>その子の食事を記録する（→ 5章）</td></tr>
+        <tr><td>📋 最近の記録</td><td>直近の散歩・食事・遊び記録が一覧で見られる</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- 5. 日々の記録 -->
+<div class="section" id="activity">
+  <div class="section-header">
+    <span class="section-num">5</span>
+    <span class="section-icon">📋</span>
+    <span class="section-title">日々の記録をつける（散歩・ごはん・遊び）</span>
+  </div>
+
+  <p style="margin-bottom:16px; color:var(--txm);">散歩・食事・遊びの記録は「わんこ」タブのクイックボタンか、「＋」ボタンから行います。</p>
+
+  <div class="sub">
+    <div class="sub-title">記録できる種類</div>
+    <div class="icon-row">
+      <div class="icon-card"><span class="ic">🦮</span><span class="il">散歩</span></div>
+      <div class="icon-card"><span class="ic">🍖</span><span class="il">ごはん</span></div>
+      <div class="icon-card"><span class="ic">🎾</span><span class="il">遊び</span></div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">🦮 散歩を記録する</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>わんこカードの「🦮 散歩」ボタンを押す</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>日付・時刻・時間（分）を入力</strong><br>
+        <span>今日の日付と現在時刻が自動で入ります</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>場所・コースを入力（任意）</strong><br>
+        <span>例：「近所の公園」「川沿いコース」</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>「記録する」を押す</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">🍖 ごはんを記録する</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>わんこカードの「🍖 ごはん」ボタンを押す</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>日付・時刻を入力</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>フードを選ぶ（任意）</strong><br>
+        <span>あらかじめ登録したフードから選ぶと栄養情報も自動で表示されます。フードの登録は「設定 → ごはんマスタ」で行います（→ 7章）。</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>食べた量を入力（任意）</strong><br>
+        <span>グラム数またはパーセント（%）で入力できます</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body"><strong>写真でAI分析する（任意）</strong><br>
+        <span>フードの写真を撮ると、AIが栄養成分を読み取ります（→ 7章）</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body"><strong>「記録する」を押す</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">🎾 遊びを記録する</div>
+    <p>「わんこ」タブの「＋」ボタン → 「遊び」を選びます。遊んだ内容（ボール・引っ張りっこなど）・場所・時間を記録できます。</p>
+    <div class="note">💡 遊び内容の種類は「設定 → 遊び内容マスタ」でカスタマイズできます。</div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">記録を削除する</div>
+    <p>「わんこ」タブの記録一覧で、削除したい記録の<strong>右にある「🗑️」ボタン</strong>を押すと削除できます。</p>
+    <div class="warn">⚠️ 削除した記録は元に戻せません。</div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- 6. 分析 -->
+<div class="section" id="analysis">
+  <div class="section-header">
+    <span class="section-num">6</span>
+    <span class="section-icon">📊</span>
+    <span class="section-title">健康データを分析する</span>
+  </div>
+
+  <p style="margin-bottom:16px; color:var(--txm);">「分析」タブでは、散歩・食事・遊びの記録をグラフ化して見られます。AIによる健康レポートも作成できます。</p>
+
+  <div class="sub">
+    <div class="sub-title">グラフの見かた</div>
+    <table>
+      <tr><th>グラフ</th><th>内容</th></tr>
+      <tr><td>🦮 散歩グラフ</td><td>1週間の散歩時間（棒グラフ）</td></tr>
+      <tr><td>🍖 食事グラフ</td><td>1週間の食事回数（棒グラフ）</td></tr>
+      <tr><td>🥧 ドーナツグラフ</td><td>散歩・食事・遊びのバランス比較</td></tr>
+    </table>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">AIによる健康レポートを作る</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>「分析」タブでわんこを選ぶ</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>「✨ 分析」ボタンを押す</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>しばらく待つとレポートが生成される</strong><br>
+        <span>散歩・食事・遊びの傾向をAIがまとめてくれます</span></div>
+      </div>
+    </div>
+    <div class="note">💡 レポートは「分析履歴」として保存され、あとで見返せます。</div>
+    <div class="warn">⚠️ AI分析にはClaude APIキーが必要です（設定 → コア設定 で登録）。管理者（設定してくれた人）にご確認ください。</div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- 7. ごはんマスタ・成分分析 -->
+<div class="section" id="food">
+  <div class="section-header">
+    <span class="section-num">7</span>
+    <span class="section-icon">🍖</span>
+    <span class="section-title">ごはんマスタ・成分分析</span>
+  </div>
+
+  <p style="margin-bottom:16px; color:var(--txm);">よく使うフードを登録しておくと、食事記録時に栄養情報をすぐ確認できます。写真を撮るだけでAIが成分を読み取ってくれます。</p>
+
+  <div class="sub">
+    <div class="sub-title">フードを登録する</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>⚙️設定 → 「🐾 アプリ」タブ → 「🍖 ごはんマスタ」</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>フード名を入力して「追加」を押す</strong><br>
+        <span>例：「ロイヤルカナン」「手作りごはん」</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">AIで成分を分析する（写真から）</div>
+    <p>フードの写真を撮るだけで、カロリー・タンパク質・脂質などをAIが読み取ります。</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>ごはんマスタのフード名の横の「📊」ボタンを押す</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>写真の種類を選ぶ</strong><br>
+        <span>🏷️成分表・ラベル（最も正確） / 📦パッケージ全体 / 🍖実物・料理写真</span></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>写真を選んで「✨ AIで成分を読み取る」を押す</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>結果を確認・修正して「💾 マスタに保存する」</strong></div>
+      </div>
+    </div>
+    <div class="tip">💡 成分表の写真（ラベルのアップ写真）が最も精度が高いです。</div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- 8. 設定 -->
+<div class="section" id="settings">
+  <div class="section-header">
+    <span class="section-num">8</span>
+    <span class="section-icon">⚙️</span>
+    <span class="section-title">設定・カスタマイズ</span>
+  </div>
+
+  <p style="margin-bottom:16px; color:var(--txm);">右上の「⚙️」ボタンから設定画面を開きます。「🐾 アプリ」と「🔑 コア設定」の2タブがあります。</p>
+
+  <div class="sub">
+    <div class="sub-title">🐾 アプリタブでできること</div>
+    <table>
+      <tr><th>項目</th><th>できること</th></tr>
+      <tr>
+        <td>👤 ユーザー管理</td>
+        <td>投稿者の名前を登録・削除できます。<br>家族全員の名前を登録しておきましょう。<br>例：「パパ」「ママ」「れん ねえね」</td>
+      </tr>
+      <tr>
+        <td>🍖 ごはんマスタ</td>
+        <td>よく使うフードを登録し、📊ボタンでAI成分分析ができます（→ 7章）</td>
+      </tr>
+      <tr>
+        <td>🏷️ ジャンル管理</td>
+        <td>投稿のジャンルを追加・削除できます。<br>アイコン（絵文字）と名前を設定して「追加」を押します。</td>
+      </tr>
+      <tr>
+        <td>🎾 遊び内容マスタ</td>
+        <td>ごはん・遊び記録で使う「遊びの種類」を追加できます。</td>
+      </tr>
+      <tr>
+        <td>🖼️ サイト画像管理</td>
+        <td>サイトロゴ・ファビコン・背景画像などをカスタマイズできます。</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">🔑 コア設定タブでできること</div>
+    <table>
+      <tr><th>項目</th><th>説明</th></tr>
+      <tr>
+        <td>投稿者名</td>
+        <td>デフォルトで選ばれる自分の名前を設定できます</td>
+      </tr>
+      <tr>
+        <td>GAS URL</td>
+        <td>バックエンドのURL（通常は変更不要）</td>
+      </tr>
+      <tr>
+        <td>Claude API Key</td>
+        <td>AI分析機能を使うためのキー。入力して「💾 保存」を押す</td>
+      </tr>
+      <tr>
+        <td>🔍 GAS接続テスト</td>
+        <td>アプリが正常に動いているか確認できます</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">データは自動でクラウドに保存されます</div>
+    <div class="tip">✅ 投稿・記録・設定はすべてGoogleのサーバーに自動保存されます。<br>
+    スマートフォンを変えても、家族の誰がアクセスしても、同じデータが見られます。<br>
+    （インターネット接続が必要です）</div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- よくある質問 -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-icon">❓</span>
+    <span class="section-title">よくあるご質問</span>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Q. 読み込みが終わらない・データが出ない</div>
+    <p>右上の「🔄」ボタンを押して再読み込みしてみてください。インターネット接続をご確認ください。</p>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Q. AI分析が使えない</div>
+    <p>Claude APIキーが設定されていない可能性があります。設定 → 「🔑 コア設定」→ Claude API Key の欄を確認してください。</p>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Q. 別のスマホで見たらデータが違う</div>
+    <p>GAS URLが同じなら同じデータが見られます。アプリは <strong>https://riske9800.github.io/renapp/</strong> から開いてください。</p>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Q. 誤って削除してしまった</div>
+    <p>投稿・記録を削除すると元に戻すことはできません。大切な投稿は削除しないようご注意ください。</p>
+  </div>
+</div>
+
+<footer>
+  <span class="paw">🐾</span>
+  REN APP 操作マニュアル<br>
+  ご不明な点はアプリ管理者にご相談ください
+</footer>
+
+</body>
+</html>
