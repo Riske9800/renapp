@@ -633,9 +633,9 @@ body{padding-top:env(safe-area-inset-top,0px);}
       <!-- CORE SETTINGS -->
       <div id="stab-core-body" style="display:none">
         <div style="background:linear-gradient(135deg,rgba(212,137,74,.1),rgba(124,74,45,.08));border-radius:12px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--txm);line-height:1.8;">
-          🔑 ここではGAS URLとAPIキーのみ設定します。<br>
-          投稿者名などのその他設定は、スプレッドシートの <strong>「config」シート</strong> で直接編集できます。<br>
-          初回アクセス時にデフォルト値が自動で書き込まれます。
+          🔑 GAS URLを保存すると <strong>configシートの gas_url</strong> に書き込まれ、<br>
+          他のデバイスで共有URLを開くだけで自動設定されます。<br><br>
+          ⚠️ GASの <code style="background:var(--crd);padding:1px 5px;border-radius:4px;">saveConfig</code> アクションが <strong>key / value</strong> 形式に対応している必要があります。
         </div>
         <div class="fg">
           <label>🔗 GAS ウェブアプリ URL</label>
@@ -648,6 +648,8 @@ body{padding-top:env(safe-area-inset-top,0px);}
           <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">AI分析機能に必要。GASのScript Propertiesに保存。<br>空欄のままにすると現在のキーが維持されます。</p>
         </div>
         <button class="btn-main" onclick="saveCoreSettings()">保存する ✓</button>
+        <button class="btn-sec" onclick="testSaveConfig()" style="margin-top:6px;">🔍 GAS接続テスト</button>
+        <div id="cfg-test-result" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.7;"></div>
         <!-- 共有URL（保存後に表示） -->
         <div class="fg" id="cfg-share-url-wrap" style="display:none;margin-top:18px;">
           <label>🔗 デバイス間共有URL</label>
@@ -872,12 +874,9 @@ async function loadData() {
     if (!d.success) throw new Error(d.error);
     appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[], config: d.config||{} };
     remoteConfig = { ...appData.config };
-    // configのgas_urlが設定されていれば優先してlocalStorageに保存（クロスデバイス同期）
+    // configにgas_urlが保存されていれば他デバイスのURLで上書き同期
     if (remoteConfig.gas_url && remoteConfig.gas_url !== gasUrl) {
       saveUrl(remoteConfig.gas_url);
-    } else if (gasUrl && !remoteConfig.gas_url) {
-      // 初回: configシートにGAS URLを保存
-      gasPost({ action:'saveConfig', key:'gas_url', value:gasUrl }).catch(()=>{});
     }
     applyAssets();
     renderGenreChips();
@@ -2192,15 +2191,22 @@ async function saveCoreSettings() {
   saveUrl(url);
   setLoading(true, '保存中…');
   try {
-    // GAS URLをconfigシートに保存（クロスデバイス同期の核）
-    await gasPost({ action:'saveConfig', key:'gas_url', value:url });
+    // GAS URLをconfigシートに保存（クロスデバイス同期）
+    // GASのsaveConfigは { action, key, value } または { action, configs:{key:value,...} } どちらか
+    // 両形式試す：まず単純なkey/value形式
+    try {
+      await gasPost({ action:'saveConfig', key:'gas_url', value:url });
+    } catch(e1) {
+      // 失敗したらconfigs形式で試す
+      try { await gasPost({ action:'saveConfig', configs:{ gas_url: url } }); } catch(e2) {}
+    }
     if (claude) {
       await gasPost({ action:'setClaudeKey', key:claude });
     }
     toast('保存しました ✓');
     document.getElementById('cfg-claude').value = '';
-    // 共有URLを更新表示
-    renderShareUrl(url);
+    const wrap = document.getElementById('cfg-share-url-wrap');
+    if (wrap) { wrap.style.display = ''; renderShareUrl(url); }
     if (urlChanged) { closeOv('ov-settings'); setTimeout(loadData, 500); }
   } catch(e) { toast('エラー: ' + e.message); }
   finally { setLoading(false); }
@@ -2212,6 +2218,38 @@ function renderShareUrl(url) {
   const shareUrl = location.origin + location.pathname + '?g=' + encodeURIComponent(url);
   el.value = shareUrl;
   el.closest('.fg').style.display = '';
+}
+
+async function testSaveConfig() {
+  if (!gasUrl) { toast('先にGAS URLを入力して保存してください'); return; }
+  const el = document.getElementById('cfg-test-result');
+  el.style.display = '';
+  el.style.background = 'var(--cr)';
+  el.innerHTML = '🔄 テスト中…';
+  try {
+    // 1. 通常のGETが通るか
+    const r = await fetch(gasUrl + '?t=' + Date.now(), { redirect:'follow' });
+    const d = await r.json();
+    if (!d.success) throw new Error('GET失敗: ' + d.error);
+
+    // 2. saveConfig key/value形式
+    let saveOk = false;
+    let saveErr = '';
+    try {
+      const r2 = await gasPost({ action:'saveConfig', key:'gas_url', value:gasUrl });
+      saveOk = true;
+    } catch(e) {
+      saveErr = e.message;
+    }
+
+    el.style.background = saveOk ? '#e8f5e9' : '#fff3e0';
+    el.innerHTML = saveOk
+      ? `✅ GAS接続OK<br>✅ saveConfig(key/value形式)OK<br><span style="color:var(--txl)">configシートを確認してください</span>`
+      : `✅ GAS接続OK<br>⚠️ saveConfig失敗: ${esc(saveErr)}<br><span style="color:#c0392b">GASのsaveConfigアクションがkey/value形式に対応しているか確認してください</span>`;
+  } catch(e) {
+    el.style.background = '#fce8e8';
+    el.innerHTML = `❌ GAS接続失敗: ${esc(e.message)}`;
+  }
 }
 
 function copyShareUrl() {
