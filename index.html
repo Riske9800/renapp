@@ -274,6 +274,8 @@ body{padding-top:env(safe-area-inset-top,0px);}
 .fab{bottom:calc(76px + env(safe-area-inset-bottom,0px));}
 
 /* FOOD MASTER & NUTRITION */
+.fa-type-btn{background:var(--cr);border:2px solid var(--crd);border-radius:12px;padding:10px 6px;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;font-weight:600;color:var(--txm);transition:all .2s;}
+.fa-type-btn.on{background:var(--aml);border-color:var(--am);color:var(--br);}
 .food-master-row{padding:10px 0;border-bottom:1px solid var(--crd);}
 .food-master-row:last-child{border-bottom:none;}
 .food-master-main{display:flex;align-items:center;gap:8px;}
@@ -533,7 +535,18 @@ body{padding-top:env(safe-area-inset-top,0px);}
         <!-- 写真AI分析（フード未選択 or 成分なし時に表示） -->
         <div id="meal-photo-section">
           <div class="fg">
-            <label>📷 食品写真・成分表をAIで分析</label>
+            <label>📷 写真からAI分析（任意）</label>
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+              <button class="fa-type-btn on" data-type="label" onclick="setMealType('label',this)" style="flex:1;padding:7px 4px;">
+                <div style="font-size:16px;">🏷️</div><div style="font-size:10px;">成分表</div>
+              </button>
+              <button class="fa-type-btn" data-type="package" onclick="setMealType('package',this)" style="flex:1;padding:7px 4px;">
+                <div style="font-size:16px;">📦</div><div style="font-size:10px;">パッケージ</div>
+              </button>
+              <button class="fa-type-btn" data-type="food" onclick="setMealType('food',this)" style="flex:1;padding:7px 4px;">
+                <div style="font-size:16px;">🍖</div><div style="font-size:10px;">実物写真</div>
+              </button>
+            </div>
             <div class="upload-zone" onclick="document.getElementById('food-photo-in').click()">
               <div class="uz-icon">📸</div><div class="uz-txt">タップして画像を選択</div>
               <input type="file" id="food-photo-in" accept="image/*" style="display:none" onchange="onFoodPhoto(event)">
@@ -677,9 +690,25 @@ body{padding-top:env(safe-area-inset-top,0px);}
     <div class="mbody">
       <input type="hidden" id="fa-food-id">
       <p style="font-size:12px;color:var(--txl);margin-bottom:14px;line-height:1.7;">
-        フードのパッケージ・成分表・ラベルの写真を撮影してください。<br>
-        AIが栄養成分を読み取り、マスタに保存します。
+        成分表・パッケージ・実物写真など<strong>どんな写真でもOK</strong>。<br>
+        AIが内容を見て栄養成分を読み取り・推測します。
       </p>
+      <!-- 写真タイプ選択 -->
+      <div class="fg">
+        <label>📂 写真の種類（AIへのヒント）</label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;" id="fa-type-grid">
+          <button class="fa-type-btn on" data-type="label" onclick="setFaType('label',this)">
+            <div style="font-size:20px;">🏷️</div><div style="font-size:11px;margin-top:2px;">成分表・ラベル</div>
+          </button>
+          <button class="fa-type-btn" data-type="package" onclick="setFaType('package',this)">
+            <div style="font-size:20px;">📦</div><div style="font-size:11px;margin-top:2px;">パッケージ全体</div>
+          </button>
+          <button class="fa-type-btn" data-type="food" onclick="setFaType('food',this)">
+            <div style="font-size:20px;">🍖</div><div style="font-size:11px;margin-top:2px;">実物・料理写真</div>
+          </button>
+        </div>
+        <p id="fa-type-hint" style="font-size:11px;color:var(--txl);margin-top:6px;">成分表のアップ写真が最も正確です</p>
+      </div>
       <div class="fg">
         <label>📷 フード写真・成分表</label>
         <div class="upload-zone" onclick="document.getElementById('fa-photo-in').click()">
@@ -751,7 +780,7 @@ body{padding-top:env(safe-area-inset-top,0px);}
 //  STATE - GAS URLはハードコード済み（どのデバイスでも即動作）
 // ============================================================
 const CFG_KEY = 'renapp_url_v4';
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzYoJZEWn1cCh_I05eM99ynYkbzsEdRxzJeBUiQ7lXoDoezE6JYDGQCZqNLu9_qYBkM/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyF7Csa1XPCm-J0b4XXRMgOmg3cT9vXbqQ_kaQs5vR9GZgrS6MmfU2JqomdbdTVtNs9/exec';
 let gasUrl = GAS_URL;
 try { localStorage.setItem(CFG_KEY, GAS_URL); } catch(e) {}
 
@@ -856,12 +885,9 @@ async function loadData() {
     const r = await fetch(gasUrl + '?t=' + Date.now(), { redirect: 'follow' });
     const d = await r.json();
     if (!d.success) throw new Error(d.error);
-    appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[], config: d.config||{} };
+    appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[], config: d.config||{}, users: d.users||[], foodItems: d.foodItems||[] };
     remoteConfig = { ...appData.config };
-    // configにgas_urlが保存されていれば他デバイスのURLで上書き同期
-    if (remoteConfig.gas_url && remoteConfig.gas_url !== gasUrl) {
-      saveUrl(remoteConfig.gas_url);
-    }
+    if (remoteConfig.gas_url && remoteConfig.gas_url !== gasUrl) saveUrl(remoteConfig.gas_url);
     applyAssets();
     renderGenreChips();
     renderAuthorFilter();
@@ -871,8 +897,12 @@ async function loadData() {
     renderGenreEditor();
     renderPlayEditor();
     renderAssetEditor();
+    renderUserEditor();
+    renderFoodEditor();
     populateGenreSelect();
     populateDogSelects();
+    populateAuthorSelect(remoteConfig.author || '');
+    populateFoodSelect();
   } catch(e) {
     document.getElementById('feed-posts').innerHTML = `<div class="empty"><span class="empty-icon">😅</span><h2>読み込み失敗</h2><p>GAS URLを確認してください<br><small>${e.message}</small></p></div>`;
   }
@@ -1741,11 +1771,10 @@ async function submitActivity() {
 // ============================================================
 //  USER MANAGER (localStorage)
 // ============================================================
-const USER_KEY = 'renapp_users';
-function getUsers() {
-  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null') || []; } catch(e) { return []; }
-}
-function saveUsers(u) { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+// ============================================================
+//  USERS (GASシートで管理 → 全デバイス共有)
+// ============================================================
+function getUsers() { return appData.users || []; }
 
 function renderUserEditor() {
   const el = document.getElementById('user-editor'); if (!el) return;
@@ -1758,24 +1787,31 @@ function renderUserEditor() {
       <button class="g-del" onclick="removeUser('${u.id}')">削除</button>
     </div>`).join('');
 }
-function updateUser(id) {
-  const users = getUsers(); const u = users.find(x => x.id === id); if (!u) return;
-  u.name = document.getElementById('usr-'+id).value.trim() || u.name;
-  saveUsers(users); renderUserEditor(); toast('更新しました');
+async function updateUser(id) {
+  const u = getUsers().find(x => x.id === id); if (!u) return;
+  const name = document.getElementById('usr-'+id).value.trim(); if (!name) return;
+  try {
+    await gasPost({ action:'saveUser', id, name });
+    u.name = name; renderUserEditor(); populateAuthorSelect(''); toast('更新しました');
+  } catch(e) { toast('エラー: '+e.message); }
 }
-function removeUser(id) {
+async function removeUser(id) {
   if (!confirm('このユーザーを削除しますか？')) return;
-  saveUsers(getUsers().filter(u => u.id !== id));
-  renderUserEditor(); toast('削除しました');
+  try {
+    await gasPost({ action:'deleteUser', id });
+    appData.users = appData.users.filter(u => u.id !== id);
+    renderUserEditor(); populateAuthorSelect(''); toast('削除しました');
+  } catch(e) { toast('エラー: '+e.message); }
 }
-function addUser() {
+async function addUser() {
   const name = document.getElementById('user-new-name').value.trim(); if (!name) return;
-  const users = getUsers();
-  if (users.find(u => u.name === name)) { toast('すでに登録済みです'); return; }
-  users.push({ id: 'u' + Date.now(), name });
-  saveUsers(users);
-  document.getElementById('user-new-name').value = '';
-  renderUserEditor(); toast('追加しました');
+  if (getUsers().find(u => u.name === name)) { toast('すでに登録済みです'); return; }
+  try {
+    const r = await gasPost({ action:'saveUser', name });
+    appData.users.push({ id: r.id, name });
+    document.getElementById('user-new-name').value = '';
+    renderUserEditor(); populateAuthorSelect(''); toast('追加しました');
+  } catch(e) { toast('エラー: '+e.message); }
 }
 function populateAuthorSelect(currentVal) {
   const sel = document.getElementById('f-author-sel'); if (!sel) return;
@@ -1817,13 +1853,9 @@ function onAuthorSelChange() {
 }
 
 // ============================================================
-//  FOOD MASTER (localStorage) - 成分データ付き
+//  FOOD MASTER (GASシートで管理 → 全デバイス共有)
 // ============================================================
-const FOOD_KEY = 'renapp_food_items';
-function getFoodItems() {
-  try { return JSON.parse(localStorage.getItem(FOOD_KEY) || 'null') || []; } catch(e) { return []; }
-}
-function saveFoodItems(items) { localStorage.setItem(FOOD_KEY, JSON.stringify(items)); }
+function getFoodItems() { return appData.foodItems || []; }
 
 function renderFoodEditor() {
   const el = document.getElementById('food-editor'); if (!el) return;
@@ -1852,32 +1884,59 @@ function renderFoodEditor() {
   }).join('');
 }
 
-function updateFoodItem(id) {
-  const items = getFoodItems(); const item = items.find(i => i.id === id); if (!item) return;
+async function updateFoodItem(id) {
+  const item = getFoodItems().find(i => i.id === id); if (!item) return;
   const inp = document.getElementById('fi-'+id);
-  if (inp) item.label = inp.value.trim() || item.label;
-  saveFoodItems(items); renderFoodEditor(); toast('更新しました');
+  const label = inp ? inp.value.trim() : item.label; if (!label) return;
+  try {
+    await gasPost({ action:'saveFoodItem', id, label, nutrition: item.nutrition||null });
+    item.label = label; renderFoodEditor(); toast('更新しました');
+  } catch(e) { toast('エラー: '+e.message); }
 }
-function removeFoodItem(id) {
+async function removeFoodItem(id) {
   if (!confirm('このフードを削除しますか？\n（成分データも削除されます）')) return;
-  saveFoodItems(getFoodItems().filter(i => i.id !== id));
-  renderFoodEditor(); toast('削除しました');
+  try {
+    await gasPost({ action:'deleteFoodItem', id });
+    appData.foodItems = appData.foodItems.filter(i => i.id !== id);
+    renderFoodEditor(); populateFoodSelect(); toast('削除しました');
+  } catch(e) { toast('エラー: '+e.message); }
 }
-function addFoodItem() {
+async function addFoodItem() {
   const label = document.getElementById('food-new-label').value.trim(); if (!label) return;
-  const items = getFoodItems();
-  const newId = 'f' + Date.now();
-  items.push({ id: newId, label, nutrition: null });
-  saveFoodItems(items);
-  document.getElementById('food-new-label').value = '';
-  renderFoodEditor();
-  toast('追加しました。📊ボタンで成分を分析できます');
+  try {
+    const r = await gasPost({ action:'saveFoodItem', label });
+    appData.foodItems.push({ id: r.id, label, nutrition: null });
+    document.getElementById('food-new-label').value = '';
+    renderFoodEditor(); populateFoodSelect();
+    toast('追加しました。📊ボタンで成分を分析できます');
+  } catch(e) { toast('エラー: '+e.message); }
 }
 
 // ============================================================
 //  FOOD ANALYZE MODAL (マスタ保存用)
 // ============================================================
 let _faPhotoData = null;
+let _faPhotoType = 'label';
+let _mealPhotoType = 'label';
+
+const FA_TYPE_HINTS = {
+  label:   '成分表のアップ写真が最も正確です',
+  package: 'パッケージ全体から総合判断します',
+  food:    '実物から目視推測（精度は参考値）',
+};
+
+function setFaType(type, btn) {
+  _faPhotoType = type;
+  document.querySelectorAll('#fa-type-grid .fa-type-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const hint = document.getElementById('fa-type-hint');
+  if (hint) hint.textContent = FA_TYPE_HINTS[type] || '';
+}
+function setMealType(type, btn) {
+  _mealPhotoType = type;
+  btn.closest('div').querySelectorAll('.fa-type-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
 
 function openFoodAnalyzeModal(foodId) {
   const items = getFoodItems();
@@ -1925,7 +1984,7 @@ async function runFaMasterAnalyze() {
   btn.disabled = true; btn.textContent = '分析中…';
   document.getElementById('fa-err').textContent = '';
   try {
-    const r = await gasPost({ action:'analyzeFood', imageData: _faPhotoData.data, mimeType: _faPhotoData.mimeType });
+    const r = await gasPost({ action:'analyzeFood', imageData: _faPhotoData.data, mimeType: _faPhotoData.mimeType, photoType: _faPhotoType });
     const res = r.result;
     // 結果をフォームに展開
     document.getElementById('fa-result-name').textContent = res.foodName || '';
@@ -1946,10 +2005,9 @@ async function runFaMasterAnalyze() {
   finally { btn.disabled = false; btn.textContent = '✨ AIで成分を読み取る'; }
 }
 
-function saveFaMasterNutrition() {
+async function saveFaMasterNutrition() {
   const foodId = document.getElementById('fa-food-id').value;
-  const items = getFoodItems();
-  const item = items.find(i => i.id === foodId); if (!item) return;
+  const item = getFoodItems().find(i => i.id === foodId); if (!item) return;
   const nutrition = {
     calories:      parseFloat(document.getElementById('fa-cal').value)  || 0,
     protein:       parseFloat(document.getElementById('fa-prot').value) || 0,
@@ -1959,11 +2017,13 @@ function saveFaMasterNutrition() {
     notes:         document.getElementById('fa-notes').value.trim(),
     savedAt:       today(),
   };
-  item.nutrition = nutrition;
-  saveFoodItems(items);
-  renderFoodEditor();
-  closeOv('ov-food-analyze');
-  toast(`${item.label} の成分を保存しました ✓`);
+  try {
+    await gasPost({ action:'saveFoodItem', id: foodId, label: item.label, nutrition });
+    item.nutrition = nutrition;
+    renderFoodEditor(); populateFoodSelect();
+    closeOv('ov-food-analyze');
+    toast(`${item.label} の成分を保存しました ✓`);
+  } catch(e) { toast('保存エラー: '+e.message); }
 }
 
 // ============================================================
@@ -2086,21 +2146,23 @@ async function analyzeFood() {
   if (!window._foodPhotoData) { toast('画像を選択してください'); return; }
   if (!gasUrl) { toast('GAS URLが未設定です'); return; }
   const btn = document.getElementById('food-analyze-btn');
-  btn.disabled = true; btn.textContent = '分析中…';
+  const typeLabel = { label:'成分表を読取中…', package:'パッケージを解析中…', food:'食品を推測中…' };
+  btn.disabled = true; btn.textContent = typeLabel[_mealPhotoType] || '分析中…';
   try {
-    const r = await gasPost({ action:'analyzeFood', imageData: window._foodPhotoData.data, mimeType: window._foodPhotoData.mimeType });
+    const r = await gasPost({ action:'analyzeFood', imageData: window._foodPhotoData.data, mimeType: window._foodPhotoData.mimeType, photoType: _mealPhotoType });
     const res = r.result;
     window._foodAnalysisResult = res;
+    const confLabel = { high:'高精度', medium:'中精度', low:'参考値（推測）' }[res.confidence] || res.confidence || '-';
     const rows = [
       res.foodName     ? `<b>フード名:</b> ${esc(res.foodName)}` : '',
       res.amount       ? `<b>量:</b> ${esc(res.amount)}` : '',
-      res.calories    != null ? `<b>カロリー:</b> ${res.calories} kcal` : '',
+      res.calories    != null ? `<b>カロリー:</b> ${res.calories} kcal/100g` : '',
       res.protein     != null ? `<b>タンパク質:</b> ${res.protein} g` : '',
       res.fat         != null ? `<b>脂質:</b> ${res.fat} g` : '',
       res.carbohydrate!= null ? `<b>炭水化物:</b> ${res.carbohydrate} g` : '',
       res.ingredients  ? `<b>原材料:</b> ${esc(res.ingredients)}` : '',
       res.notes        ? `<span style="color:#c0392b"><b>注意:</b> ${esc(res.notes)}</span>` : '',
-      `<span style="color:var(--txl);font-size:11px">精度: ${res.confidence||'-'}</span>`,
+      `<span style="color:var(--txl);font-size:11px">📊 精度: ${confLabel}</span>`,
     ].filter(Boolean).join('<br>');
     document.getElementById('food-analyze-result').innerHTML = rows;
     document.getElementById('food-analyze-result').style.display = '';
@@ -2179,7 +2241,7 @@ async function saveCoreSettings() {
     // GASのsaveConfigは { action, key, value } または { action, configs:{key:value,...} } どちらか
     // 両形式試す：まず単純なkey/value形式
     try {
-      await gasPost({ action:'saveConfig', key:'gas_url', value:url });
+      await gasPost({ action:'saveConfig', config:{ gas_url: url } });
     } catch(e1) {
       // 失敗したらconfigs形式で試す
       try { await gasPost({ action:'saveConfig', configs:{ gas_url: url } }); } catch(e2) {}
@@ -2220,7 +2282,7 @@ async function testSaveConfig() {
     let saveOk = false;
     let saveErr = '';
     try {
-      const r2 = await gasPost({ action:'saveConfig', key:'gas_url', value:gasUrl });
+      const r2 = await gasPost({ action:'saveConfig', config:{ gas_url: gasUrl } });
       saveOk = true;
     } catch(e) {
       saveErr = e.message;
