@@ -273,6 +273,10 @@ body{padding-top:env(safe-area-inset-top,0px);}
 .bot-nav{padding-bottom:max(12px,env(safe-area-inset-bottom,0px));height:auto;}
 .fab{bottom:calc(76px + env(safe-area-inset-bottom,0px));}
 
+.fa-type-btn{background:var(--cr);border:2px solid var(--crd);border-radius:12px;padding:10px 6px;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;font-weight:600;color:var(--txm);transition:all .2s;}
+.fa-type-btn.on{background:var(--aml);border-color:var(--am);color:var(--br);}
+.fa-type-btn:hover{border-color:var(--am);}
+
 /* FOOD MASTER & NUTRITION */
 .food-master-row{padding:10px 0;border-bottom:1px solid var(--crd);}
 .food-master-row:last-child{border-bottom:none;}
@@ -533,7 +537,20 @@ body{padding-top:env(safe-area-inset-top,0px);}
         <!-- 写真AI分析（フード未選択 or 成分なし時に表示） -->
         <div id="meal-photo-section">
           <div class="fg">
-            <label>📷 食品写真・成分表をAIで分析</label>
+            <label>📷 写真からAI分析（任意）</label>
+            <p style="font-size:11px;color:var(--txl);margin-bottom:8px;line-height:1.6;">成分表・パッケージ・実物写真など何でもOK</p>
+            <!-- タイプ選択 -->
+            <div style="display:flex;gap:6px;margin-bottom:8px;" id="meal-type-btns">
+              <button class="fa-type-btn on" data-type="label" onclick="setMealPhotoType('label',this)" style="flex:1;padding:7px 4px;">
+                <div style="font-size:16px;">🏷️</div><div style="font-size:10px;">成分表</div>
+              </button>
+              <button class="fa-type-btn" data-type="package" onclick="setMealPhotoType('package',this)" style="flex:1;padding:7px 4px;">
+                <div style="font-size:16px;">📦</div><div style="font-size:10px;">パッケージ</div>
+              </button>
+              <button class="fa-type-btn" data-type="food" onclick="setMealPhotoType('food',this)" style="flex:1;padding:7px 4px;">
+                <div style="font-size:16px;">🍖</div><div style="font-size:10px;">実物写真</div>
+              </button>
+            </div>
             <div class="upload-zone" onclick="document.getElementById('food-photo-in').click()">
               <div class="uz-icon">📸</div><div class="uz-txt">タップして画像を選択</div>
               <input type="file" id="food-photo-in" accept="image/*" style="display:none" onchange="onFoodPhoto(event)">
@@ -677,18 +694,33 @@ body{padding-top:env(safe-area-inset-top,0px);}
     <div class="mbody">
       <input type="hidden" id="fa-food-id">
       <p style="font-size:12px;color:var(--txl);margin-bottom:14px;line-height:1.7;">
-        フードのパッケージ・成分表・ラベルの写真を撮影してください。<br>
-        AIが栄養成分を読み取り、マスタに保存します。
+        成分表・パッケージ・実際の食べ物の写真など、<strong>どんな写真でもOK</strong>。<br>
+        AIが内容を見て栄養成分を読み取り・推測します。
       </p>
+      <!-- 写真タイプ選択 -->
       <div class="fg">
-        <label>📷 フード写真・成分表</label>
+        <label>📂 写真の種類（AIへのヒント）</label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;" id="fa-type-grid">
+          <button class="fa-type-btn on" data-type="label" onclick="setFaType('label',this)">
+            <div style="font-size:20px;">🏷️</div><div style="font-size:11px;margin-top:2px;">成分表・ラベル</div>
+          </button>
+          <button class="fa-type-btn" data-type="package" onclick="setFaType('package',this)">
+            <div style="font-size:20px;">📦</div><div style="font-size:11px;margin-top:2px;">パッケージ全体</div>
+          </button>
+          <button class="fa-type-btn" data-type="food" onclick="setFaType('food',this)">
+            <div style="font-size:20px;">🍖</div><div style="font-size:11px;margin-top:2px;">実物・料理写真</div>
+          </button>
+        </div>
+        <p id="fa-type-hint" style="font-size:11px;color:var(--txl);margin-top:6px;line-height:1.6;">成分表・栄養成分表示のアップ写真が最も正確です</p>
+      </div>
+      <div class="fg">
+        <label>📷 写真を選択（複数枚まとめて送れます）</label>
         <div class="upload-zone" onclick="document.getElementById('fa-photo-in').click()">
-          <div class="uz-icon">📸</div><div class="uz-txt">タップして選択</div>
-          <input type="file" id="fa-photo-in" accept="image/*" style="display:none" onchange="onFaMasterPhoto(event)">
+          <div class="uz-icon" id="fa-uz-icon">📸</div>
+          <div class="uz-txt" id="fa-uz-txt">タップして選択（複数OK）</div>
+          <input type="file" id="fa-photo-in" accept="image/*" multiple style="display:none" onchange="onFaMasterPhoto(event)">
         </div>
-        <div id="fa-photo-prev" style="margin-top:8px;display:none;">
-          <img id="fa-photo-img" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:2px solid var(--crd);">
-        </div>
+        <div id="fa-photo-prev-grid" style="margin-top:8px;display:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"></div>
       </div>
       <button class="btn-sec" id="fa-analyze-btn" onclick="runFaMasterAnalyze()" style="display:none;">✨ AIで成分を読み取る</button>
       <!-- 結果表示 -->
@@ -1891,21 +1923,127 @@ function addFoodItem() {
 }
 
 // ============================================================
-//  FOOD ANALYZE MODAL (マスタ保存用)
+//  FOOD ANALYZE MODAL JS
 // ============================================================
-let _faPhotoData = null;
+let _faPhotoData = null;       // マスタ分析用（複数枚配列）
+let _faPhotoType = 'label';    // label / package / food
+let _mealPhotoType = 'label';  // ごはん記録用
 
-function openFoodAnalyzeModal(foodId) {
+const FA_TYPE_HINTS = {
+  label:   '成分表・栄養成分表示のアップ写真が最も正確です',
+  package: 'パッケージ全体の写真。フード名・成分を総合的に判断します',
+  food:    '実物の写真から食材・量をAIが目視推測します（精度は参考値）',
+};
+const FA_TYPE_ICONS = {
+  label:   { icon:'🏷️', txt:'成分表をスキャン中…' },
+  package: { icon:'📦', txt:'パッケージを解析中…' },
+  food:    { icon:'🍖', txt:'食品を目視推測中…' },
+};
+
+function setFaType(type, btn) {
+  _faPhotoType = type;
+  document.querySelectorAll('#fa-type-grid .fa-type-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const hint = document.getElementById('fa-type-hint');
+  if (hint) hint.textContent = FA_TYPE_HINTS[type];
+}
+
+function setMealPhotoType(type, btn) {
+  _mealPhotoType = type;
+  document.querySelectorAll('#meal-type-btns .fa-type-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function onFaMasterPhoto(e) {
+  const files = Array.from(e.target.files); if (!files.length) return;
+  // 複数枚を圧縮してbase64配列に
+  _faPhotoData = [];
+  const grid = document.getElementById('fa-photo-prev-grid');
+  grid.innerHTML = '';
+  grid.style.display = 'grid';
+  let loaded = 0;
+  files.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      _faPhotoData.push({ data: ev.target.result.split(',')[1], mimeType: file.type });
+      // プレビュー
+      const div = document.createElement('div');
+      div.style.cssText = 'aspect-ratio:1;border-radius:9px;overflow:hidden;border:2px solid var(--crd);';
+      div.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+      grid.appendChild(div);
+      loaded++;
+      if (loaded === files.length) {
+        document.getElementById('fa-analyze-btn').style.display = '';
+        document.getElementById('fa-result').style.display = 'none';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+async function runFaMasterAnalyze() {
+  if (!_faPhotoData || !_faPhotoData.length) { toast('写真を選択してください'); return; }
+  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
+  const btn = document.getElementById('fa-analyze-btn');
+  const typeInfo = FA_TYPE_ICONS[_faPhotoType] || FA_TYPE_ICONS.label;
+  btn.disabled = true; btn.textContent = typeInfo.txt;
+  document.getElementById('fa-err').textContent = '';
+  try {
+    // 複数枚の場合は最初の1枚を送る（GASが複数枚未対応の場合のフォールバック）
+    // photoTypeをヒントとして送る
+    const primary = _faPhotoData[0];
+    const r = await gasPost({
+      action: 'analyzeFood',
+      imageData: primary.data,
+      mimeType:  primary.mimeType,
+      photoType: _faPhotoType,           // label/package/food
+      extraImages: _faPhotoData.slice(1).map(p => ({ data: p.data, mimeType: p.mimeType })),
+      per100g: true,                     // 100g基準で返してほしい
+    });
+    const res = r.result;
+    // 結果展開
+    document.getElementById('fa-result-name').textContent = res.foodName || '（不明）';
+    document.getElementById('fa-cal').value   = res.calories     ?? '';
+    document.getElementById('fa-prot').value  = res.protein      ?? '';
+    document.getElementById('fa-fat').value   = res.fat          ?? '';
+    document.getElementById('fa-carb').value  = res.carbohydrate ?? '';
+    document.getElementById('fa-ingr').value  = res.ingredients  || '';
+    document.getElementById('fa-notes').value = res.notes        || '';
+    document.getElementById('fa-result-grid').innerHTML = buildNutriGridHTML(res, 100);
+    // confidence バッジ
+    const conf = res.confidence || '';
+    const confColor = conf === 'high' ? '#2e7d32' : conf === 'medium' ? '#e65100' : '#c0392b';
+    const confLabel = { high:'高精度', medium:'中精度', low:'参考値（推測）' }[conf] || conf;
+    const extra = [
+      conf ? `<span style="color:${confColor};font-weight:700;">📊 精度: ${confLabel}</span>` : '',
+      res.ingredients ? `原材料: ${esc(res.ingredients)}` : '',
+      res.notes ? `<span style="color:#c0392b">注意: ${esc(res.notes)}</span>` : '',
+    ].filter(Boolean).join('<br>');
+    document.getElementById('fa-result-extra').innerHTML = extra;
+    document.getElementById('fa-result').style.display = '';
+    toast('分析完了！内容を確認して保存してください');
+  } catch(e) {
+    document.getElementById('fa-err').textContent = '分析エラー: ' + e.message;
+  }
+  finally { btn.disabled = false; btn.textContent = '✨ AIで成分を読み取る'; }
+}
   const items = getFoodItems();
   const item = items.find(i => i.id === foodId); if (!item) return;
   document.getElementById('fa-food-id').value = foodId;
   document.getElementById('food-analyze-ttl').textContent = `📊 ${item.label} - 成分分析`;
   document.getElementById('fa-err').textContent = '';
-  document.getElementById('fa-photo-prev').style.display = 'none';
+  const grid = document.getElementById('fa-photo-prev-grid');
+  if (grid) { grid.innerHTML = ''; grid.style.display = 'none'; }
   document.getElementById('fa-analyze-btn').style.display = 'none';
   document.getElementById('fa-result').style.display = 'none';
   document.getElementById('fa-reanalyze').style.display = 'none';
   _faPhotoData = null;
+  _faPhotoType = 'label';
+  // タイプボタン・ヒントをリセット
+  document.querySelectorAll('#fa-type-grid .fa-type-btn').forEach(b => b.classList.toggle('on', b.dataset.type === 'label'));
+  const hint = document.getElementById('fa-type-hint');
+  if (hint) hint.textContent = FA_TYPE_HINTS.label;
 
   // 既存データ表示
   const existing = document.getElementById('fa-existing');
@@ -1919,20 +2057,7 @@ function openFoodAnalyzeModal(foodId) {
   openOv('ov-food-analyze');
 }
 
-function onFaMasterPhoto(e, mode) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    _faPhotoData = { data: ev.target.result.split(',')[1], mimeType: file.type };
-    const prevEl = document.getElementById('fa-photo-prev');
-    const imgEl  = document.getElementById('fa-photo-img');
-    if (prevEl && imgEl) { imgEl.src = ev.target.result; prevEl.style.display = ''; }
-    document.getElementById('fa-analyze-btn').style.display = '';
-    document.getElementById('fa-result').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-}
+// 旧onFaMasterPhotoは上のFA_TYPE_HINTS定義後の onFaMasterPhoto に移動済み
 
 async function runFaMasterAnalyze() {
   if (!_faPhotoData) { toast('写真を選択してください'); return; }
@@ -2102,21 +2227,31 @@ async function analyzeFood() {
   if (!window._foodPhotoData) { toast('画像を選択してください'); return; }
   if (!gasUrl) { toast('GAS URLが未設定です'); return; }
   const btn = document.getElementById('food-analyze-btn');
-  btn.disabled = true; btn.textContent = '分析中…';
+  const typeInfo = FA_TYPE_ICONS[_mealPhotoType] || FA_TYPE_ICONS.label;
+  btn.disabled = true; btn.textContent = typeInfo.txt;
   try {
-    const r = await gasPost({ action:'analyzeFood', imageData: window._foodPhotoData.data, mimeType: window._foodPhotoData.mimeType });
+    const r = await gasPost({
+      action:    'analyzeFood',
+      imageData: window._foodPhotoData.data,
+      mimeType:  window._foodPhotoData.mimeType,
+      photoType: _mealPhotoType,
+      per100g:   true,
+    });
     const res = r.result;
     window._foodAnalysisResult = res;
+    const conf = res.confidence || '';
+    const confLabel = { high:'高精度', medium:'中精度', low:'参考値（推測）' }[conf] || conf;
+    const confColor = conf === 'high' ? '#2e7d32' : conf === 'medium' ? '#e65100' : '#c0392b';
     const rows = [
+      conf ? `<span style="color:${confColor};font-weight:700;">📊 精度: ${confLabel}</span>` : '',
       res.foodName     ? `<b>フード名:</b> ${esc(res.foodName)}` : '',
       res.amount       ? `<b>量:</b> ${esc(res.amount)}` : '',
-      res.calories    != null ? `<b>カロリー:</b> ${res.calories} kcal` : '',
+      res.calories    != null ? `<b>カロリー:</b> ${res.calories} kcal/100g` : '',
       res.protein     != null ? `<b>タンパク質:</b> ${res.protein} g` : '',
       res.fat         != null ? `<b>脂質:</b> ${res.fat} g` : '',
       res.carbohydrate!= null ? `<b>炭水化物:</b> ${res.carbohydrate} g` : '',
       res.ingredients  ? `<b>原材料:</b> ${esc(res.ingredients)}` : '',
       res.notes        ? `<span style="color:#c0392b"><b>注意:</b> ${esc(res.notes)}</span>` : '',
-      `<span style="color:var(--txl);font-size:11px">精度: ${res.confidence||'-'}</span>`,
     ].filter(Boolean).join('<br>');
     document.getElementById('food-analyze-result').innerHTML = rows;
     document.getElementById('food-analyze-result').style.display = '';
