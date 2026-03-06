@@ -55,7 +55,7 @@ body>*{position:relative;z-index:1;}
 .nav-btn.on .ni{transform:scale(1.15);}
 
 /* FAB */
-.fab{position:fixed;bottom:76px;right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(145deg,var(--am),var(--br));border:none;cursor:pointer;z-index:99;display:flex;align-items:center;justify-content:center;font-size:28px;color:white;box-shadow:0 5px 22px rgba(124,74,45,.4);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+.fab{position:fixed;bottom:90px;right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(145deg,var(--am),var(--br));border:none;cursor:pointer;z-index:99;display:flex;align-items:center;justify-content:center;font-size:28px;color:white;box-shadow:0 5px 22px rgba(124,74,45,.4);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
 .fab:hover{transform:scale(1.1);}
 .fab:active{transform:scale(.93);}
 .fab[hidden]{display:none;}
@@ -271,7 +271,7 @@ textarea{resize:none;height:90px;line-height:1.7;}
 body{padding-top:env(safe-area-inset-top,0px);}
 .hdr{top:env(safe-area-inset-top,0px);padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));}
 .bot-nav{padding-bottom:max(12px,env(safe-area-inset-bottom,0px));height:auto;}
-.fab{bottom:calc(76px + env(safe-area-inset-bottom,0px));}
+.fab{bottom:calc(90px + env(safe-area-inset-bottom,0px));}
 
 /* FOOD MASTER & NUTRITION */
 .fa-type-btn{background:var(--cr);border:2px solid var(--crd);border-radius:12px;padding:10px 6px;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;font-weight:600;color:var(--txm);transition:all .2s;}
@@ -344,7 +344,7 @@ body{padding-top:env(safe-area-inset-top,0px);}
   .tab-content{padding:12px 14px 80px;}
   .bot-nav{padding:4px 0 6px;}
   .nav-btn{padding:4px 0 4px;}
-  .fab{bottom:60px;}
+  .fab{bottom:80px;}
 }
 </style>
 </head>
@@ -780,7 +780,7 @@ body{padding-top:env(safe-area-inset-top,0px);}
 //  STATE - GAS URLはハードコード済み（どのデバイスでも即動作）
 // ============================================================
 const CFG_KEY = 'renapp_url_v4';
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyF7Csa1XPCm-J0b4XXRMgOmg3cT9vXbqQ_kaQs5vR9GZgrS6MmfU2JqomdbdTVtNs9/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzYoJZEWn1cCh_I05eM99ynYkbzsEdRxzJeBUiQ7lXoDoezE6JYDGQCZqNLu9_qYBkM/exec';
 let gasUrl = GAS_URL;
 try { localStorage.setItem(CFG_KEY, GAS_URL); } catch(e) {}
 
