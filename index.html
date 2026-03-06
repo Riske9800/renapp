@@ -406,7 +406,11 @@ textarea{resize:none;height:90px;line-height:1.7;}
       <div class="fg"><label>📅 日付</label><input type="date" id="f-date"></div>
       <div class="fg"><label>🏷️ ジャンル</label><select id="f-genre"></select></div>
       <div class="fg"><label>💬 コメント</label><textarea id="f-comment" placeholder="今日の思い出を…"></textarea></div>
-      <div class="fg"><label>👤 投稿者</label><input type="text" id="f-author" placeholder="例：れん ママ"></div>
+      <div class="fg">
+        <label>👤 投稿者</label>
+        <select id="f-author-sel" onchange="onAuthorSelChange()" style="margin-bottom:6px;"></select>
+        <input type="text" id="f-author" placeholder="名前を入力" style="display:none;">
+      </div>
       <div class="errmsg" id="post-err"></div>
       <button class="btn-main" id="post-btn" onclick="submitPost()">投稿する</button>
     </div>
@@ -457,6 +461,28 @@ textarea{resize:none;height:90px;line-height:1.7;}
       <div class="fg"><label>⏱️ 時間（分）</label><input type="number" id="a-dur" placeholder="例：30" min="1"></div>
       <div class="fg" id="a-location-fg"><label>📍 場所</label><input type="text" id="a-loc" placeholder="例：近所の公園"></div>
       <div class="fg" id="a-detail-fg"><label id="a-detail-lbl">📝 詳細</label><input type="text" id="a-detail" placeholder=""></div>
+      <!-- ごはん専用UI -->
+      <div id="meal-extra" style="display:none;">
+        <div class="fg">
+          <label>🍖 フードマスタから選ぶ</label>
+          <select id="a-food-sel" onchange="onFoodSelChange()">
+            <option value="">-- 選択 --</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>📷 食品写真・成分表をAIで分析</label>
+          <div class="upload-zone" onclick="document.getElementById('food-photo-in').click()">
+            <div class="uz-icon">📸</div><div class="uz-txt">タップして画像を選択</div>
+            <input type="file" id="food-photo-in" accept="image/*" style="display:none" onchange="onFoodPhoto(event)">
+          </div>
+          <div id="food-photo-prev" style="margin-top:8px;display:none;">
+            <img id="food-photo-img" style="width:100%;max-height:180px;object-fit:contain;border-radius:10px;border:2px solid var(--crd);">
+          </div>
+          <button class="btn-sec" id="food-analyze-btn" onclick="analyzeFood()" style="display:none;margin-top:8px;">✨ AIで分析する</button>
+          <div id="food-analyze-result" style="display:none;margin-top:10px;background:var(--cr);border-radius:12px;padding:12px;font-size:12px;line-height:1.8;border:1.5px solid var(--aml);"></div>
+          <button class="btn-sec" id="food-apply-btn" onclick="applyFoodAnalysis()" style="display:none;margin-top:6px;">↓ 詳細に反映する</button>
+        </div>
+      </div>
       <div class="fg"><label>🗒️ メモ</label><textarea id="a-notes" placeholder="その他メモ…" style="height:70px"></textarea></div>
       <div class="errmsg" id="act-err"></div>
       <button class="btn-main" id="act-btn" onclick="submitActivity()">記録する</button>
@@ -479,6 +505,32 @@ textarea{resize:none;height:90px;line-height:1.7;}
 
       <!-- APP SETTINGS -->
       <div id="stab-app-body">
+
+        <!-- USER MANAGER -->
+        <div class="fg">
+          <div class="sec-title">👤 ユーザー管理</div>
+          <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">投稿者の選択肢として表示されます</p>
+          <div id="user-editor"></div>
+          <div class="g-add-row">
+            <input type="text" id="user-new-name" placeholder="例：れん ママ">
+            <button class="g-add-btn" onclick="addUser()">追加</button>
+          </div>
+        </div>
+
+        <div class="sdivider"></div>
+
+        <!-- FOOD MASTER -->
+        <div class="fg">
+          <div class="sec-title">🍖 ごはんマスタ</div>
+          <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">ごはん記録のドロップダウンに表示されます</p>
+          <div id="food-editor"></div>
+          <div class="g-add-row">
+            <input type="text" id="food-new-label" placeholder="例：ロイヤルカナン">
+            <button class="g-add-btn" onclick="addFoodItem()">追加</button>
+          </div>
+        </div>
+
+        <div class="sdivider"></div>
 
         <!-- GENRE MANAGER -->
         <div class="fg">
@@ -1132,13 +1184,13 @@ function populateGenreSelect() {
 function openPost() {
   document.getElementById('post-modal-ttl').textContent = '🐶 思い出を投稿';
   document.getElementById('f-id').value = '';
-  if (remoteConfig.author) document.getElementById('f-author').value = remoteConfig.author;
   document.getElementById('f-date').value = today();
   document.getElementById('f-title').value = '';
   document.getElementById('f-comment').value = '';
   document.getElementById('post-err').textContent = '';
   selectedFiles = []; document.getElementById('post-prev').innerHTML = '';
   document.getElementById('post-btn').textContent = '投稿する';
+  populateAuthorSelect(remoteConfig.author || '');
   openOv('ov-post');
 }
 
@@ -1149,10 +1201,10 @@ function openEditPost(id) {
   document.getElementById('f-title').value = p.title||'';
   document.getElementById('f-date').value = p.date||today();
   document.getElementById('f-comment').value = p.comment||'';
-  document.getElementById('f-author').value = p.author||'';
   document.getElementById('f-genre').value = p.genre||'';
   document.getElementById('post-err').textContent = '';
   document.getElementById('post-btn').textContent = '更新する';
+  populateAuthorSelect(p.author || '');
   // show existing photos as previews
   selectedFiles = [];
   const grid = document.getElementById('post-prev');
@@ -1376,6 +1428,22 @@ function openActivity(dogId, type) {
 
   const sel = document.getElementById('a-dog');
   if (dogId) sel.value = dogId;
+
+  // ごはん専用UI
+  const mealExtra = document.getElementById('meal-extra');
+  if (mealExtra) {
+    mealExtra.style.display = type === 'meal' ? '' : 'none';
+    if (type === 'meal') {
+      populateFoodSelect();
+      document.getElementById('food-photo-prev').style.display = 'none';
+      document.getElementById('food-analyze-btn').style.display = 'none';
+      document.getElementById('food-analyze-result').style.display = 'none';
+      document.getElementById('food-apply-btn').style.display = 'none';
+      window._foodPhotoData = null;
+      window._foodAnalysisResult = null;
+    }
+  }
+
   openOv('ov-act');
 }
 
@@ -1416,6 +1484,192 @@ async function submitActivity() {
 }
 
 // ============================================================
+//  USER MANAGER (localStorage)
+// ============================================================
+const USER_KEY = 'renapp_users';
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null') || []; } catch(e) { return []; }
+}
+function saveUsers(u) { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+
+function renderUserEditor() {
+  const el = document.getElementById('user-editor'); if (!el) return;
+  const users = getUsers();
+  if (!users.length) { el.innerHTML = '<p style="font-size:12px;color:var(--txl);padding:8px 0">まだ登録がありません</p>'; return; }
+  el.innerHTML = users.map(u => `
+    <div class="genre-row">
+      <input class="g-label-in" type="text" value="${esc(u.name)}" id="usr-${u.id}">
+      <button class="g-add-btn" onclick="updateUser('${u.id}')" style="white-space:nowrap">保存</button>
+      <button class="g-del" onclick="removeUser('${u.id}')">削除</button>
+    </div>`).join('');
+}
+function updateUser(id) {
+  const users = getUsers(); const u = users.find(x => x.id === id); if (!u) return;
+  u.name = document.getElementById('usr-'+id).value.trim() || u.name;
+  saveUsers(users); renderUserEditor(); toast('更新しました');
+}
+function removeUser(id) {
+  if (!confirm('このユーザーを削除しますか？')) return;
+  saveUsers(getUsers().filter(u => u.id !== id));
+  renderUserEditor(); toast('削除しました');
+}
+function addUser() {
+  const name = document.getElementById('user-new-name').value.trim(); if (!name) return;
+  const users = getUsers();
+  if (users.find(u => u.name === name)) { toast('すでに登録済みです'); return; }
+  users.push({ id: 'u' + Date.now(), name });
+  saveUsers(users);
+  document.getElementById('user-new-name').value = '';
+  renderUserEditor(); toast('追加しました');
+}
+function populateAuthorSelect(currentVal) {
+  const sel = document.getElementById('f-author-sel'); if (!sel) return;
+  const inp = document.getElementById('f-author');
+  const users = getUsers();
+  sel.innerHTML = '<option value="">-- 選択 --</option>' +
+    users.map(u => `<option value="${esc(u.name)}">${esc(u.name)}</option>`).join('') +
+    '<option value="__custom__">✏️ 直接入力…</option>';
+  if (!users.length) {
+    // ユーザー未登録: セレクト非表示、テキスト入力
+    sel.style.display = 'none';
+    inp.style.display = '';
+    inp.value = currentVal || '';
+  } else if (currentVal && users.find(u => u.name === currentVal)) {
+    sel.value = currentVal;
+    inp.style.display = 'none';
+    inp.value = currentVal;
+  } else if (currentVal) {
+    sel.value = '__custom__';
+    inp.style.display = '';
+    inp.value = currentVal;
+  } else {
+    sel.style.display = '';
+    inp.style.display = 'none';
+    inp.value = '';
+  }
+}
+function onAuthorSelChange() {
+  const sel = document.getElementById('f-author-sel');
+  const inp = document.getElementById('f-author');
+  if (sel.value === '__custom__') {
+    inp.style.display = '';
+    inp.value = '';
+    inp.focus();
+  } else {
+    inp.style.display = 'none';
+    inp.value = sel.value;
+  }
+}
+
+// ============================================================
+//  FOOD MASTER (localStorage)
+// ============================================================
+const FOOD_KEY = 'renapp_food_items';
+function getFoodItems() {
+  try { return JSON.parse(localStorage.getItem(FOOD_KEY) || 'null') || []; } catch(e) { return []; }
+}
+function saveFoodItems(items) { localStorage.setItem(FOOD_KEY, JSON.stringify(items)); }
+
+function renderFoodEditor() {
+  const el = document.getElementById('food-editor'); if (!el) return;
+  const items = getFoodItems();
+  if (!items.length) { el.innerHTML = '<p style="font-size:12px;color:var(--txl);padding:8px 0">まだ登録がありません</p>'; return; }
+  el.innerHTML = items.map(it => `
+    <div class="genre-row">
+      <input class="g-label-in" type="text" value="${esc(it.label)}" id="fi-${it.id}">
+      <button class="g-add-btn" onclick="updateFoodItem('${it.id}')" style="white-space:nowrap">保存</button>
+      <button class="g-del" onclick="removeFoodItem('${it.id}')">削除</button>
+    </div>`).join('');
+}
+function updateFoodItem(id) {
+  const items = getFoodItems(); const item = items.find(i => i.id === id); if (!item) return;
+  item.label = document.getElementById('fi-'+id).value.trim() || item.label;
+  saveFoodItems(items); renderFoodEditor(); toast('更新しました');
+}
+function removeFoodItem(id) {
+  if (!confirm('削除しますか？')) return;
+  saveFoodItems(getFoodItems().filter(i => i.id !== id));
+  renderFoodEditor(); toast('削除しました');
+}
+function addFoodItem() {
+  const label = document.getElementById('food-new-label').value.trim(); if (!label) return;
+  const items = getFoodItems();
+  items.push({ id: 'f' + Date.now(), label });
+  saveFoodItems(items);
+  document.getElementById('food-new-label').value = '';
+  renderFoodEditor(); toast('追加しました');
+}
+function populateFoodSelect() {
+  const sel = document.getElementById('a-food-sel'); if (!sel) return;
+  const items = getFoodItems();
+  sel.innerHTML = '<option value="">-- 選択 --</option>' +
+    items.map(i => `<option value="${esc(i.label)}">${esc(i.label)}</option>`).join('');
+}
+function onFoodSelChange() {
+  const val = document.getElementById('a-food-sel').value;
+  const inp = document.getElementById('a-detail');
+  if (val && inp) inp.value = val;
+}
+
+// ============================================================
+//  FOOD PHOTO AI ANALYSIS
+// ============================================================
+function onFoodPhoto(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    window._foodPhotoData = { data: ev.target.result.split(',')[1], mimeType: file.type };
+    document.getElementById('food-photo-img').src = ev.target.result;
+    document.getElementById('food-photo-prev').style.display = '';
+    document.getElementById('food-analyze-btn').style.display = '';
+    document.getElementById('food-analyze-result').style.display = 'none';
+    document.getElementById('food-apply-btn').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+async function analyzeFood() {
+  if (!window._foodPhotoData) { toast('画像を選択してください'); return; }
+  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
+  const btn = document.getElementById('food-analyze-btn');
+  btn.disabled = true; btn.textContent = '分析中…';
+  try {
+    const r = await gasPost({ action:'analyzeFood', imageData: window._foodPhotoData.data, mimeType: window._foodPhotoData.mimeType });
+    const res = r.result;
+    window._foodAnalysisResult = res;
+    const rows = [
+      res.foodName     ? `<b>フード名:</b> ${esc(res.foodName)}` : '',
+      res.amount       ? `<b>量:</b> ${esc(res.amount)}` : '',
+      res.calories    != null ? `<b>カロリー:</b> ${res.calories} kcal` : '',
+      res.protein     != null ? `<b>タンパク質:</b> ${res.protein} g` : '',
+      res.fat         != null ? `<b>脂質:</b> ${res.fat} g` : '',
+      res.carbohydrate!= null ? `<b>炭水化物:</b> ${res.carbohydrate} g` : '',
+      res.ingredients  ? `<b>原材料:</b> ${esc(res.ingredients)}` : '',
+      res.notes        ? `<span style="color:#c0392b"><b>注意:</b> ${esc(res.notes)}</span>` : '',
+      `<span style="color:var(--txl);font-size:11px">精度: ${res.confidence||'-'}</span>`,
+    ].filter(Boolean).join('<br>');
+    document.getElementById('food-analyze-result').innerHTML = rows;
+    document.getElementById('food-analyze-result').style.display = '';
+    document.getElementById('food-apply-btn').style.display = '';
+    toast('分析完了！');
+  } catch(e) { toast('分析エラー: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = '✨ AIで分析する'; }
+}
+function applyFoodAnalysis() {
+  const res = window._foodAnalysisResult; if (!res) return;
+  let detail = '';
+  if (res.foodName) detail += res.foodName;
+  if (res.amount)   detail += (detail ? ' ' : '') + res.amount;
+  if (res.calories != null) detail += (detail ? '／' : '') + res.calories + 'kcal';
+  const inp = document.getElementById('a-detail');
+  if (detail && inp) inp.value = detail;
+  const notes = document.getElementById('a-notes');
+  if (res.notes && notes && !notes.value) notes.value = res.notes;
+  toast('反映しました ✓');
+  document.getElementById('food-apply-btn').style.display = 'none';
+}
+
+// ============================================================
 //  SETTINGS
 // ============================================================
 const PLAY_KEY = 'renapp_play_items';
@@ -1445,6 +1699,8 @@ function openSettings() {
   document.getElementById('cfg-url').value = gasUrl;
   document.getElementById('cfg-claude').value = '';
   switchStab('core'); // コア設定をデフォルトで開く
+  renderUserEditor();
+  renderFoodEditor();
   renderGenreEditor();
   renderPlayEditor();
   renderAssetEditor();
