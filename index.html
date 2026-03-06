@@ -257,6 +257,27 @@ textarea{resize:none;height:90px;line-height:1.7;}
 .a-up{background:var(--aml);color:var(--br);border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
 .a-del{background:#fce8e8;color:#c0392b;border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;}
 
+/* FOOD MASTER & NUTRITION */
+.food-master-row{padding:10px 0;border-bottom:1px solid var(--crd);}
+.food-master-row:last-child{border-bottom:none;}
+.food-master-main{display:flex;align-items:center;gap:8px;}
+.food-master-name{flex:1;font-weight:700;font-size:14px;color:var(--tx);}
+.food-nutri-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+.food-nutri-badge.has{background:#e8f5e9;color:#2e7d32;}
+.food-nutri-badge.none{background:var(--crd);color:var(--txl);}
+.food-master-btns{display:flex;gap:5px;flex-shrink:0;}
+.food-master-nutri{margin-top:6px;font-size:11px;color:var(--txl);line-height:1.7;padding:6px 8px;background:var(--cr);border-radius:8px;display:none;}
+.food-master-nutri.show{display:block;}
+.nutri-card{background:var(--cr);border:1.5px solid var(--aml);border-radius:14px;padding:12px 14px;margin-top:10px;}
+.nutri-card-title{font-size:11px;font-weight:700;color:var(--brl);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.nutri-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+.nutri-cell{background:var(--wh);border-radius:9px;padding:7px 10px;text-align:center;}
+.nutri-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--br);line-height:1;}
+.nutri-lbl{font-size:10px;color:var(--txl);margin-top:2px;font-weight:600;}
+.nutri-full{grid-column:1/-1;text-align:left;font-size:11px;color:var(--txm);padding:6px 10px;}
+.amount-row{display:flex;gap:8px;align-items:center;margin-top:10px;}
+.amount-row input{flex:1;}
+.amount-pct{font-size:13px;font-weight:700;color:var(--br);white-space:nowrap;min-width:48px;}
 /* TOAST */
 .toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--tx);color:var(--wh);padding:10px 20px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;pointer-events:none;white-space:nowrap;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -469,18 +490,45 @@ textarea{resize:none;height:90px;line-height:1.7;}
             <option value="">-- 選択 --</option>
           </select>
         </div>
-        <div class="fg">
-          <label>📷 食品写真・成分表をAIで分析</label>
-          <div class="upload-zone" onclick="document.getElementById('food-photo-in').click()">
-            <div class="uz-icon">📸</div><div class="uz-txt">タップして画像を選択</div>
-            <input type="file" id="food-photo-in" accept="image/*" style="display:none" onchange="onFoodPhoto(event)">
+        <!-- 成分ありフードの分量・成分表示 -->
+        <div id="meal-nutri-section" style="display:none;">
+          <div class="fg" style="margin-bottom:6px;">
+            <label>⚖️ 分量</label>
+            <div class="amount-row">
+              <input type="number" id="a-amount-g" min="0" step="0.1" placeholder="例：80" oninput="onAmountChange('g')">
+              <span style="font-size:13px;color:var(--txl);font-weight:700;">g</span>
+              <input type="number" id="a-amount-pct" min="0" max="999" step="1" placeholder="100" oninput="onAmountChange('pct')" style="max-width:72px;">
+              <span class="amount-pct">%</span>
+            </div>
+            <p style="font-size:10px;color:var(--txl);margin-top:4px;">100g = 100%　※マスタの成分は100g基準で保存されます</p>
           </div>
-          <div id="food-photo-prev" style="margin-top:8px;display:none;">
-            <img id="food-photo-img" style="width:100%;max-height:180px;object-fit:contain;border-radius:10px;border:2px solid var(--crd);">
+          <div class="nutri-card" id="meal-nutri-card">
+            <div class="nutri-card-title">📊 この量の成分</div>
+            <div class="nutri-grid" id="meal-nutri-grid"></div>
+            <div id="meal-nutri-extra" style="font-size:11px;color:var(--txm);margin-top:8px;line-height:1.7;display:none;"></div>
           </div>
-          <button class="btn-sec" id="food-analyze-btn" onclick="analyzeFood()" style="display:none;margin-top:8px;">✨ AIで分析する</button>
-          <div id="food-analyze-result" style="display:none;margin-top:10px;background:var(--cr);border-radius:12px;padding:12px;font-size:12px;line-height:1.8;border:1.5px solid var(--aml);"></div>
-          <button class="btn-sec" id="food-apply-btn" onclick="applyFoodAnalysis()" style="display:none;margin-top:6px;">↓ 詳細に反映する</button>
+        </div>
+        <!-- 成分なしフードの場合の写真分析 -->
+        <div id="meal-no-nutri-section" style="display:none;">
+          <div style="padding:8px;background:var(--cr);border-radius:10px;font-size:12px;color:var(--txl);margin-bottom:8px;">
+            💡 このフードはまだ成分データがありません。設定 → ごはんマスタで分析できます。
+          </div>
+        </div>
+        <!-- 写真AI分析（フード未選択 or 成分なし時に表示） -->
+        <div id="meal-photo-section">
+          <div class="fg">
+            <label>📷 食品写真・成分表をAIで分析</label>
+            <div class="upload-zone" onclick="document.getElementById('food-photo-in').click()">
+              <div class="uz-icon">📸</div><div class="uz-txt">タップして画像を選択</div>
+              <input type="file" id="food-photo-in" accept="image/*" style="display:none" onchange="onFoodPhoto(event)">
+            </div>
+            <div id="food-photo-prev" style="margin-top:8px;display:none;">
+              <img id="food-photo-img" style="width:100%;max-height:180px;object-fit:contain;border-radius:10px;border:2px solid var(--crd);">
+            </div>
+            <button class="btn-sec" id="food-analyze-btn" onclick="analyzeFood()" style="display:none;margin-top:8px;">✨ AIで分析する</button>
+            <div id="food-analyze-result" style="display:none;margin-top:10px;background:var(--cr);border-radius:12px;padding:12px;font-size:12px;line-height:1.8;border:1.5px solid var(--aml);"></div>
+            <button class="btn-sec" id="food-apply-btn" onclick="applyFoodAnalysis()" style="display:none;margin-top:6px;">↓ 詳細に反映する</button>
+          </div>
         </div>
       </div>
       <div class="fg"><label>🗒️ メモ</label><textarea id="a-notes" placeholder="その他メモ…" style="height:70px"></textarea></div>
@@ -522,9 +570,9 @@ textarea{resize:none;height:90px;line-height:1.7;}
         <!-- FOOD MASTER -->
         <div class="fg">
           <div class="sec-title">🍖 ごはんマスタ</div>
-          <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">ごはん記録のドロップダウンに表示されます</p>
+          <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">フード名を登録し、📊ボタンで成分を分析・保存できます</p>
           <div id="food-editor"></div>
-          <div class="g-add-row">
+          <div class="g-add-row" style="margin-top:12px;">
             <input type="text" id="food-new-label" placeholder="例：ロイヤルカナン">
             <button class="g-add-btn" onclick="addFoodItem()">追加</button>
           </div>
@@ -587,6 +635,75 @@ textarea{resize:none;height:90px;line-height:1.7;}
       </div>
 
       <input type="file" id="asset-file-in" accept="image/*" style="display:none" onchange="onAssetFile(event)">
+    </div>
+  </div>
+</div>
+
+<!-- FOOD ANALYZE MODAL (マスタ登録用) -->
+<div class="ov" id="ov-food-analyze">
+  <div class="modal">
+    <div class="mgrip"></div>
+    <div class="mhead">
+      <span class="mttl" id="food-analyze-ttl">📊 成分分析</span>
+      <button class="xbtn" onclick="closeOv('ov-food-analyze')">✕</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="fa-food-id">
+      <p style="font-size:12px;color:var(--txl);margin-bottom:14px;line-height:1.7;">
+        フードのパッケージ・成分表・ラベルの写真を撮影してください。<br>
+        AIが栄養成分を読み取り、マスタに保存します。
+      </p>
+      <div class="fg">
+        <label>📷 フード写真・成分表</label>
+        <div class="upload-zone" onclick="document.getElementById('fa-photo-in').click()">
+          <div class="uz-icon">📸</div><div class="uz-txt">タップして選択</div>
+          <input type="file" id="fa-photo-in" accept="image/*" style="display:none" onchange="onFaMasterPhoto(event)">
+        </div>
+        <div id="fa-photo-prev" style="margin-top:8px;display:none;">
+          <img id="fa-photo-img" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:2px solid var(--crd);">
+        </div>
+      </div>
+      <button class="btn-sec" id="fa-analyze-btn" onclick="runFaMasterAnalyze()" style="display:none;">✨ AIで成分を読み取る</button>
+      <!-- 結果表示 -->
+      <div id="fa-result" style="display:none;margin-top:14px;">
+        <div class="nutri-card">
+          <div class="nutri-card-title">📊 分析結果（100g基準）</div>
+          <div style="margin-bottom:8px;font-size:14px;font-weight:700;color:var(--br);" id="fa-result-name"></div>
+          <div class="nutri-grid" id="fa-result-grid"></div>
+          <div id="fa-result-extra" style="font-size:11px;color:var(--txm);margin-top:8px;line-height:1.7;"></div>
+        </div>
+        <!-- 手動修正フィールド -->
+        <div style="margin-top:14px;">
+          <div class="sec-title" style="font-size:13px;margin-bottom:10px;">✏️ 修正・補完</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="fg" style="margin-bottom:0"><label>カロリー (kcal/100g)</label><input type="number" id="fa-cal" step="0.1" placeholder="0"></div>
+            <div class="fg" style="margin-bottom:0"><label>タンパク質 (g)</label><input type="number" id="fa-prot" step="0.1" placeholder="0"></div>
+            <div class="fg" style="margin-bottom:0"><label>脂質 (g)</label><input type="number" id="fa-fat" step="0.1" placeholder="0"></div>
+            <div class="fg" style="margin-bottom:0"><label>炭水化物 (g)</label><input type="number" id="fa-carb" step="0.1" placeholder="0"></div>
+          </div>
+          <div class="fg" style="margin-top:8px;"><label>原材料メモ</label><textarea id="fa-ingr" style="height:60px;" placeholder="原材料など…"></textarea></div>
+          <div class="fg"><label>注意事項</label><input type="text" id="fa-notes" placeholder="アレルゲン等…"></div>
+        </div>
+        <button class="btn-main" onclick="saveFaMasterNutrition()">💾 マスタに保存する</button>
+      </div>
+      <!-- 既存データがある場合の編集 -->
+      <div id="fa-existing" style="display:none;margin-top:14px;">
+        <div class="nutri-card" style="margin-bottom:12px;">
+          <div class="nutri-card-title">💾 保存済みデータ（100g基準）</div>
+          <div class="nutri-grid" id="fa-existing-grid"></div>
+        </div>
+        <button class="btn-sec" onclick="document.getElementById('fa-existing').style.display='none';document.getElementById('fa-reanalyze').style.display='';">再分析する</button>
+      </div>
+      <div id="fa-reanalyze" style="display:none;">
+        <div class="fg" style="margin-top:12px;">
+          <label>📷 新しい写真で再分析</label>
+          <div class="upload-zone" onclick="document.getElementById('fa-re-photo-in').click()">
+            <div class="uz-icon">📸</div><div class="uz-txt">タップして選択</div>
+            <input type="file" id="fa-re-photo-in" accept="image/*" style="display:none" onchange="onFaMasterPhoto(event, 're')">
+          </div>
+        </div>
+      </div>
+      <div class="errmsg" id="fa-err"></div>
     </div>
   </div>
 </div>
@@ -1435,10 +1552,15 @@ function openActivity(dogId, type) {
     mealExtra.style.display = type === 'meal' ? '' : 'none';
     if (type === 'meal') {
       populateFoodSelect();
-      document.getElementById('food-photo-prev').style.display = 'none';
-      document.getElementById('food-analyze-btn').style.display = 'none';
+      // リセット
+      document.getElementById('a-food-sel').value = '';
+      document.getElementById('meal-nutri-section').style.display  = 'none';
+      document.getElementById('meal-no-nutri-section').style.display = 'none';
+      document.getElementById('meal-photo-section').style.display  = '';
+      document.getElementById('food-photo-prev').style.display     = 'none';
+      document.getElementById('food-analyze-btn').style.display    = 'none';
       document.getElementById('food-analyze-result').style.display = 'none';
-      document.getElementById('food-apply-btn').style.display = 'none';
+      document.getElementById('food-apply-btn').style.display      = 'none';
       window._foodPhotoData = null;
       window._foodAnalysisResult = null;
     }
@@ -1473,10 +1595,32 @@ async function submitActivity() {
   } else {
     detail = inpEl?.value?.trim() || '';
   }
+  // ごはん: 分量・成分をnotesに追記
+  let notes = document.getElementById('a-notes').value.trim();
+  if (type === 'meal') {
+    const foodSelVal = document.getElementById('a-food-sel')?.value;
+    const gEl = document.getElementById('a-amount-g');
+    if (foodSelVal && foodSelVal !== '__custom__' && gEl && gEl.value) {
+      const grams = parseFloat(gEl.value);
+      const pct   = Math.round(grams);
+      const items = getFoodItems();
+      const item  = items.find(i => i.id === foodSelVal);
+      if (item && item.nutrition && item.nutrition.calories != null) {
+        const n = item.nutrition;
+        const r = grams / 100;
+        const round1 = v => v != null ? Math.round(v * r * 10) / 10 : '-';
+        const nutriNote = `【分量】${grams}g (${pct}%) ｜ ${round1(n.calories)}kcal ｜ タンパク質${round1(n.protein)}g ｜ 脂質${round1(n.fat)}g ｜ 炭水化物${round1(n.carbohydrate)}g`;
+        notes = notes ? notes + '\n' + nutriNote : nutriNote;
+      } else if (gEl.value) {
+        const nutriNote = `【分量】${grams}g (${pct}%)`;
+        notes = notes ? notes + '\n' + nutriNote : nutriNote;
+      }
+    }
+  }
   document.getElementById('act-err').textContent = '';
   const btn = document.getElementById('act-btn'); btn.disabled=true; btn.textContent='記録中…';
   try {
-    await gasPost({ action:'saveActivity', dogId, type, date:document.getElementById('a-date').value, startTime:document.getElementById('a-time').value, duration:document.getElementById('a-dur').value, location:document.getElementById('a-loc').value.trim(), detail, notes:document.getElementById('a-notes').value.trim() });
+    await gasPost({ action:'saveActivity', dogId, type, date:document.getElementById('a-date').value, startTime:document.getElementById('a-time').value, duration:document.getElementById('a-dur').value, location:document.getElementById('a-loc').value.trim(), detail, notes });
     closeOv('ov-act'); toast('記録しました！');
     setTimeout(loadData, 800);
   } catch(e) { document.getElementById('act-err').textContent = 'エラー: ' + e.message; }
@@ -1562,7 +1706,7 @@ function onAuthorSelChange() {
 }
 
 // ============================================================
-//  FOOD MASTER (localStorage)
+//  FOOD MASTER (localStorage) - 成分データ付き
 // ============================================================
 const FOOD_KEY = 'renapp_food_items';
 function getFoodItems() {
@@ -1573,46 +1717,245 @@ function saveFoodItems(items) { localStorage.setItem(FOOD_KEY, JSON.stringify(it
 function renderFoodEditor() {
   const el = document.getElementById('food-editor'); if (!el) return;
   const items = getFoodItems();
-  if (!items.length) { el.innerHTML = '<p style="font-size:12px;color:var(--txl);padding:8px 0">まだ登録がありません</p>'; return; }
-  el.innerHTML = items.map(it => `
-    <div class="genre-row">
-      <input class="g-label-in" type="text" value="${esc(it.label)}" id="fi-${it.id}">
-      <button class="g-add-btn" onclick="updateFoodItem('${it.id}')" style="white-space:nowrap">保存</button>
-      <button class="g-del" onclick="removeFoodItem('${it.id}')">削除</button>
-    </div>`).join('');
+  if (!items.length) {
+    el.innerHTML = '<p style="font-size:12px;color:var(--txl);padding:8px 0">まだ登録がありません</p>';
+    return;
+  }
+  el.innerHTML = items.map(it => {
+    const hasN = !!(it.nutrition && it.nutrition.calories != null);
+    const nutriSummary = hasN
+      ? `${it.nutrition.calories}kcal / タンパク質${it.nutrition.protein??'-'}g / 脂質${it.nutrition.fat??'-'}g / 炭水化物${it.nutrition.carbohydrate??'-'}g（100g基準）`
+      : '';
+    return `
+    <div class="food-master-row" id="frow-${it.id}">
+      <div class="food-master-main">
+        <span class="food-master-name">${esc(it.label)}</span>
+        <span class="food-nutri-badge ${hasN?'has':'none'}">${hasN?'✅ 成分あり':'未分析'}</span>
+        <div class="food-master-btns">
+          <button class="g-add-btn" onclick="openFoodAnalyzeModal('${it.id}')" style="font-size:12px;padding:5px 10px;" title="成分分析">📊</button>
+          <button class="g-del" onclick="removeFoodItem('${it.id}')">削除</button>
+        </div>
+      </div>
+      ${hasN ? `<div class="food-master-nutri show" id="fnutri-${it.id}">${nutriSummary}</div>` : ''}
+    </div>`;
+  }).join('');
 }
+
 function updateFoodItem(id) {
   const items = getFoodItems(); const item = items.find(i => i.id === id); if (!item) return;
-  item.label = document.getElementById('fi-'+id).value.trim() || item.label;
+  const inp = document.getElementById('fi-'+id);
+  if (inp) item.label = inp.value.trim() || item.label;
   saveFoodItems(items); renderFoodEditor(); toast('更新しました');
 }
 function removeFoodItem(id) {
-  if (!confirm('削除しますか？')) return;
+  if (!confirm('このフードを削除しますか？\n（成分データも削除されます）')) return;
   saveFoodItems(getFoodItems().filter(i => i.id !== id));
   renderFoodEditor(); toast('削除しました');
 }
 function addFoodItem() {
   const label = document.getElementById('food-new-label').value.trim(); if (!label) return;
   const items = getFoodItems();
-  items.push({ id: 'f' + Date.now(), label });
+  const newId = 'f' + Date.now();
+  items.push({ id: newId, label, nutrition: null });
   saveFoodItems(items);
   document.getElementById('food-new-label').value = '';
-  renderFoodEditor(); toast('追加しました');
-}
-function populateFoodSelect() {
-  const sel = document.getElementById('a-food-sel'); if (!sel) return;
-  const items = getFoodItems();
-  sel.innerHTML = '<option value="">-- 選択 --</option>' +
-    items.map(i => `<option value="${esc(i.label)}">${esc(i.label)}</option>`).join('');
-}
-function onFoodSelChange() {
-  const val = document.getElementById('a-food-sel').value;
-  const inp = document.getElementById('a-detail');
-  if (val && inp) inp.value = val;
+  renderFoodEditor();
+  toast('追加しました。📊ボタンで成分を分析できます');
 }
 
 // ============================================================
-//  FOOD PHOTO AI ANALYSIS
+//  FOOD ANALYZE MODAL (マスタ保存用)
+// ============================================================
+let _faPhotoData = null;
+
+function openFoodAnalyzeModal(foodId) {
+  const items = getFoodItems();
+  const item = items.find(i => i.id === foodId); if (!item) return;
+  document.getElementById('fa-food-id').value = foodId;
+  document.getElementById('food-analyze-ttl').textContent = `📊 ${item.label} - 成分分析`;
+  document.getElementById('fa-err').textContent = '';
+  document.getElementById('fa-photo-prev').style.display = 'none';
+  document.getElementById('fa-analyze-btn').style.display = 'none';
+  document.getElementById('fa-result').style.display = 'none';
+  document.getElementById('fa-reanalyze').style.display = 'none';
+  _faPhotoData = null;
+
+  // 既存データ表示
+  const existing = document.getElementById('fa-existing');
+  if (item.nutrition && item.nutrition.calories != null) {
+    const n = item.nutrition;
+    document.getElementById('fa-existing-grid').innerHTML = buildNutriGridHTML(n, 100);
+    existing.style.display = '';
+  } else {
+    existing.style.display = 'none';
+  }
+  openOv('ov-food-analyze');
+}
+
+function onFaMasterPhoto(e, mode) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _faPhotoData = { data: ev.target.result.split(',')[1], mimeType: file.type };
+    const prevEl = document.getElementById('fa-photo-prev');
+    const imgEl  = document.getElementById('fa-photo-img');
+    if (prevEl && imgEl) { imgEl.src = ev.target.result; prevEl.style.display = ''; }
+    document.getElementById('fa-analyze-btn').style.display = '';
+    document.getElementById('fa-result').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+async function runFaMasterAnalyze() {
+  if (!_faPhotoData) { toast('写真を選択してください'); return; }
+  if (!gasUrl) { toast('GAS URLが未設定です'); return; }
+  const btn = document.getElementById('fa-analyze-btn');
+  btn.disabled = true; btn.textContent = '分析中…';
+  document.getElementById('fa-err').textContent = '';
+  try {
+    const r = await gasPost({ action:'analyzeFood', imageData: _faPhotoData.data, mimeType: _faPhotoData.mimeType });
+    const res = r.result;
+    // 結果をフォームに展開
+    document.getElementById('fa-result-name').textContent = res.foodName || '';
+    document.getElementById('fa-cal').value  = res.calories    ?? '';
+    document.getElementById('fa-prot').value = res.protein     ?? '';
+    document.getElementById('fa-fat').value  = res.fat         ?? '';
+    document.getElementById('fa-carb').value = res.carbohydrate?? '';
+    document.getElementById('fa-ingr').value = res.ingredients || '';
+    document.getElementById('fa-notes').value= res.notes       || '';
+    document.getElementById('fa-result-grid').innerHTML = buildNutriGridHTML(res, 100);
+    const extra = [res.ingredients ? `原材料: ${res.ingredients}` : '', res.notes ? `注意: ${res.notes}` : ''].filter(Boolean).join('<br>');
+    document.getElementById('fa-result-extra').innerHTML = extra;
+    document.getElementById('fa-result').style.display = '';
+    toast('分析完了！内容を確認して保存してください');
+  } catch(e) {
+    document.getElementById('fa-err').textContent = '分析エラー: ' + e.message;
+  }
+  finally { btn.disabled = false; btn.textContent = '✨ AIで成分を読み取る'; }
+}
+
+function saveFaMasterNutrition() {
+  const foodId = document.getElementById('fa-food-id').value;
+  const items = getFoodItems();
+  const item = items.find(i => i.id === foodId); if (!item) return;
+  const nutrition = {
+    calories:      parseFloat(document.getElementById('fa-cal').value)  || 0,
+    protein:       parseFloat(document.getElementById('fa-prot').value) || 0,
+    fat:           parseFloat(document.getElementById('fa-fat').value)  || 0,
+    carbohydrate:  parseFloat(document.getElementById('fa-carb').value) || 0,
+    ingredients:   document.getElementById('fa-ingr').value.trim(),
+    notes:         document.getElementById('fa-notes').value.trim(),
+    savedAt:       today(),
+  };
+  item.nutrition = nutrition;
+  saveFoodItems(items);
+  renderFoodEditor();
+  closeOv('ov-food-analyze');
+  toast(`${item.label} の成分を保存しました ✓`);
+}
+
+// ============================================================
+//  FOOD SELECT → ごはん記録モーダル 成分表示
+// ============================================================
+function populateFoodSelect() {
+  const sel = document.getElementById('a-food-sel'); if (!sel) return;
+  const items = getFoodItems();
+  sel.innerHTML = '<option value="">-- 選択（任意）--</option>' +
+    items.map(i => {
+      const badge = (i.nutrition && i.nutrition.calories != null) ? ' ✅' : '';
+      return `<option value="${esc(i.id)}">${esc(i.label)}${badge}</option>`;
+    }).join('') +
+    '<option value="__custom__">✏️ 直接入力（マスタ外）</option>';
+}
+
+function onFoodSelChange() {
+  const selVal = document.getElementById('a-food-sel').value;
+  const nutriSec   = document.getElementById('meal-nutri-section');
+  const noNutriSec = document.getElementById('meal-no-nutri-section');
+  const photoSec   = document.getElementById('meal-photo-section');
+  const detailInp  = document.getElementById('a-detail');
+
+  if (!selVal || selVal === '__custom__') {
+    // 未選択 or 直接入力
+    nutriSec.style.display   = 'none';
+    noNutriSec.style.display = 'none';
+    photoSec.style.display   = '';
+    if (selVal === '__custom__' && detailInp) detailInp.value = '';
+    return;
+  }
+
+  const items = getFoodItems();
+  const item  = items.find(i => i.id === selVal);
+  if (!item) return;
+
+  // 詳細欄にフード名セット
+  if (detailInp) detailInp.value = item.label;
+
+  if (item.nutrition && item.nutrition.calories != null) {
+    // 成分あり
+    nutriSec.style.display   = '';
+    noNutriSec.style.display = 'none';
+    photoSec.style.display   = 'none';
+    // デフォルト分量100g
+    document.getElementById('a-amount-g').value   = 100;
+    document.getElementById('a-amount-pct').value = 100;
+    renderMealNutriCard(item.nutrition, 100);
+  } else {
+    // 成分なし
+    nutriSec.style.display   = 'none';
+    noNutriSec.style.display = '';
+    photoSec.style.display   = '';
+  }
+}
+
+function onAmountChange(source) {
+  const gEl   = document.getElementById('a-amount-g');
+  const pctEl = document.getElementById('a-amount-pct');
+  let grams;
+  if (source === 'g') {
+    grams = parseFloat(gEl.value) || 0;
+    pctEl.value = Math.round(grams);  // 100g=100%なのでgrams==pct
+  } else {
+    const pct = parseFloat(pctEl.value) || 0;
+    grams = pct;  // 100%=100g
+    gEl.value = grams;
+  }
+  // 選択中フードの成分で計算
+  const selVal = document.getElementById('a-food-sel').value;
+  const items  = getFoodItems();
+  const item   = items.find(i => i.id === selVal);
+  if (item && item.nutrition) renderMealNutriCard(item.nutrition, grams);
+}
+
+function renderMealNutriCard(n, grams) {
+  const ratio = grams / 100;
+  document.getElementById('meal-nutri-grid').innerHTML = buildNutriGridHTML(n, grams);
+  const extraEl = document.getElementById('meal-nutri-extra');
+  if (n.ingredients || n.notes) {
+    extraEl.style.display = '';
+    extraEl.innerHTML = [
+      n.ingredients ? `原材料: ${esc(n.ingredients)}` : '',
+      n.notes       ? `<span style="color:#c0392b">注意: ${esc(n.notes)}</span>` : '',
+    ].filter(Boolean).join('<br>');
+  } else {
+    extraEl.style.display = 'none';
+  }
+}
+
+function buildNutriGridHTML(n, grams) {
+  const r = (grams || 100) / 100;
+  const v = (base) => base != null ? Math.round(base * r * 10) / 10 : '-';
+  const label = grams !== 100 ? `${grams}g` : '100g';
+  return `
+    <div class="nutri-cell"><div class="nutri-val">${v(n.calories)}</div><div class="nutri-lbl">kcal (${label})</div></div>
+    <div class="nutri-cell"><div class="nutri-val">${v(n.protein)}</div><div class="nutri-lbl">タンパク質g</div></div>
+    <div class="nutri-cell"><div class="nutri-val">${v(n.fat)}</div><div class="nutri-lbl">脂質g</div></div>
+    <div class="nutri-cell"><div class="nutri-val">${v(n.carbohydrate)}</div><div class="nutri-lbl">炭水化物g</div></div>`;
+}
+
+// ============================================================
+//  FOOD PHOTO AI ANALYSIS (ごはん記録モーダル内 - 即時分析用)
 // ============================================================
 function onFoodPhoto(e) {
   const file = e.target.files[0]; if (!file) return;
@@ -1668,6 +2011,7 @@ function applyFoodAnalysis() {
   toast('反映しました ✓');
   document.getElementById('food-apply-btn').style.display = 'none';
 }
+
 
 // ============================================================
 //  SETTINGS
