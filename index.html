@@ -427,7 +427,12 @@ textarea{resize:none;height:90px;line-height:1.7;}
       <div class="fg"><label>📅 日付</label><input type="date" id="f-date"></div>
       <div class="fg"><label>🏷️ ジャンル</label><select id="f-genre"></select></div>
       <div class="fg"><label>💬 コメント</label><textarea id="f-comment" placeholder="今日の思い出を…"></textarea></div>
-      <div class="fg"><label>👤 投稿者</label><input type="text" id="f-author" placeholder="例：れん ママ"></div>
+      <div class="fg"><label>👤 投稿者</label>
+        <select id="f-author-sel" style="width:100%;padding:10px 12px;border:2px solid var(--crd);border-radius:12px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--tx);background:var(--cr);-webkit-appearance:none;" onchange="onAuthorSelChange()">
+          <option value="">選択してください</option>
+        </select>
+        <input type="text" id="f-author" placeholder="名前を入力" style="display:none;margin-top:8px;">
+      </div>
       <div class="errmsg" id="post-err"></div>
       <button class="btn-main" id="post-btn" onclick="submitPost()">投稿する</button>
     </div>
@@ -540,6 +545,20 @@ textarea{resize:none;height:90px;line-height:1.7;}
 
       <!-- APP SETTINGS -->
       <div id="stab-app-body">
+
+        <!-- USER MANAGER -->
+        <div class="fg">
+          <div class="sec-title">👤 投稿ユーザー管理</div>
+          <p style="font-size:11px;color:var(--txl);margin-bottom:10px;line-height:1.6;">投稿フォームのドロップダウンに表示されます</p>
+          <div id="user-editor"></div>
+          <div class="g-add-row">
+            <input type="text" id="user-new-icon" placeholder="👤" style="width:56px;text-align:center;padding:9px 6px;">
+            <input type="text" id="user-new-label" placeholder="名前（例：れん ママ）">
+            <button class="g-add-btn" onclick="addUserItem()">追加</button>
+          </div>
+        </div>
+
+        <div class="sdivider"></div>
 
         <!-- GENRE MANAGER -->
         <div class="fg">
@@ -1222,7 +1241,11 @@ function populateGenreSelect() {
 function openPost() {
   document.getElementById('post-modal-ttl').textContent = '🐶 思い出を投稿';
   document.getElementById('f-id').value = '';
-  if (remoteConfig.author) document.getElementById('f-author').value = remoteConfig.author;
+  if (remoteConfig.author) {
+    populateAuthorDropdown(remoteConfig.author);
+  } else {
+    populateAuthorDropdown('');
+  }
   document.getElementById('f-date').value = today();
   document.getElementById('f-title').value = '';
   document.getElementById('f-comment').value = '';
@@ -1239,7 +1262,7 @@ function openEditPost(id) {
   document.getElementById('f-title').value = p.title||'';
   document.getElementById('f-date').value = p.date||today();
   document.getElementById('f-comment').value = p.comment||'';
-  document.getElementById('f-author').value = p.author||'';
+  document.getElementById('f-author-sel') && populateAuthorDropdown(p.author||'');
   document.getElementById('f-genre').value = p.genre||'';
   document.getElementById('post-err').textContent = '';
   document.getElementById('post-btn').textContent = '更新する';
@@ -1292,10 +1315,10 @@ async function submitPost() {
     for (const f of selectedFiles) photos.push(await compress(f, 900, 0.78));
     if (id) {
       // UPDATE
-      await gasPost({ action:'updatePost', id, title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||remoteConfig.author||'匿名', newPhotos:photos, removePhotoIds:removedPhotoIndices });
+      await gasPost({ action:'updatePost', id, title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:getAuthorValue()||remoteConfig.author||'匿名', newPhotos:photos, removePhotoIds:removedPhotoIndices });
       toast('更新しました！');
     } else {
-      await gasPost({ action:'createPost', title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:document.getElementById('f-author').value.trim()||remoteConfig.author||'匿名', photos });
+      await gasPost({ action:'createPost', title, date:document.getElementById('f-date').value, genre:document.getElementById('f-genre').value, comment:document.getElementById('f-comment').value.trim(), author:getAuthorValue()||remoteConfig.author||'匿名', photos });
       toast('投稿しました！');
     }
     closeOv('ov-post');
@@ -1641,6 +1664,12 @@ function defaultFoodItems() {
   ];
 }
 
+const USER_KEY = 'renapp_users';
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null') || []; } catch(e) { return []; }
+}
+function saveUsers(items) { localStorage.setItem(USER_KEY, JSON.stringify(items)); }
+
 function switchStab(tab) {
   document.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
   document.getElementById('stab-' + tab).classList.add('on');
@@ -1652,6 +1681,7 @@ function openSettings() {
   document.getElementById('cfg-url').value = gasUrl;
   document.getElementById('cfg-claude').value = '';
   switchStab('core');
+  renderUserEditor();
   renderGenreEditor();
   renderPlayEditor();
   renderFoodEditor();
@@ -1682,8 +1712,85 @@ async function saveCoreSettings() {
 }
 
 // ============================================================
-//  PLAY ITEMS EDITOR
+//  USER EDITOR
 // ============================================================
+function renderUserEditor() {
+  const el = document.getElementById('user-editor'); if (!el) return;
+  const items = getUsers();
+  el.innerHTML = items.length ? items.map(it => `
+    <div class="genre-row" id="user-row-${it.id}">
+      <input class="g-icon-pick" type="text" value="${esc(it.icon||'👤')}" id="ui-icon-${it.id}" maxlength="2" style="width:52px;text-align:center;font-size:18px;padding:7px 4px;">
+      <input class="g-label-in" type="text" value="${esc(it.label)}" id="ui-lbl-${it.id}">
+      <button class="g-add-btn" onclick="updateUserItem('${it.id}')" style="white-space:nowrap">保存</button>
+      <button class="g-del" onclick="removeUserItem('${it.id}')">削除</button>
+    </div>`).join('')
+  : '<p style="font-size:12px;color:var(--txl);padding:8px 0;">まだ登録がありません</p>';
+}
+function updateUserItem(id) {
+  const items = getUsers();
+  const item = items.find(i => i.id === id); if (!item) return;
+  item.label = document.getElementById('ui-lbl-'+id).value.trim() || item.label;
+  item.icon  = document.getElementById('ui-icon-'+id).value.trim() || item.icon;
+  saveUsers(items); renderUserEditor(); toast('更新しました');
+}
+function removeUserItem(id) {
+  if (!confirm('このユーザーを削除しますか？')) return;
+  saveUsers(getUsers().filter(i => i.id !== id));
+  renderUserEditor(); toast('削除しました');
+}
+function addUserItem() {
+  const label = document.getElementById('user-new-label').value.trim();
+  const icon  = document.getElementById('user-new-icon').value.trim() || '👤';
+  if (!label) { toast('名前を入力してください'); return; }
+  const items = getUsers();
+  if (items.find(i => i.label === label)) { toast('同じ名前がすでにあります'); return; }
+  items.push({ id: 'u' + Date.now(), icon, label });
+  saveUsers(items);
+  document.getElementById('user-new-label').value = '';
+  document.getElementById('user-new-icon').value = '';
+  renderUserEditor(); toast('追加しました ✓');
+}
+
+function populateAuthorDropdown(currentVal) {
+  const sel = document.getElementById('f-author-sel');
+  const inp = document.getElementById('f-author');
+  const users = getUsers();
+  // 投稿履歴からも収集
+  const historical = [...new Set(appData.posts.map(p => p.author).filter(Boolean))];
+  const all = [...new Set([...users.map(u => u.label), ...historical])];
+
+  sel.innerHTML = `<option value="">選択してください</option>`
+    + all.map(u => `<option value="${esc(u)}" ${u===currentVal?'selected':''}>${esc(u)}</option>`).join('')
+    + `<option value="__custom__">✏️ 直接入力…</option>`;
+
+  if (currentVal && !all.includes(currentVal)) {
+    // 既存値がリストにない場合は直接入力欄に
+    sel.value = '__custom__';
+    inp.style.display = '';
+    inp.value = currentVal;
+  } else if (currentVal) {
+    sel.value = currentVal;
+    inp.style.display = 'none';
+    inp.value = currentVal;
+  } else {
+    inp.style.display = 'none';
+    inp.value = '';
+  }
+}
+
+function onAuthorSelChange() {
+  const sel = document.getElementById('f-author-sel');
+  const inp = document.getElementById('f-author');
+  if (sel.value === '__custom__') { inp.style.display=''; inp.value=''; inp.focus(); }
+  else { inp.style.display='none'; inp.value=sel.value; }
+}
+
+function getAuthorValue() {
+  const sel = document.getElementById('f-author-sel');
+  const inp = document.getElementById('f-author');
+  if (sel.value === '__custom__') return inp.value.trim();
+  return sel.value || inp.value.trim() || '';
+}
 function renderPlayEditor() {
   const el = document.getElementById('play-editor');
   if (!el) return;
