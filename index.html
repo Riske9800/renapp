@@ -2,8 +2,18 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>REN APP</title>
+<!-- PWA -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="REN APP">
+<meta name="theme-color" content="#FEF3E2">
+<meta name="description" content="愛犬との思い出を記録するアプリ">
+<link id="pwa-favicon" rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
+<link rel="apple-touch-icon" id="pwa-apple-icon" href="data:image/png;base64,iVBORw0KGgo=">
+<link rel="manifest" id="pwa-manifest">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -256,6 +266,12 @@ textarea{resize:none;height:90px;line-height:1.7;}
 .aact{display:flex;gap:5px;}
 .a-up{background:var(--aml);color:var(--br);border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;}
 .a-del{background:#fce8e8;color:#c0392b;border:none;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;}
+
+/* PWA / iOS safe-area */
+body{padding-top:env(safe-area-inset-top,0px);}
+.hdr{top:env(safe-area-inset-top,0px);padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right));}
+.bot-nav{padding-bottom:max(12px,env(safe-area-inset-bottom,0px));height:auto;}
+.fab{bottom:calc(76px + env(safe-area-inset-bottom,0px));}
 
 /* FOOD MASTER & NUTRITION */
 .food-master-row{padding:10px 0;border-bottom:1px solid var(--crd);}
@@ -632,6 +648,15 @@ textarea{resize:none;height:90px;line-height:1.7;}
           <p style="font-size:11px;color:var(--txl);margin-top:4px;line-height:1.7;">AI分析機能に必要。GASのScript Propertiesに保存。<br>空欄のままにすると現在のキーが維持されます。</p>
         </div>
         <button class="btn-main" onclick="saveCoreSettings()">保存する ✓</button>
+        <!-- 共有URL（保存後に表示） -->
+        <div class="fg" id="cfg-share-url-wrap" style="display:none;margin-top:18px;">
+          <label>🔗 デバイス間共有URL</label>
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="cfg-share-url" readonly style="font-size:11px;color:var(--txl);flex:1;">
+            <button onclick="copyShareUrl()" style="padding:10px 12px;background:var(--aml);color:var(--br);border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">コピー</button>
+          </div>
+          <p style="font-size:11px;color:var(--txl);margin-top:5px;line-height:1.6;">このURLを他のデバイスで開くと自動でGAS URLが設定されます</p>
+        </div>
       </div>
 
       <input type="file" id="asset-file-in" accept="image/*" style="display:none" onchange="onAssetFile(event)">
@@ -720,17 +745,30 @@ textarea{resize:none;height:90px;line-height:1.7;}
 <script>
 // ============================================================
 //  STATE
-//  localStorageにはGAS URLのみ保持。それ以外の設定はシートから取得。
+//  GAS URLはlocalStorage + URLパラメータ ?g= で共有可能
+//  その他設定はGASシートのconfigから取得（クロスデバイス同期）
 // ============================================================
-const CFG_KEY = 'renapp_url_v4';  // GAS URLのみ
+const CFG_KEY = 'renapp_url_v4';
 let gasUrl = '';
 try { gasUrl = localStorage.getItem(CFG_KEY) || ''; } catch(e) {}
+
+// URLパラメータ ?g=GAS_URL から自動設定（共有リンク対応）
+try {
+  const paramG = new URLSearchParams(location.search).get('g');
+  if (paramG && paramG.startsWith('https://')) {
+    gasUrl = paramG;
+    localStorage.setItem(CFG_KEY, gasUrl);
+    // URLをクリーン（パラメータ除去）
+    history.replaceState({}, '', location.pathname + location.hash);
+  }
+} catch(e) {}
+
 function saveUrl(url) { try { localStorage.setItem(CFG_KEY, url); } catch(e) {} gasUrl = url; }
 
 // シートから取得した設定（author等）
 let remoteConfig = {};
 
-// レガシー移行: 旧形式のlocalStorageから移行
+// レガシー移行
 try {
   const old = JSON.parse(localStorage.getItem('renapp_cfg_v3') || '{}');
   if (old.url && !gasUrl) { gasUrl = old.url; saveUrl(gasUrl); }
@@ -760,9 +798,65 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.ov').forEach(ov => {
     ov.addEventListener('click', e => { if (e.target === ov) closeOv(ov.id); });
   });
+  initPWA();
   if (gasUrl) loadData();
   else renderSetupGuide();
 });
+
+function initPWA() {
+  // Web App Manifest を動的生成
+  const manifest = {
+    name: 'REN APP',
+    short_name: 'REN APP',
+    description: '愛犬との思い出を記録するアプリ',
+    start_url: location.pathname + (gasUrl ? '?g=' + encodeURIComponent(gasUrl) : ''),
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#FEF3E2',
+    theme_color: '#FEF3E2',
+    icons: [
+      { src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐾</text></svg>', sizes: 'any', type: 'image/svg+xml' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  document.getElementById('pwa-manifest').href = url;
+
+  // Service Worker 登録（GitHub Pagesでも動作）
+  if ('serviceWorker' in navigator) {
+    // インラインSWをBlobで登録
+    const swCode = `
+const CACHE = 'renapp-v1';
+const PRECACHE = [location.pathname || '/'];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE).catch(()=>{})));
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  // GAS・外部リクエストはキャッシュしない
+  if (!e.request.url.startsWith(self.location.origin)) return;
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      const network = fetch(e.request).then(res => {
+        if (res.ok) { const c = res.clone(); caches.open(CACHE).then(cache => cache.put(e.request, c)); }
+        return res;
+      }).catch(() => cached);
+      return cached || network;
+    })
+  );
+});`;
+    try {
+      const swBlob = new Blob([swCode], { type: 'application/javascript' });
+      const swUrl  = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swUrl, { scope: location.pathname.replace(/[^/]*$/, '') || '/' })
+        .catch(() => {});
+    } catch(e) {}
+  }
+}
 
 function today() { return new Date().toISOString().split('T')[0]; }
 
@@ -773,12 +867,18 @@ async function loadData() {
   if (!gasUrl) { renderSetupGuide(); return; }
   document.getElementById('feed-posts').innerHTML = '<div class="spinner"><span class="spin">🐾</span>読み込み中…</div>';
   try {
-    const r = await fetch(gasUrl + '?t=' + Date.now());
+    const r = await fetch(gasUrl + '?t=' + Date.now(), { redirect: 'follow' });
     const d = await r.json();
     if (!d.success) throw new Error(d.error);
     appData = { posts: d.posts||[], assets: d.assets||{}, genres: d.genres||[], dogs: d.dogs||[], activities: d.activities||[], analysisHistory: d.analysisHistory||[], config: d.config||{} };
-    // シートの設定をメモリに反映（author等）
     remoteConfig = { ...appData.config };
+    // configのgas_urlが設定されていれば優先してlocalStorageに保存（クロスデバイス同期）
+    if (remoteConfig.gas_url && remoteConfig.gas_url !== gasUrl) {
+      saveUrl(remoteConfig.gas_url);
+    } else if (gasUrl && !remoteConfig.gas_url) {
+      // 初回: configシートにGAS URLを保存
+      gasPost({ action:'saveConfig', key:'gas_url', value:gasUrl }).catch(()=>{});
+    }
     applyAssets();
     renderGenreChips();
     renderAuthorFilter();
@@ -805,7 +905,17 @@ function applyAssets() {
     let img = document.getElementById('logo-img');
     if (!img) { img = document.createElement('img'); img.id='logo-img'; img.className='logo-img'; img.alt='logo'; }
     img.src = a.logo.thumb || a.logo.url;
-    document.getElementById('logo-default').replaceWith(img);
+    const def = document.getElementById('logo-default');
+    if (def) def.replaceWith(img);
+  }
+  // favicon
+  if (a.favicon?.url) {
+    const fav = document.getElementById('pwa-favicon');
+    const apl = document.getElementById('pwa-apple-icon');
+    if (fav) { fav.href = a.favicon.url; fav.type = 'image/jpeg'; }
+    if (apl) apl.href = a.favicon.url;
+    // PWA manifest更新（アイコン差し替え）
+    updatePWAManifestIcon(a.favicon.url);
   }
   // site bg
   if (a.site_bg?.url) { document.body.style.backgroundImage=`url("${a.site_bg.url}")`; document.body.classList.add('has-site-bg'); }
@@ -814,6 +924,23 @@ function applyAssets() {
   const hdr = document.getElementById('main-header');
   if (a.header_bg?.url) { hdr.style.backgroundImage=`url("${a.header_bg.url}")`; hdr.classList.add('has-hbg'); }
   else { hdr.style.backgroundImage=''; hdr.classList.remove('has-hbg'); }
+}
+
+function updatePWAManifestIcon(iconUrl) {
+  try {
+    const manifest = {
+      name: 'REN APP', short_name: 'REN APP',
+      description: '愛犬との思い出を記録するアプリ',
+      start_url: location.pathname + (gasUrl ? '?g=' + encodeURIComponent(gasUrl) : ''),
+      display: 'standalone', orientation: 'portrait',
+      background_color: '#FEF3E2', theme_color: '#FEF3E2',
+      icons: [{ src: iconUrl, sizes: '512x512', type: 'image/jpeg' }]
+    };
+    const old = document.getElementById('pwa-manifest').href;
+    if (old && old.startsWith('blob:')) URL.revokeObjectURL(old);
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+  } catch(e) {}
 }
 
 // ============================================================
@@ -1033,7 +1160,8 @@ function buildDogSection(dog) {
 
 function buildActRow(a) {
   const conf = ACT_CONF[a.type] || { icon:'📝', label:a.type };
-  const meta = [a.date ? fmtDate(a.date) : '', a.startTime||'', a.duration ? a.duration+'分' : ''].filter(Boolean).join(' ・ ');
+  const timeStr = fmtTime(a.startTime);
+  const meta = [a.date ? fmtDate(a.date) : '', timeStr, a.duration ? a.duration+'分' : ''].filter(Boolean).join(' ・ ');
   return `<div class="act-row">
     <div class="act-icon">${conf.icon}</div>
     <div class="act-info">
@@ -1128,8 +1256,8 @@ async function runAnalysis() {
 }
 
 function buildAnalysisPrompt(dog, age, walks, meals, plays) {
-  const walkSummary = walks.slice(0,30).map(w => `- ${w.date} ${w.startTime||''} ${w.duration||'?'}分 ${w.location||''} ${w.detail||''}`).join('\n') || 'データなし';
-  const mealSummary = meals.slice(0,30).map(m => `- ${m.date} ${m.startTime||''} ${m.detail||''} ${m.notes||''}`).join('\n') || 'データなし';
+  const walkSummary = walks.slice(0,30).map(w => `- ${w.date} ${fmtTime(w.startTime)} ${w.duration||'?'}分 ${w.location||''} ${w.detail||''}`).join('\n') || 'データなし';
+  const mealSummary = meals.slice(0,30).map(m => `- ${m.date} ${fmtTime(m.startTime)} ${m.detail||''} ${m.notes||''}`).join('\n') || 'データなし';
   const playSummary = plays.slice(0,20).map(p => `- ${p.date} ${p.duration||'?'}分 ${p.detail||''}`).join('\n') || 'データなし';
 
   // Group walks by week for chart
@@ -2042,7 +2170,12 @@ function switchStab(tab) {
 function openSettings() {
   document.getElementById('cfg-url').value = gasUrl;
   document.getElementById('cfg-claude').value = '';
-  switchStab('core'); // コア設定をデフォルトで開く
+  // 共有URL表示
+  if (gasUrl) {
+    const wrap = document.getElementById('cfg-share-url-wrap');
+    if (wrap) { wrap.style.display = ''; renderShareUrl(gasUrl); }
+  }
+  switchStab('core');
   renderUserEditor();
   renderFoodEditor();
   renderGenreEditor();
@@ -2059,16 +2192,32 @@ async function saveCoreSettings() {
   saveUrl(url);
   setLoading(true, '保存中…');
   try {
+    // GAS URLをconfigシートに保存（クロスデバイス同期の核）
+    await gasPost({ action:'saveConfig', key:'gas_url', value:url });
     if (claude) {
       await gasPost({ action:'setClaudeKey', key:claude });
-      toast('設定を保存しました ✓');
-    } else {
-      toast('GAS URLを保存しました ✓');
     }
+    toast('保存しました ✓');
     document.getElementById('cfg-claude').value = '';
-    if (urlChanged) { closeOv('ov-settings'); loadData(); }
+    // 共有URLを更新表示
+    renderShareUrl(url);
+    if (urlChanged) { closeOv('ov-settings'); setTimeout(loadData, 500); }
   } catch(e) { toast('エラー: ' + e.message); }
   finally { setLoading(false); }
+}
+
+function renderShareUrl(url) {
+  const el = document.getElementById('cfg-share-url');
+  if (!el) return;
+  const shareUrl = location.origin + location.pathname + '?g=' + encodeURIComponent(url);
+  el.value = shareUrl;
+  el.closest('.fg').style.display = '';
+}
+
+function copyShareUrl() {
+  const el = document.getElementById('cfg-share-url');
+  if (!el) return;
+  navigator.clipboard.writeText(el.value).then(() => toast('URLをコピーしました！\n他のデバイスでこのURLを開くと設定が自動でセットされます')).catch(() => { el.select(); document.execCommand('copy'); toast('コピーしました'); });
 }
 
 // ============================================================
@@ -2159,19 +2308,21 @@ async function removeGenre(id) {
 //  ASSET EDITOR
 // ============================================================
 const ASSET_META = {
-  logo:        { label:'サイトロゴ',     icon:'🐾' },
-  site_bg:     { label:'サイト背景',     icon:'🌿' },
-  header_bg:   { label:'ヘッダー背景',   icon:'🎨' },
-  default_pet: { label:'ペットアイコン', icon:'🐶' },
+  logo:        { label:'サイトロゴ',          icon:'🐾' },
+  favicon:     { label:'ファビコン / アプリアイコン', icon:'🖼️' },
+  site_bg:     { label:'サイト背景',          icon:'🌿' },
+  header_bg:   { label:'ヘッダー背景',        icon:'🎨' },
+  default_pet: { label:'ペットアイコン',       icon:'🐶' },
 };
 function renderAssetEditor() {
   const el = document.getElementById('asset-editor');
-  el.innerHTML = ['logo','site_bg','header_bg','default_pet'].map(key => {
+  el.innerHTML = ['logo','favicon','site_bg','header_bg','default_pet'].map(key => {
     const meta = ASSET_META[key], asset = appData.assets[key]||{};
     const hasImg = !!asset.url;
+    const sub = key === 'favicon' ? '<div class="ai-sub">スマホのホーム画面アイコンにも使用</div>' : '';
     return `<div class="asset-row">
       <div class="asset-prev">${hasImg?`<img src="${asset.thumb||asset.url}">`:'<span>'+meta.icon+'</span>'}</div>
-      <div class="ai-info"><div class="ai-label">${meta.label}</div></div>
+      <div class="ai-info"><div class="ai-label">${meta.label}</div>${sub}</div>
       <div class="aact">
         <button class="a-up" onclick="startAssetUp('${key}')">変更</button>
         ${hasImg?`<button class="a-del" onclick="removeAsset('${key}')">削除</button>`:''}
@@ -2237,7 +2388,16 @@ function compress(file, maxPx=900, q=0.78) {
 }
 function fmtDate(s){if(!s)return'';const d=new Date(s);return isNaN(d)?s:`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;}
 function fmtDateShort(s){if(!s)return'';const d=new Date(s);return isNaN(d)?s:`${d.getMonth()+1}/${d.getDate()}`;}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// GASがtime型を1899-12-30Txx:xx:xxとして返す問題を修正
+function fmtTime(s) {
+  if (!s) return '';
+  // HH:MM形式ならそのまま
+  if (/^\d{1,2}:\d{2}/.test(s)) return s.slice(0,5);
+  // ISO文字列の場合（1899-12-30T08:09:00.000Z等）時刻部分だけ抽出
+  const m = s.match(/T(\d{2}:\d{2})/);
+  if (m) return m[1];
+  return s;
+}function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200);}
 function setLoading(v,msg='処理中…'){const el=document.getElementById('loading-ov');el.classList.toggle('show',v);if(msg)document.getElementById('loading-msg').textContent=msg;}
 </script>
